@@ -14,9 +14,14 @@
 #define RM_EXPORT
 
 
+class rmClient;
+
+
 #include "rm/client.hpp"
 
 #include <cstdlib>
+#include <cstring>
+#include <utility>
 
 
 
@@ -49,6 +54,23 @@ const char* rmClient::getDeviceName() const { return name; }
  * 
  * @param key Unique name of the attribute with maximum 11 characters
  * @param t Data type of the value stored
+ * 
+ * @return The newly created attribute. Null if the attribute with the same
+ *         name already exists or the creation is invalid.
+ */
+rmAttribute* rmClient::createAttribute(const char* key, int8_t t) {
+    size_t size = sizeof(rmAttribute) * ++attrCount;
+    attributes = (rmAttribute*) realloc(attributes, size);
+    rmAttribute attr = rmAttribute(key, t);
+    attributes[attrCount - 1] = std::move(attr);
+    return &attributes[attrCount - 1];
+}
+
+/**
+ * @brief Creates an attribute in the map structure
+ * 
+ * @param key Unique name of the attribute with maximum 11 characters
+ * @param t Data type of the value stored
  * @param lower Lower bound value. The type of the lower and upper should be
  *              of the same type as t.
  * @param upper Upper bound value
@@ -56,10 +78,36 @@ const char* rmClient::getDeviceName() const { return name; }
  * @return The newly created attribute. Null if the attribute with the same
  *         name already exists or the creation is invalid.
  */
-rmAttribute* rmClient::createAttribute(const char* key, int8_t t, void* lower,
-                                       void* upper)
+rmAttribute* rmClient::createAttribute(const char* key, int8_t t,
+                                       int32_t lower, int32_t upper)
 {
-    return nullptr;
+    size_t size = sizeof(rmAttribute) * ++attrCount;
+    attributes = (rmAttribute*) realloc(attributes, size);
+    rmAttribute attr = rmAttribute(key, t, lower, upper);
+    attributes[attrCount - 1] = std::move(attr);
+    return &attributes[attrCount - 1];
+}
+
+/**
+ * @brief Creates an attribute in the map structure
+ * 
+ * @param key Unique name of the attribute with maximum 11 characters
+ * @param t Data type of the value stored
+ * @param lower Lower bound value. The type of the lower and upper should be
+ *              of the same type as t.
+ * @param upper Upper bound value
+ * 
+ * @return The newly created attribute. Null if the attribute with the same
+ *         name already exists or the creation is invalid.
+ */
+rmAttribute* rmClient::createAttribute(const char* key, int8_t t, float lower,
+                                       float upper)
+{
+    size_t size = sizeof(rmAttribute) * ++attrCount;
+    attributes = (rmAttribute*) realloc(attributes, size);
+    rmAttribute attr = rmAttribute(key, t, lower, upper);
+    attributes[attrCount - 1] = std::move(attr);
+    return &attributes[attrCount - 1];
 }
 
 /**
@@ -70,6 +118,10 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t, void* lower,
  * @return Requested attribute. Null if the request is unavailable.
  */
 rmAttribute* rmClient::getAttribute(const char* key) const {
+    for(size_t i=0; i<attrCount; i++) {
+        if(strcmp(attributes[i].getName(), key) == 0)
+            return &attributes[i];
+    }
     return nullptr;
 }
 
@@ -123,7 +175,9 @@ void rmClient::removeCall(const char* key) {
  * @param widget The widget
  */
 void rmClient::appendWidget(rmWidget* widget) {
-    
+    size_t size = sizeof(rmWidget*) * ++widgetCount;
+    widgets = (rmWidget**) realloc(widgets, size);
+    widgets[widgetCount - 1] = widget;
 }
     
 /**
@@ -132,7 +186,14 @@ void rmClient::appendWidget(rmWidget* widget) {
  * @param widget The widget
  */
 void rmClient::removeWidget(rmWidget* widget) {
-    
+    for(size_t i=0; i<attrCount; i++) {
+        if(widgets[i] == widget) {
+            for(size_t j=i+1; j<widgetCount; j++)
+                widgets[j - 1] = widgets[j];
+            size_t size = sizeof(rmWidget*) * --widgetCount;
+            widgets = (rmWidget**) realloc(widgets, size);
+        }
+    }
 }
 
 /**
@@ -183,6 +244,37 @@ bool rmClient::isConnected() const { return connected; }
  */
 void rmClient::sendMessage(const char* msg, bool crypt) const {
     
+}
+
+/**
+ * @brief Sends the value of attribute to the client
+ * 
+ * @param attr The attribute
+ */
+void rmClient::sendAttribute(rmAttribute* attr) const {
+    char msg[160];
+    const char* name = attr->getName();
+    int8_t type = attr->getType();
+    if(type == RM_ATTRIBUTE_BOOL) {
+        if(attr->getValue().b)
+            snprintf(msg, 159, "set %s true", name);
+        else
+            snprintf(msg, 159, "set %s false", name);
+    }
+    else if(type == RM_ATTRIBUTE_CHAR) {
+        snprintf(msg, 159, "set %s %c", name, attr->getValue().c);
+    }
+    else if(type == RM_ATTRIBUTE_INT) {
+        snprintf(msg, 159, "set %s %d", name, attr->getValue().i);
+    }
+    else if(type == RM_ATTRIBUTE_FLOAT) {
+        snprintf(msg, 159, "set %s %f", name, attr->getValue().f);
+    }
+    else if(type == RM_ATTRIBUTE_STRING) {
+        snprintf(msg, 159, "set %s \"%s\"", name, attr->getValue().s);
+    }
+    msg[159] = '\0';
+    sendMessage(msg);
 }
 
 /**

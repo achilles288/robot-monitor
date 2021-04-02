@@ -1,4 +1,5 @@
 add_library(rmonitor SHARED
+    attribute.cpp
     client.cpp
     encryption.cpp
     robotmonitor.hpp
