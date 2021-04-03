@@ -236,6 +236,8 @@ void rmClient::disconnect() {
  */
 bool rmClient::isConnected() const { return connected; }
 
+#include <iostream>
+
 /**
  * @brief Sends a message to the client device
  * 
@@ -243,7 +245,7 @@ bool rmClient::isConnected() const { return connected; }
  * @param crypt True to encrypt the message if the connection supports it
  */
 void rmClient::sendMessage(const char* msg, bool crypt) const {
-    
+    std::cout << msg << std::endl;
 }
 
 /**

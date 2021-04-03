@@ -30,13 +30,9 @@
 #endif
 
 
-class rmAttribute;
-
-
-#include "widget.hpp"
-
 #include <cmath>
 #include <cstdint>
+#include <string>
 
 
 #define RM_ATTRIBUTE_BOOL   0 ///< Boolean data type
@@ -93,6 +89,9 @@ union rmAttributeData {
 };
 
 
+class rmAttributeNotifier;
+
+
 /**
  * @brief Attributes shown by the client or manipulated by the station
  * 
@@ -103,7 +102,7 @@ union rmAttributeData {
  */
 class RM_API rmAttribute {
   private:
-    rmWidget* widget = nullptr;
+    rmAttributeNotifier* notifier = nullptr;
     char name[12] = {0};
     rmAttributeData data = {.s=nullptr};
     int8_t type = RM_ATTRIBUTE_STRING;
@@ -246,6 +245,13 @@ class RM_API rmAttribute {
     rmAttributeData getValue() const;
     
     /**
+     * @brief Gets string value
+     * 
+     * @return Any type of attribute value parsed into a string
+     */
+    std::string getValueString() const;
+    
+    /**
      * @brief Gets the data type of the value
      * 
      * @return The data type number
@@ -285,18 +291,54 @@ class RM_API rmAttribute {
     rmAttributeData getUpperBound() const;
     
     /**
-     * @brief Sets the widget associated with this attribute
+     * @brief Sets the notifier object for this attribute
      * 
-     * @param w The widget
+     * @param noti The attribute notifier
      */
-    void setWidget(rmWidget* w);
+    void setNotifier(rmAttributeNotifier* noti);
     
     /**
-     * @brief Gets the widget associated with this attribute
+     * @brief Gets the notifier object of this attribute
      * 
      * @return The associated widget. Returns null if it doesn't have.
      */
-    rmWidget* getWidget() const;
+    rmAttributeNotifier* getNotifier() const;
+};
+
+
+class RM_API rmAttributeNotifier {
+  protected:
+    rmAttribute* attribute = nullptr; ///< The attribute to track
+    void (*customCallback)() = nullptr;
+    
+  public:
+    /**
+     * @brief Default constructor
+     */
+    rmAttributeNotifier() = default;
+    
+    /**
+     * @brief Triggers the member or custom callback
+     */
+    void triggerCallback();
+    
+    /**
+     * @brief Triggers on attribute value change
+     * 
+     * Triggers when the value of attribute is changed by the client device's
+     * reports.
+     */
+    virtual void onAttributeChange();
+    
+    /**
+     * @brief Sets the custom function to be called on value change
+     * 
+     * When the custom callback is set, the member function which is triggered
+     * at the same instance is not called.
+     * 
+     * @param func The function that is not a member of a class
+     */
+    void setCustomCallback(void (*func)());
 };
 
 #endif
