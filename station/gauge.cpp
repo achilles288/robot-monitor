@@ -20,15 +20,14 @@
  * @param parent The parent window
  * @param cli The client
  * @param key Unique name of the attribute with maximum 11 characters
- * @param lower Lower bound value
- * @param upper Upper bound value
+ * @param range Upper bound value
  */
 rmGauge::rmGauge(wxWindow* parent, rmClient* cli, const char* key,
-                 int32_t lower, int32_t upper)
+                 int32_t range)
         :rmWidget(cli),
-         wxGauge(parent, wx_id, upper - lower)
+         wxGauge(parent, wx_id, range)
 {
-    attribute = client->createAttribute(key, RM_ATTRIBUTE_INT, lower, upper);
+    attribute = client->createAttribute(key, RM_ATTRIBUTE_INT, 0, range);
     if(attribute != nullptr)
         attribute->setNotifier(this);
 }
@@ -39,16 +38,15 @@ rmGauge::rmGauge(wxWindow* parent, rmClient* cli, const char* key,
  * @param parent The parent window
  * @param cli The client
  * @param key Unique name of the attribute with maximum 11 characters
- * @param lower Lower bound value
- * @param upper Upper bound value
+ * @param range Upper bound value
  */
 rmGauge::rmGauge(wxWindow* parent, rmClient* cli, const char* key,
-                 float lower, float upper)
+                 float range)
         :rmWidget(cli),
          wxGauge(parent, wx_id, 100)
 {
-    attribute = client->createAttribute(key, RM_ATTRIBUTE_FLOAT, lower, upper);
-    stepSize = (upper - lower) / 100.0f;
+    attribute = client->createAttribute(key, RM_ATTRIBUTE_FLOAT, 0.0f, range);
+    stepSize = range / 100.0f;
     if(attribute != nullptr)
         attribute->setNotifier(this);
 }
@@ -61,14 +59,11 @@ rmGauge::rmGauge(wxWindow* parent, rmClient* cli, const char* key,
  */
 void rmGauge::onAttributeChange() {
     if(attribute->getType() == RM_ATTRIBUTE_INT) {
-        int32_t val = attribute->getValue().i;
-        int32_t a = attribute->getLowerBound().i;
-        SetValue(val - a);
+        SetValue(attribute->getValue().i);
     }
     else if(attribute->getType() == RM_ATTRIBUTE_FLOAT) {
         float val = attribute->getValue().f;
-        float a = attribute->getLowerBound().f;
-        int step = (int) ((val - a) / stepSize);
+        int step = (int) (val / stepSize);
         SetValue(step);
     }
 }

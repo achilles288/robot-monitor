@@ -38,6 +38,9 @@
  * The input data for the attribute is not bounded.
  */
 class RM_API rmTextCtrl: public rmWidget, public wxTextCtrl {
+  private:
+    char lastVal[128] = {0};
+    
   public:
     /**
      * @brief Default constructor
@@ -74,7 +77,14 @@ class RM_API rmTextCtrl: public rmWidget, public wxTextCtrl {
      * 
      * @param evt The event object
      */
-    void onUpdate(wxCommandEvent& evt);
+    void onEnter(wxCommandEvent& evt);
+    
+    /**
+     * @brief Updates the attribute value along with what is in the text box
+     * 
+     * @param evt The event object
+     */
+    void onFocusLoss(wxFocusEvent& evt);
 };
 
 #endif

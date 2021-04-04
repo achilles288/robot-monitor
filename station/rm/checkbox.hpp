@@ -39,7 +39,7 @@
  */
 class RM_API rmCheckBox: public rmWidget, public wxCheckBox {
   private:
-    bool outputOnly = false;
+    bool useInput = true;
     
   public:
     /**
@@ -54,10 +54,10 @@ class RM_API rmCheckBox: public rmWidget, public wxCheckBox {
      * @param cli The client
      * @param key Unique name of the attribute with maximum 11 characters
      * @param label The text to display next to the check box
-     * @param out This states if the widget is to be used only for output
+     * @param en This states if the widget is to be used for input
      */
     rmCheckBox(wxWindow* parent, rmClient* cli, const char* key,
-               const char* label, bool out=false);
+               const char* label, bool en=true);
     
     /**
      * @brief Enables or disables the user input

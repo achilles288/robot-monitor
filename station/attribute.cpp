@@ -198,7 +198,7 @@ void rmAttribute::setValue(const char* value) {
             data.b = true;
     }
     else if(type == RM_ATTRIBUTE_CHAR) {
-        if(value != NULL)
+        if(value != nullptr)
             data.c = value[0];
     }
     else if(type == RM_ATTRIBUTE_INT) {

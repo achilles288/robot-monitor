@@ -23,23 +23,28 @@
  * @param cli The client
  * @param key Unique name of the attribute with maximum 11 characters
  * @param label The text to display next to the check box
- * @param out This states if the widget is to be used only for output
+ * @param en This states if the widget is to be used for input
  */
 rmCheckBox::rmCheckBox(wxWindow* parent, rmClient* cli, const char* key,
-                       const char* label, bool out)
+                       const char* label, bool en)
            :rmWidget(cli),
             wxCheckBox(parent, wx_id, wxString(label))
 {
     attribute = client->createAttribute(key, RM_ATTRIBUTE_BOOL);
-    outputOnly = out;
+    useInput = en;
     if(attribute != nullptr) {
         attribute->setNotifier(this);
-        if(outputOnly == false) {
-            wxCheckBox::Connect(
-                wx_id, wxEVT_CHECKBOX,
-                (wxObjectEventFunction)&rmCheckBox::onCheck
+        if(useInput) {
+            Connect(
+                wx_id,
+                wxEVT_CHECKBOX,
+                wxCommandEventHandler(rmCheckBox::onCheck),
+                NULL,
+                this
             );
         }
+        else
+            Disable();
     }
     else
         Disable();
@@ -51,7 +56,7 @@ rmCheckBox::rmCheckBox(wxWindow* parent, rmClient* cli, const char* key,
  * @param en True for enable and false for otherwise
  */
 void rmCheckBox::setEnabled(bool en) {
-    if(attribute != nullptr and outputOnly == false)
+    if(attribute != nullptr and useInput)
         Enable(en);
     else
         Disable();

@@ -17,6 +17,7 @@
 #include "rm/spinctrl.hpp"
 
 #include <wx/string.h>
+#include <wx/time.h>
 
 
 /**
@@ -34,11 +35,15 @@ rmSpinCtrl::rmSpinCtrl(wxWindow* parent, rmClient* cli, const char* key,
             wxSpinCtrl(parent, wx_id, wxEmptyString)
 {
     attribute = client->createAttribute(key, RM_ATTRIBUTE_INT, lower, upper);
+    SetRange(lower, upper);
     if(attribute != nullptr) {
         attribute->setNotifier(this);
-        wxSpinCtrl::Connect(
-            wx_id, wxEVT_SPINCTRL,
-            (wxObjectEventFunction)&rmSpinCtrl::onUpdate
+        Connect(
+            wx_id,
+            wxEVT_SPINCTRL,
+            wxSpinEventHandler(rmSpinCtrl::onUpdate),
+            NULL,
+            this
         );
     }
     else
@@ -73,6 +78,12 @@ void rmSpinCtrl::onAttributeChange() {
  * @param evt The event object
  */
 void rmSpinCtrl::onUpdate(wxSpinEvent& evt) {
+    static wxLongLong t1 = 0;
+    wxLongLong t2 = wxGetLocalTimeMillis();
+    if(t2 - t1 < 100)
+        return;
+    t1 = t2;
+    
     attribute->setValue(GetValue());
     client->sendAttribute(attribute);
 }

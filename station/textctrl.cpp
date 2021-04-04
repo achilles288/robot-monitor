@@ -27,14 +27,25 @@
 rmTextCtrl::rmTextCtrl(wxWindow* parent, rmClient* cli, const char* key,
                        int8_t t)
            :rmWidget(cli),
-            wxTextCtrl(parent, wx_id, wxEmptyString)
+            wxTextCtrl(parent, wx_id, wxEmptyString, wxDefaultPosition,
+                       wxDefaultSize, wxTE_PROCESS_ENTER)
 {
     attribute = client->createAttribute(key, t);
     if(attribute != nullptr) {
         attribute->setNotifier(this);
-        wxTextCtrl::Connect(
-            wx_id, wxEVT_COMMAND_TEXT_UPDATED,
-            (wxObjectEventFunction)&rmTextCtrl::onUpdate
+        Connect(
+            wx_id,
+            wxEVT_TEXT_ENTER,
+            wxCommandEventHandler(rmTextCtrl::onEnter),
+            NULL,
+            this
+        );
+        Connect(
+            wx_id,
+            wxEVT_KILL_FOCUS,
+            wxFocusEventHandler(rmTextCtrl::onFocusLoss),
+            NULL,
+            this
         );
     }
     else
@@ -60,7 +71,7 @@ void rmTextCtrl::setEnabled(bool en) {
  * reports.
  */
 void rmTextCtrl::onAttributeChange() {
-    SetValue(wxString(attribute->getValueString()));
+    ChangeValue(wxString(attribute->getValueString()));
 }
 
 /**
@@ -68,7 +79,27 @@ void rmTextCtrl::onAttributeChange() {
  * 
  * @param evt The event object
  */
-void rmTextCtrl::onUpdate(wxCommandEvent& evt) {
-    attribute->setValue(GetValue().mb_str());
-    client->sendAttribute(attribute);
+void rmTextCtrl::onEnter(wxCommandEvent& evt) {
+    std::string val = GetValue().ToStdString();
+    if(strncmp(val.c_str(), lastVal, 127) != 0) {
+        attribute->setValue(val.c_str());
+        client->sendAttribute(attribute);
+        strncpy(lastVal, val.c_str(), 127);
+        lastVal[127] = '\0';
+    }
+}
+
+/**
+ * @brief Updates the attribute value along with what is in the text box
+ * 
+ * @param evt The event object
+ */
+void rmTextCtrl::onFocusLoss(wxFocusEvent& evt) {
+    std::string val = GetValue().ToStdString();
+    if(strncmp(val.c_str(), lastVal, 127) != 0) {
+        attribute->setValue(val.c_str());
+        client->sendAttribute(attribute);
+        strncpy(lastVal, val.c_str(), 127);
+        lastVal[127] = '\0';
+    }
 }

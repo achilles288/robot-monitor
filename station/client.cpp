@@ -19,9 +19,7 @@ class rmClient;
 
 #include "rm/client.hpp"
 
-#include <cstdlib>
 #include <cstring>
-#include <utility>
 
 
 
@@ -30,12 +28,18 @@ class rmClient;
  */
 rmClient::~rmClient() {
     disconnect();
-    if(attributes != nullptr)
-        free(attributes);
-    if(calls != nullptr)
-        free(calls);
+    if(attributes != nullptr) {
+        for(size_t i=0; i<attrCount; i++)
+            delete attributes[i];
+        delete attributes;
+    }
+    if(calls != nullptr) {
+        for(size_t i=0; i<callCount; i++)
+            delete calls[i];
+        delete calls;
+    }
     if(widgets != nullptr)
-        free(widgets);
+        delete widgets;
     if(rx_fp != NULL)
         fclose(rx_fp);
     if(tx_fp != NULL)
@@ -49,6 +53,21 @@ rmClient::~rmClient() {
  */
 const char* rmClient::getDeviceName() const { return name; }
 
+
+
+
+bool rmClient::appendAttribute(rmAttribute* attr) {
+    rmAttribute** newArr = new rmAttribute*[attrCount + 1];
+    for(size_t i=0; i<attrCount; i++)
+        newArr[i] = attributes[i];
+    newArr[attrCount++] = attr;
+    
+    if(attributes != nullptr)
+        delete attributes;
+    attributes = newArr;
+    return true;
+}
+
 /**
  * @brief Creates an attribute in the map structure
  * 
@@ -59,11 +78,12 @@ const char* rmClient::getDeviceName() const { return name; }
  *         name already exists or the creation is invalid.
  */
 rmAttribute* rmClient::createAttribute(const char* key, int8_t t) {
-    size_t size = sizeof(rmAttribute) * ++attrCount;
-    attributes = (rmAttribute*) realloc(attributes, size);
-    rmAttribute attr = rmAttribute(key, t);
-    attributes[attrCount - 1] = std::move(attr);
-    return &attributes[attrCount - 1];
+    rmAttribute* attr = new rmAttribute(key, t);
+    bool valid = appendAttribute(attr);
+    if(valid)
+        return attr;
+    else
+        return nullptr;
 }
 
 /**
@@ -81,11 +101,12 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t) {
 rmAttribute* rmClient::createAttribute(const char* key, int8_t t,
                                        int32_t lower, int32_t upper)
 {
-    size_t size = sizeof(rmAttribute) * ++attrCount;
-    attributes = (rmAttribute*) realloc(attributes, size);
-    rmAttribute attr = rmAttribute(key, t, lower, upper);
-    attributes[attrCount - 1] = std::move(attr);
-    return &attributes[attrCount - 1];
+    rmAttribute* attr = new rmAttribute(key, t, lower, upper);
+    bool valid = appendAttribute(attr);
+    if(valid)
+        return attr;
+    else
+        return nullptr;
 }
 
 /**
@@ -103,11 +124,12 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t,
 rmAttribute* rmClient::createAttribute(const char* key, int8_t t, float lower,
                                        float upper)
 {
-    size_t size = sizeof(rmAttribute) * ++attrCount;
-    attributes = (rmAttribute*) realloc(attributes, size);
-    rmAttribute attr = rmAttribute(key, t, lower, upper);
-    attributes[attrCount - 1] = std::move(attr);
-    return &attributes[attrCount - 1];
+    rmAttribute* attr = new rmAttribute(key, t, lower, upper);
+    bool valid = appendAttribute(attr);
+    if(valid)
+        return attr;
+    else
+        return nullptr;
 }
 
 /**
@@ -119,8 +141,8 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t, float lower,
  */
 rmAttribute* rmClient::getAttribute(const char* key) const {
     for(size_t i=0; i<attrCount; i++) {
-        if(strcmp(attributes[i].getName(), key) == 0)
-            return &attributes[i];
+        if(strcmp(attributes[i]->getName(), key) == 0)
+            return attributes[i];
     }
     return nullptr;
 }
@@ -175,9 +197,14 @@ void rmClient::removeCall(const char* key) {
  * @param widget The widget
  */
 void rmClient::appendWidget(rmWidget* widget) {
-    size_t size = sizeof(rmWidget*) * ++widgetCount;
-    widgets = (rmWidget**) realloc(widgets, size);
-    widgets[widgetCount - 1] = widget;
+    rmWidget** newArr = new rmWidget*[widgetCount + 1];
+    for(size_t i=0; i<widgetCount; i++)
+        newArr[i] = widgets[i];
+    newArr[widgetCount++] = widget;
+    
+    if(widgets != nullptr)
+        delete widgets;
+    widgets = newArr;
 }
     
 /**
@@ -186,12 +213,12 @@ void rmClient::appendWidget(rmWidget* widget) {
  * @param widget The widget
  */
 void rmClient::removeWidget(rmWidget* widget) {
-    for(size_t i=0; i<attrCount; i++) {
+    for(size_t i=0; i<widgetCount; i++) {
         if(widgets[i] == widget) {
             for(size_t j=i+1; j<widgetCount; j++)
                 widgets[j - 1] = widgets[j];
-            size_t size = sizeof(rmWidget*) * --widgetCount;
-            widgets = (rmWidget**) realloc(widgets, size);
+            widgetCount--;
+            return;
         }
     }
 }

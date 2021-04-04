@@ -31,9 +31,12 @@ rmButton::rmButton(wxWindow* parent, rmClient* cli, const char* cmd,
 {
     strncpy(command, cmd, 11);
     command[11] = '\0';
-    wxButton::Connect(
-        wx_id, wxEVT_BUTTON,
-        (wxObjectEventFunction)&rmButton::onClick
+    Connect(
+        wx_id,
+        wxEVT_BUTTON,
+        wxCommandEventHandler(rmButton::onClick),
+        NULL,
+        this
     );
 }
 

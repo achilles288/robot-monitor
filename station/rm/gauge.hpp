@@ -49,11 +49,9 @@ class RM_API rmGauge: public rmWidget, public wxGauge {
      * @param parent The parent window
      * @param cli The client
      * @param key Unique name of the attribute with maximum 11 characters
-     * @param lower Lower bound value
-     * @param upper Upper bound value
+     * @param range Upper bound value
      */
-    rmGauge(wxWindow* parent, rmClient* cli, const char* key, int32_t lower,
-            int32_t upper);
+    rmGauge(wxWindow* parent, rmClient* cli, const char* key, int32_t range);
     
     /**
      * @brief Constructs a gauge widget
@@ -61,11 +59,9 @@ class RM_API rmGauge: public rmWidget, public wxGauge {
      * @param parent The parent window
      * @param cli The client
      * @param key Unique name of the attribute with maximum 11 characters
-     * @param lower Lower bound value
-     * @param upper Upper bound value
+     * @param range Upper bound value
      */
-    rmGauge(wxWindow* parent, rmClient* cli, const char* key, float lower,
-            float upper);
+    rmGauge(wxWindow* parent, rmClient* cli, const char* key, float range);
     
     /**
      * @brief Triggers on attribute value change

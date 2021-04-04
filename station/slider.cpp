@@ -16,6 +16,7 @@
 #include "rm/slider.hpp"
 
 #include <wx/slider.h>
+#include <wx/time.h>
 
 
 /**
@@ -36,6 +37,7 @@ rmSlider::rmSlider(wxWindow* parent, rmClient* cli, const char* key,
 {
     attribute = client->createAttribute(key, RM_ATTRIBUTE_INT, lower, upper);
     if(attribute != nullptr) {
+        SetClientData((void*) this);
         wxSlider::Connect(
             wx_id, wxEVT_SLIDER,
             (wxObjectEventFunction)&rmSlider::onSlide
@@ -63,9 +65,12 @@ rmSlider::rmSlider(wxWindow* parent, rmClient* cli, const char* key,
     stepSize = (upper - lower) / 100.0f;
     if(attribute != nullptr) {
         attribute->setNotifier(this);
-        wxSlider::Connect(
-            wx_id, wxEVT_SLIDER,
-            (wxObjectEventFunction)&rmSlider::onSlide
+        Connect(
+            wx_id,
+            wxEVT_SLIDER,
+            wxCommandEventHandler(rmSlider::onSlide),
+            NULL,
+            this
         );
     }
     else
@@ -108,12 +113,18 @@ void rmSlider::onAttributeChange() {
  * @param evt The event object
  */
 void rmSlider::onSlide(wxCommandEvent& evt) {
-    if(attribute->getType() == RM_ATTRIBUTE_INT) {
-        int32_t val = GetValue();
-        attribute->setValue(val);
+    static wxLongLong t1 = 0;
+    wxLongLong t2 = wxGetLocalTimeMillis();
+    if(t2 - t1 < 100)
+        return;
+    t1 = t2;
+    
+    int8_t type = attribute->getType();
+    if(type == RM_ATTRIBUTE_INT) {
+        attribute->setValue(GetValue());
     }
-    else if(attribute->getType() == RM_ATTRIBUTE_FLOAT) {
-        float a = (float) attribute->getLowerBound();
+    else if(type == RM_ATTRIBUTE_FLOAT) {
+        float a = attribute->getLowerBound().f;
         float val = a + GetValue() * stepSize;
         attribute->setValue(val);
     }

@@ -55,9 +55,9 @@ class RM_API rmClient {
     char name[32] = "Unknown Device";
     uint8_t key[RM_PUBLIC_KEY_SIZE];
     bool useEncryption = false;
-    rmAttribute* attributes = nullptr;
+    rmAttribute** attributes = nullptr;
     size_t attrCount = 0;
-    rmCall* calls = nullptr;
+    rmCall** calls = nullptr;
     size_t callCount = 0;
     rmWidget** widgets = nullptr;
     size_t widgetCount = 0;
@@ -68,6 +68,8 @@ class RM_API rmClient {
     FILE* rx_fp = NULL;
     FILE* tx_fp = NULL;
     size_t rx_fp_pos = 0;
+    
+    bool appendAttribute(rmAttribute* attr);
     
   public:
     /**
