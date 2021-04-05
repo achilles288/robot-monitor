@@ -28,9 +28,6 @@
 #endif
 
 
-class rmClient;
-
-
 #include "attribute.hpp"
 #include "call.hpp"
 #include "encryption.hpp"
@@ -58,9 +55,9 @@ class RM_API rmClient {
     char name[32] = "Unknown Device";
     uint8_t key[RM_PUBLIC_KEY_SIZE];
     bool useEncryption = false;
-    rmAttribute* attributes = nullptr;
+    rmAttribute** attributes = nullptr;
     size_t attrCount = 0;
-    rmCall* calls = nullptr;
+    rmCall** calls = nullptr;
     size_t callCount = 0;
     rmWidget** widgets = nullptr;
     size_t widgetCount = 0;
@@ -71,6 +68,8 @@ class RM_API rmClient {
     FILE* rx_fp = NULL;
     FILE* tx_fp = NULL;
     size_t rx_fp_pos = 0;
+    
+    bool appendAttribute(rmAttribute* attr);
     
   public:
     /**
@@ -123,6 +122,17 @@ class RM_API rmClient {
      * 
      * @param key Unique name of the attribute with maximum 11 characters
      * @param t Data type of the value stored
+     * 
+     * @return The newly created attribute. Null if the attribute with the same
+     *         name already exists or the creation is invalid.
+     */
+    rmAttribute* createAttribute(const char* key, int8_t t);
+    
+    /**
+     * @brief Creates an attribute in the map structure
+     * 
+     * @param key Unique name of the attribute with maximum 11 characters
+     * @param t Data type of the value stored
      * @param lower Lower bound value. The type of the lower and upper should
      *              be of the same type as t.
      * @param upper Upper bound value
@@ -130,8 +140,23 @@ class RM_API rmClient {
      * @return The newly created attribute. Null if the attribute with the same
      *         name already exists or the creation is invalid.
      */
-    rmAttribute* createAttribute(const char* key, int8_t t,
-                                 void* lower=nullptr, void* upper=nullptr);
+    rmAttribute* createAttribute(const char* key, int8_t t, int32_t lower,
+                                 int32_t upper);
+    
+    /**
+     * @brief Creates an attribute in the map structure
+     * 
+     * @param key Unique name of the attribute with maximum 11 characters
+     * @param t Data type of the value stored
+     * @param lower Lower bound value. The type of the lower and upper should
+     *              be of the same type as t.
+     * @param upper Upper bound value
+     * 
+     * @return The newly created attribute. Null if the attribute with the same
+     *         name already exists or the creation is invalid.
+     */
+    rmAttribute* createAttribute(const char* key, int8_t t, float lower,
+                                 float upper);
     
     /**
      * @brief Looks for an attribute by name
@@ -233,6 +258,13 @@ class RM_API rmClient {
      * @param crypt True to encrypt the message if the connection supports it
      */
     void sendMessage(const char* msg, bool crypt=true) const;
+    
+    /**
+     * @brief Sends the value of attribute to the client
+     * 
+     * @param attr The attribute
+     */
+    void sendAttribute(rmAttribute* attr) const;
     
     /**
      * @brief Reads a message from the client device

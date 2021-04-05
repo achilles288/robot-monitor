@@ -30,17 +30,66 @@
 #endif
 
 
-#include "client.hpp"
-
+#include <cmath>
 #include <cstdint>
+#include <string>
 
 
 #define RM_ATTRIBUTE_BOOL   0 ///< Boolean data type
-#define RM_ATTRIBUTE_CHAR   1 ///< Character data type
+#define RM_ATTRIBUTE_CHAR   1 ///< A single character
 #define RM_ATTRIBUTE_INT    2 ///< Integer data type
 #define RM_ATTRIBUTE_FLOAT  3 ///< Floating point data type
 #define RM_ATTRIBUTE_STRING 4 ///< String data type
 #define RM_ATTRIBUTE_BLOB   5 ///< Binary large object
+
+
+/**
+ * @brief The data type of the rmAttribute's value
+ * 
+ * Since the stored value has multiple possible data types, this union
+ * structure is suitable.
+ */
+union rmAttributeData {
+    bool b; ///< Boolean data type
+    char c; ///< A single character
+    int32_t i; ///< Integer data type
+    float f; ///< Floating point data type
+    char* s; ///< String data type
+    uint8_t* ptr; ///< Pointer type
+    
+    /**
+     * @brief Converts to a boolean
+     */
+    inline operator bool () const { return b; }
+    
+    /**
+     * @brief Converts to a character
+     */
+    inline operator char () const { return c; }
+    
+    /**
+     * @brief Converts to an integer
+     */
+    inline operator int32_t () const { return i; }
+    
+    /**
+     * @brief Converts to a floating point
+     */
+    inline operator float () const { return f; }
+    
+    /**
+     * @brief Converts to a string
+     */
+    inline operator const char* () const { return s; }
+    
+    /**
+     * @brief Converts to a pointer to data
+     */
+    inline operator const uint8_t* () const { return ptr; }
+};
+
+
+class rmAttributeNotifier;
 
 
 /**
@@ -53,11 +102,12 @@
  */
 class RM_API rmAttribute {
   private:
-    rmClient* client = nullptr;
+    rmAttributeNotifier* notifier = nullptr;
     char name[12] = {0};
-    void* data = nullptr;
+    rmAttributeData data = {.s=nullptr};
     int8_t type = RM_ATTRIBUTE_STRING;
-    void* boundary = nullptr;
+    rmAttributeData lowerBound = {.f=NAN};
+    rmAttributeData upperBound = {.f=NAN};
     
   public:
     /**
@@ -72,12 +122,34 @@ class RM_API rmAttribute {
      * 
      * @param key Unique name of the attribute with maximum 11 characters
      * @param t Data type of the value stored
+     */
+    rmAttribute(const char* key, int8_t t);
+    
+    /**
+     * @brief Constructs an attribute with a name, type and boundaries
+     * 
+     * The constructor declares the new attribute on the specified client.
+     * 
+     * @param key Unique name of the attribute with maximum 11 characters
+     * @param t Data type of the value stored
      * @param lower Lower bound value. The type of the lower and upper should
      *              be of the same type as t.
      * @param upper Upper bound value
      */
-    rmAttribute(const char* key, int8_t t, void* lower=nullptr,
-                void* upper=nullptr);
+    rmAttribute(const char* key, int8_t t, int32_t lower, int32_t upper);
+    
+    /**
+     * @brief Constructs an attribute with a name, type and boundaries
+     * 
+     * The constructor declares the new attribute on the specified client.
+     * 
+     * @param key Unique name of the attribute with maximum 11 characters
+     * @param t Data type of the value stored
+     * @param lower Lower bound value. The type of the lower and upper should
+     *              be of the same type as t.
+     * @param upper Upper bound value
+     */
+    rmAttribute(const char* key, int8_t t, float lower, float upper);
     
     /**
      * @brief Destructor
@@ -170,7 +242,14 @@ class RM_API rmAttribute {
      * @return The value in a pointer type which is to be casted to the
      *         appropriate type
      */
-    void* getValue() const;
+    rmAttributeData getValue() const;
+    
+    /**
+     * @brief Gets string value
+     * 
+     * @return Any type of attribute value parsed into a string
+     */
+    std::string getValueString() const;
     
     /**
      * @brief Gets the data type of the value
@@ -185,37 +264,81 @@ class RM_API rmAttribute {
      * @param lower Lower bound value
      * @param upper Upper bound value
      */
-    void setBoundary(void* lower, void* upper);
+    void setBoundary(int32_t lower, int32_t upper);
+    
+    /**
+     * @brief Sets the boundary
+     * 
+     * @param lower Lower bound value
+     * @param upper Upper bound value
+     */
+    void setBoundary(float lower, float upper);
     
     /**
      * @brief Gets the lower bound value
      * 
-     * @return Lower bound value which is an integer or a float. If there
-     *         is no boundary or the request is invalid, returns a null.
+     * @return Lower bound value which is an integer or a float. If there is no
+     *         boundary or the request is invalid, returns NAN as a float.
      */
-    void* getLowerBound() const;
+    rmAttributeData getLowerBound() const;
     
     /**
      * @brief Gets the upper bound value
      * 
-     * @return Upper bound value which is an integer or a float. If there
-     *         is no boundary or the request is invalid, returns a null.
+     * @return Upper bound value which is an integer or a float. If there is no
+     *         boundary or the request is invalid, returns NAN as a float.
      */
-    void* getUpperBound() const;
+    rmAttributeData getUpperBound() const;
     
     /**
-     * @brief Sets the client who owns this attribute
+     * @brief Sets the notifier object for this attribute
      * 
-     * @param cli The client
+     * @param noti The attribute notifier
      */
-    void setClient(rmClient* cli);
+    void setNotifier(rmAttributeNotifier* noti);
     
     /**
-     * @brief Gets the client who owns this attribute
+     * @brief Gets the notifier object of this attribute
      * 
-     * @return The client
+     * @return The associated widget. Returns null if it doesn't have.
      */
-    rmClient* getClient() const;
+    rmAttributeNotifier* getNotifier() const;
+};
+
+
+class RM_API rmAttributeNotifier {
+  protected:
+    rmAttribute* attribute = nullptr; ///< The attribute to track
+    void (*customCallback)() = nullptr;
+    
+  public:
+    /**
+     * @brief Default constructor
+     */
+    rmAttributeNotifier() = default;
+    
+    /**
+     * @brief Triggers the member or custom callback
+     */
+    void triggerCallback();
+    
+    /**
+     * @brief Triggers on attribute value change
+     * 
+     * Triggers when the value of attribute is changed by the client device's
+     * reports.
+     */
+    virtual void onAttributeChange();
+    
+    /**
+     * @brief Sets the custom function to be called on value change
+     * 
+     * When the custom callback is set, the member function which is triggered
+     * at the same instance is not called.
+     * 
+     * @param func The function that is not a member of a class
+     */
+    void setCustomCallback(void (*func)());
 };
 
 #endif

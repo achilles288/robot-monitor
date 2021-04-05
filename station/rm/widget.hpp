@@ -28,6 +28,9 @@
 #endif
 
 
+class rmWidget;
+
+
 #include "client.hpp"
 
 
@@ -37,16 +40,10 @@
  * The widgets are for wxWidgets library. The functions here are to make the
  * widgets sync with the client device's status.
  */
-class RM_API rmWidget {
+class RM_API rmWidget: public rmAttributeNotifier {
   protected:
+    int wx_id = 0; ///< The ID for a wxWidget
     rmClient* client = nullptr; ///< The client associated with the widget
-    
-    /**
-     * @brief Enables or disables the user input
-     * 
-     * @param en True for enable and false for otherwise
-     */
-    virtual void setEnabled(bool en) = 0;
     
   public:
     /**
@@ -65,6 +62,13 @@ class RM_API rmWidget {
      * @brief Destructor
      */
     virtual ~rmWidget();
+    
+    /**
+     * @brief Enables or disables the user input
+     * 
+     * @param en True for enable and false for otherwise
+     */
+    virtual void setEnabled(bool en);
 };
 
 #endif

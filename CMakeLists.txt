@@ -78,7 +78,8 @@ set(RMONITOR_INCLUDE_DIRS
 
 set(RMONITOR_LIBRARIES
     rmonitor
-    #rmonitor-wx
+    rmonitor-wx
+    ${wxWidgets_LIBRARIES}
 )
 
 

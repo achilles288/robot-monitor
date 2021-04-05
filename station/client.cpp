@@ -14,9 +14,12 @@
 #define RM_EXPORT
 
 
+class rmClient;
+
+
 #include "rm/client.hpp"
 
-#include <cstdlib>
+#include <cstring>
 
 
 
@@ -25,12 +28,18 @@
  */
 rmClient::~rmClient() {
     disconnect();
-    if(attributes != nullptr)
-        free(attributes);
-    if(calls != nullptr)
-        free(calls);
+    if(attributes != nullptr) {
+        for(size_t i=0; i<attrCount; i++)
+            delete attributes[i];
+        delete attributes;
+    }
+    if(calls != nullptr) {
+        for(size_t i=0; i<callCount; i++)
+            delete calls[i];
+        delete calls;
+    }
     if(widgets != nullptr)
-        free(widgets);
+        delete widgets;
     if(rx_fp != NULL)
         fclose(rx_fp);
     if(tx_fp != NULL)
@@ -44,6 +53,39 @@ rmClient::~rmClient() {
  */
 const char* rmClient::getDeviceName() const { return name; }
 
+
+
+
+bool rmClient::appendAttribute(rmAttribute* attr) {
+    rmAttribute** newArr = new rmAttribute*[attrCount + 1];
+    for(size_t i=0; i<attrCount; i++)
+        newArr[i] = attributes[i];
+    newArr[attrCount++] = attr;
+    
+    if(attributes != nullptr)
+        delete attributes;
+    attributes = newArr;
+    return true;
+}
+
+/**
+ * @brief Creates an attribute in the map structure
+ * 
+ * @param key Unique name of the attribute with maximum 11 characters
+ * @param t Data type of the value stored
+ * 
+ * @return The newly created attribute. Null if the attribute with the same
+ *         name already exists or the creation is invalid.
+ */
+rmAttribute* rmClient::createAttribute(const char* key, int8_t t) {
+    rmAttribute* attr = new rmAttribute(key, t);
+    bool valid = appendAttribute(attr);
+    if(valid)
+        return attr;
+    else
+        return nullptr;
+}
+
 /**
  * @brief Creates an attribute in the map structure
  * 
@@ -56,10 +98,38 @@ const char* rmClient::getDeviceName() const { return name; }
  * @return The newly created attribute. Null if the attribute with the same
  *         name already exists or the creation is invalid.
  */
-rmAttribute* rmClient::createAttribute(const char* key, int8_t t, void* lower,
-                                       void* upper)
+rmAttribute* rmClient::createAttribute(const char* key, int8_t t,
+                                       int32_t lower, int32_t upper)
 {
-    return nullptr;
+    rmAttribute* attr = new rmAttribute(key, t, lower, upper);
+    bool valid = appendAttribute(attr);
+    if(valid)
+        return attr;
+    else
+        return nullptr;
+}
+
+/**
+ * @brief Creates an attribute in the map structure
+ * 
+ * @param key Unique name of the attribute with maximum 11 characters
+ * @param t Data type of the value stored
+ * @param lower Lower bound value. The type of the lower and upper should be
+ *              of the same type as t.
+ * @param upper Upper bound value
+ * 
+ * @return The newly created attribute. Null if the attribute with the same
+ *         name already exists or the creation is invalid.
+ */
+rmAttribute* rmClient::createAttribute(const char* key, int8_t t, float lower,
+                                       float upper)
+{
+    rmAttribute* attr = new rmAttribute(key, t, lower, upper);
+    bool valid = appendAttribute(attr);
+    if(valid)
+        return attr;
+    else
+        return nullptr;
 }
 
 /**
@@ -70,6 +140,10 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t, void* lower,
  * @return Requested attribute. Null if the request is unavailable.
  */
 rmAttribute* rmClient::getAttribute(const char* key) const {
+    for(size_t i=0; i<attrCount; i++) {
+        if(strcmp(attributes[i]->getName(), key) == 0)
+            return attributes[i];
+    }
     return nullptr;
 }
 
@@ -123,7 +197,14 @@ void rmClient::removeCall(const char* key) {
  * @param widget The widget
  */
 void rmClient::appendWidget(rmWidget* widget) {
+    rmWidget** newArr = new rmWidget*[widgetCount + 1];
+    for(size_t i=0; i<widgetCount; i++)
+        newArr[i] = widgets[i];
+    newArr[widgetCount++] = widget;
     
+    if(widgets != nullptr)
+        delete widgets;
+    widgets = newArr;
 }
     
 /**
@@ -132,7 +213,14 @@ void rmClient::appendWidget(rmWidget* widget) {
  * @param widget The widget
  */
 void rmClient::removeWidget(rmWidget* widget) {
-    
+    for(size_t i=0; i<widgetCount; i++) {
+        if(widgets[i] == widget) {
+            for(size_t j=i+1; j<widgetCount; j++)
+                widgets[j - 1] = widgets[j];
+            widgetCount--;
+            return;
+        }
+    }
 }
 
 /**
@@ -175,6 +263,8 @@ void rmClient::disconnect() {
  */
 bool rmClient::isConnected() const { return connected; }
 
+#include <iostream>
+
 /**
  * @brief Sends a message to the client device
  * 
@@ -182,7 +272,38 @@ bool rmClient::isConnected() const { return connected; }
  * @param crypt True to encrypt the message if the connection supports it
  */
 void rmClient::sendMessage(const char* msg, bool crypt) const {
-    
+    std::cout << msg << std::endl;
+}
+
+/**
+ * @brief Sends the value of attribute to the client
+ * 
+ * @param attr The attribute
+ */
+void rmClient::sendAttribute(rmAttribute* attr) const {
+    char msg[160];
+    const char* name = attr->getName();
+    int8_t type = attr->getType();
+    if(type == RM_ATTRIBUTE_BOOL) {
+        if(attr->getValue().b)
+            snprintf(msg, 159, "set %s true", name);
+        else
+            snprintf(msg, 159, "set %s false", name);
+    }
+    else if(type == RM_ATTRIBUTE_CHAR) {
+        snprintf(msg, 159, "set %s %c", name, attr->getValue().c);
+    }
+    else if(type == RM_ATTRIBUTE_INT) {
+        snprintf(msg, 159, "set %s %d", name, attr->getValue().i);
+    }
+    else if(type == RM_ATTRIBUTE_FLOAT) {
+        snprintf(msg, 159, "set %s %f", name, attr->getValue().f);
+    }
+    else if(type == RM_ATTRIBUTE_STRING) {
+        snprintf(msg, 159, "set %s \"%s\"", name, attr->getValue().s);
+    }
+    msg[159] = '\0';
+    sendMessage(msg);
 }
 
 /**
