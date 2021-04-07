@@ -37,9 +37,17 @@
  * 
  * The input data for the attribute is number type and is bounded.
  */
-class RM_API rmSlider: public rmWidget, public wxSlider {
+class RM_WX_API rmSlider: public rmWidget, public wxSlider {
   private:
     float stepSize = 0.0f;
+    
+  protected:
+    /**
+     * @brief Gets an ID to use for constructing a wxWidget
+     * 
+     * @return wxWidget ID
+     */
+    long getWxID() override;
     
   public:
     /**

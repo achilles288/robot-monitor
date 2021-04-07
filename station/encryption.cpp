@@ -35,7 +35,7 @@ bool rmGenerateKey(const char* key) {
     char pub[128];
     snprintf(pub, 127, "%s.pub", key);
     FILE* fp2 = fopen(pub, "wb");
-    if(fp1 == NULL or fp2 == NULL) {
+    if(fp1 == NULL || fp2 == NULL) {
         if(fp1 != NULL)
             fclose(fp1);
         if(fp2 != NULL)
@@ -65,7 +65,7 @@ bool rmOpenKey(const char* key) {
     char pub[128];
     snprintf(pub, 127, "%s.pub", key);
     FILE* fp2 = fopen(pub, "r");
-    if(fp1 == NULL or fp2 == NULL) {
+    if(fp1 == NULL || fp2 == NULL) {
         if(fp1 != NULL)
             fclose(fp1);
         if(fp2 != NULL)

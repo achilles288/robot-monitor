@@ -17,6 +17,17 @@
 
 
 /**
+ * @brief Gets an ID to use for constructing a wxWidget
+ * 
+ * @return wxWidget ID
+ */
+long rmTextCtrl::getWxID() { 
+    if(wx_id == 0)
+        wx_id = wxNewId();
+    return wx_id;
+}
+
+/**
  * @brief Constructs a text box widget
  * 
  * @param parent The parent window

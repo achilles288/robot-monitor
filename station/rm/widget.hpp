@@ -42,9 +42,16 @@ class rmWidget;
  */
 class RM_API rmWidget: public rmAttributeNotifier {
   protected:
-    int wx_id = 0; ///< The ID for a wxWidget
+    long wx_id = 0; ///< The ID for a wxWidget
     rmClient* client = nullptr; ///< The client associated with the widget
     
+    /**
+     * @brief Gets an ID to use for constructing a wxWidget
+     * 
+     * @return wxWidget ID
+     */
+    virtual long getWxID();
+
   public:
     /**
      * @brief Default constructor

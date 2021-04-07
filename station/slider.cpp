@@ -20,6 +20,17 @@
 
 
 /**
+ * @brief Gets an ID to use for constructing a wxWidget
+ * 
+ * @return wxWidget ID
+ */
+long rmSlider::getWxID() { 
+    if(wx_id == 0)
+        wx_id = wxNewId();
+    return wx_id;
+}
+
+/**
  * @brief Constructs a slider widget
  * 
  * @param parent The parent window

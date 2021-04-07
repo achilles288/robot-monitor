@@ -17,6 +17,17 @@
 
 
 /**
+ * @brief Gets an ID to use for constructing a wxWidget
+ * 
+ * @return wxWidget ID
+ */
+long rmButton::getWxID() { 
+    if(wx_id == 0)
+        wx_id = wxNewId();
+    return wx_id;
+}
+
+/**
  * @brief Constructs a button widget
  * 
  * @param parent The parent window
@@ -26,8 +37,7 @@
  */
 rmButton::rmButton(wxWindow* parent, rmClient* cli, const char* cmd,
                    const char* label)
-         :rmWidget(cli),
-          wxButton(parent, wx_id, wxString(label))
+         :wxButton(parent, wx_id, wxString(label))
 {
     strncpy(command, cmd, 11);
     command[11] = '\0';

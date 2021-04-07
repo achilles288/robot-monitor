@@ -37,9 +37,17 @@
  * 
  * The binary input or output widget.
  */
-class RM_API rmCheckBox: public rmWidget, public wxCheckBox {
+class RM_WX_API rmCheckBox: public rmWidget, public wxCheckBox {
   private:
     bool useInput = true;
+    
+  protected:
+    /**
+     * @brief Gets an ID to use for constructing a wxWidget
+     * 
+     * @return wxWidget ID
+     */
+    long getWxID() override;
     
   public:
     /**

@@ -37,9 +37,17 @@
  * 
  * The input data for the attribute is not bounded.
  */
-class RM_API rmTextCtrl: public rmWidget, public wxTextCtrl {
+class RM_WX_API rmTextCtrl: public rmWidget, public wxTextCtrl {
   private:
     char lastVal[128] = {0};
+    
+  protected:
+    /**
+     * @brief Gets an ID to use for constructing a wxWidget
+     * 
+     * @return wxWidget ID
+     */
+    long getWxID() override;
     
   public:
     /**

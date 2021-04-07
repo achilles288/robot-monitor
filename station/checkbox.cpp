@@ -16,6 +16,17 @@
 #include "rm/checkbox.hpp"
 
 
+ /**
+  * @brief Gets an ID to use for constructing a wxWidget
+  *
+  * @return wxWidget ID
+  */
+long rmCheckBox::getWxID() {
+    if (wx_id == 0)
+        wx_id = wxNewId();
+    return wx_id;
+}
+
 /**
  * @brief Constructs a check box widget
  * 
@@ -56,7 +67,7 @@ rmCheckBox::rmCheckBox(wxWindow* parent, rmClient* cli, const char* key,
  * @param en True for enable and false for otherwise
  */
 void rmCheckBox::setEnabled(bool en) {
-    if(attribute != nullptr and useInput)
+    if(attribute != nullptr && useInput)
         Enable(en);
     else
         Disable();

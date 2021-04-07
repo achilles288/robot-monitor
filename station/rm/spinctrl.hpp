@@ -39,7 +39,15 @@
  * The input data for the attribute is integer type and is bounded. Spin control
  * looks like a text box with up and down arrow buttons next to it.
  */
-class RM_API rmSpinCtrl: public rmWidget, public wxSpinCtrl {
+class RM_WX_API rmSpinCtrl: public rmWidget, public wxSpinCtrl {
+  protected:
+    /**
+     * @brief Gets an ID to use for constructing a wxWidget
+     * 
+     * @return wxWidget ID
+     */
+    long getWxID() override;
+
   public:
     /**
      * @brief Default constructor

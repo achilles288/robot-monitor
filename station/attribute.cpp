@@ -18,9 +18,19 @@
 
 #include "rm/attribute.hpp"
 
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
 
+
+/**
+ * @brief Default constructor
+ */
+rmAttribute::rmAttribute() {
+    data.s = nullptr;
+    lowerBound.f = NAN;
+    upperBound.f = NAN;
+}
 
 /**
  * @brief Constructs an attribute with a name, type and boundaries
@@ -30,7 +40,9 @@
  * @param key Unique name of the attribute with maximum 11 characters
  * @param t Data type of the value stored
  */
-rmAttribute::rmAttribute(const char* key, int8_t t) {
+rmAttribute::rmAttribute(const char* key, int8_t t)
+            :rmAttribute()
+{
     strncpy(name, key, 11);
     name[11] = '\0';
     type = t;
@@ -94,8 +106,8 @@ const char* rmAttribute::getName() const { return name; }
  * @param value The boolean value
  */
 void rmAttribute::setValue(bool value) {
-    if(type == RM_ATTRIBUTE_BOOL or
-       type == RM_ATTRIBUTE_CHAR or
+    if(type == RM_ATTRIBUTE_BOOL ||
+       type == RM_ATTRIBUTE_CHAR ||
        type == RM_ATTRIBUTE_INT)
     {
         data.i = (int32_t) value;
@@ -116,8 +128,8 @@ void rmAttribute::setValue(bool value) {
  * @param value The character value
  */
 void rmAttribute::setValue(char value) {
-    if(type == RM_ATTRIBUTE_BOOL or
-       type == RM_ATTRIBUTE_CHAR or
+    if(type == RM_ATTRIBUTE_BOOL ||
+       type == RM_ATTRIBUTE_CHAR ||
        type == RM_ATTRIBUTE_INT)
     {
         data.i = (int32_t) value;
@@ -139,8 +151,8 @@ void rmAttribute::setValue(char value) {
  * @param value The integer value
  */
 void rmAttribute::setValue(int32_t value) {
-    if(type == RM_ATTRIBUTE_BOOL or
-       type == RM_ATTRIBUTE_CHAR or
+    if(type == RM_ATTRIBUTE_BOOL ||
+       type == RM_ATTRIBUTE_CHAR ||
        type == RM_ATTRIBUTE_INT)
     {
         data.i = value;

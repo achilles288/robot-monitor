@@ -18,6 +18,33 @@
 
 
 /**
+ * @brief Gets an ID to use for constructing a wxWidget
+ * 
+ * @return wxWidget ID
+ */
+long rmWidget::getWxID() { return wx_id; }
+
+/**
+ * @brief Constructs with a client object
+ * 
+ * @param cli The client
+ */
+rmWidget::rmWidget(rmClient* cli) {
+    wx_id = getWxID();
+    client = cli;
+    client->appendWidget(this);
+}
+
+/**
+ * @brief Destructor
+ */
+rmWidget::~rmWidget() {
+    client->removeWidget(this);
+    if(attribute != nullptr)
+        client->removeAttribute(attribute->getName());
+}
+
+/**
  * @brief Enables or disables the user input
  * 
  * @param en True for enable and false for otherwise

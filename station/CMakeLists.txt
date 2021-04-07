@@ -2,7 +2,7 @@ add_library(rmonitor SHARED
     attribute.cpp
     client.cpp
     encryption.cpp
-    widget1.cpp
+    widget.cpp
     robotmonitor.hpp
     rm/attribute.hpp
     rm/call.hpp
@@ -27,7 +27,6 @@ add_library(rmonitor-wx SHARED
     spinctrl.cpp
     stattext.cpp
     textctrl.cpp
-    widget2.cpp
     rm/button.hpp
     rm/checkbox.hpp
     rm/gauge.hpp

@@ -43,10 +43,18 @@
  * with the same name parameter. Only then, the appropriate callback is
  * triggered on the client side on each click on the widget of the station.
  */
-class RM_API rmButton: public rmWidget, public wxButton {
+class RM_WX_API rmButton: public rmWidget, public wxButton {
   private:
     char command[12] = {0};
     
+  protected:
+    /**
+     * @brief Gets an ID to use for constructing a wxWidget
+     * 
+     * @return wxWidget ID
+     */
+    long getWxID() override;
+
   public:
     /**
      * @brief Default constructor

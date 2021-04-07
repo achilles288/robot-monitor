@@ -33,9 +33,17 @@
 /**
  * @brief A gague to display the real time value of an attribute
  */
-class RM_API rmGauge: public rmWidget, public wxGauge {
+class RM_WX_API rmGauge: public rmWidget, public wxGauge {
   private:
     float stepSize = 0.0f;
+    
+  protected:
+    /**
+     * @brief Gets an ID to use for constructing a wxWidget
+     * 
+     * @return wxWidget ID
+     */
+    long getWxID() override;
     
   public:
     /**

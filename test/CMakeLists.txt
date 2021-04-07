@@ -30,3 +30,7 @@ target_compile_definitions(rmonitor_systest1 PUBLIC
 target_link_libraries(rmonitor_systest1
     ${RMONITOR_LIBRARIES}
 )
+
+set_target_properties(rmonitor_systest1 PROPERTIES
+    LINK_FLAGS /SUBSYSTEM:WINDOWS
+)

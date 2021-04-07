@@ -33,9 +33,17 @@
 /**
  * @brief A label to display the real time status of the client device
  */
-class RM_API rmStaticText: public rmWidget, public wxStaticText {
+class RM_WX_API rmStaticText: public rmWidget, public wxStaticText {
   private:
     char label[24];
+    
+  protected:
+    /**
+     * @brief Gets an ID to use for constructing a wxWidget
+     * 
+     * @return wxWidget ID
+     */
+    long getWxID() override;
     
   public:
     /**

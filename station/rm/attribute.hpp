@@ -30,7 +30,6 @@
 #endif
 
 
-#include <cmath>
 #include <cstdint>
 #include <string>
 
@@ -104,16 +103,16 @@ class RM_API rmAttribute {
   private:
     rmAttributeNotifier* notifier = nullptr;
     char name[12] = {0};
-    rmAttributeData data = {.s=nullptr};
+    rmAttributeData data;
     int8_t type = RM_ATTRIBUTE_STRING;
-    rmAttributeData lowerBound = {.f=NAN};
-    rmAttributeData upperBound = {.f=NAN};
+    rmAttributeData lowerBound;
+    rmAttributeData upperBound;
     
   public:
     /**
      * @brief Default constructor
      */
-    rmAttribute() = default;
+    rmAttribute();
     
     /**
      * @brief Constructs an attribute with a name, type and boundaries

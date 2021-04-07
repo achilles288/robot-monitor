@@ -17,7 +17,7 @@ TEST(Encryption, encrypt) {
     ASSERT_NE(nullptr, encrypted);
     size_t len = strlen(encrypted);
     EXPECT_GE(15, len);
-    for(size_t i=0; i<15 and i<len; i++) {
+    for(size_t i=0; i<15 && i<len; i++) {
         if(encrypted[i] == message[i]) {
             std::cout << message << std::endl;
             std::cout << encrypted << std::endl;
