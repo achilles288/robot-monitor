@@ -28,6 +28,9 @@
 #endif
 
 
+class rmClient;
+
+
 #include "attribute.hpp"
 #include "call.hpp"
 #include "encryption.hpp"
