@@ -31,6 +31,8 @@ target_link_libraries(rmonitor_systest1
     ${RMONITOR_LIBRARIES}
 )
 
+if(WIN32)
 set_target_properties(rmonitor_systest1 PROPERTIES
     LINK_FLAGS /SUBSYSTEM:WINDOWS
 )
+endif()
