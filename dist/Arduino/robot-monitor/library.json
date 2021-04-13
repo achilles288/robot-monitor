@@ -1,0 +1,15 @@
+{
+  "name": "Robot Monitor",
+  "keywords": "control, sensor, signal, visualization",
+  "description": "Monitors and commands the microcontrollers for robots. The software makes it possible to use CLI-like interface, custom GUI for machine control and visualization.",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/khantkyawkhaung/robot-monitor.git"
+  },
+  "frameworks": "arduino",
+  "platforms":
+  [
+    "atmelavr"
+  ]
+}
