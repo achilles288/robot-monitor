@@ -113,10 +113,14 @@ void rmAttribute::setValue(bool value) {
         data.i = (int32_t) value;
     }
     else if(type == RM_ATTRIBUTE_STRING) {
-        if(data.s != nullptr)
+        const char* str = value ? "true" : "false";
+        if(data.s != nullptr) {
+            if(strcmp(data.s, str) == 0)
+                return;
             delete data.s;
+        }
         data.s = new char[6];
-        strcpy(data.s, value ? "true" : "false");
+        strcpy(data.s, str);
     }
 }
 
@@ -129,17 +133,33 @@ void rmAttribute::setValue(bool value) {
  */
 void rmAttribute::setValue(char value) {
     if(type == RM_ATTRIBUTE_BOOL ||
-       type == RM_ATTRIBUTE_CHAR ||
-       type == RM_ATTRIBUTE_INT)
+       type == RM_ATTRIBUTE_CHAR)
     {
         data.i = (int32_t) value;
     }
+    else if(type == RM_ATTRIBUTE_INT) {
+        data.i = (int32_t) value;
+        if(!std::isnan(lowerBound.f)) {
+            if(data.i < lowerBound.i)
+                data.i = lowerBound.i;
+        }
+        if(!std::isnan(upperBound.f)) {
+            if(data.i > upperBound.i)
+                data.i = upperBound.i;
+        }
+    }
     else if(type == RM_ATTRIBUTE_STRING) {
-        if(data.s != nullptr)
+        char* str = new char[2];
+        str[0] = value;
+        str[1] = '\0';
+        if(data.s != nullptr) {
+            if(strcmp(data.s, str) == 0) {
+                delete str;
+                return;
+            }
             delete data.s;
-        data.s = new char[2];
-        data.s[0] = value;
-        data.s[1] = '\0';
+        }
+        data.s = str;
     }
 }
 
@@ -151,21 +171,46 @@ void rmAttribute::setValue(char value) {
  * @param value The integer value
  */
 void rmAttribute::setValue(int32_t value) {
-    if(type == RM_ATTRIBUTE_BOOL ||
-       type == RM_ATTRIBUTE_CHAR ||
-       type == RM_ATTRIBUTE_INT)
-    {
+    if(type == RM_ATTRIBUTE_BOOL) {
+        data.b = (bool) value;
+    }
+    else if(type == RM_ATTRIBUTE_CHAR) {
+        data.c = (char) value;
+    }
+    else if(type == RM_ATTRIBUTE_INT) {
         data.i = value;
+        if(!std::isnan(lowerBound.f)) {
+            if(data.i < lowerBound.i)
+                data.i = lowerBound.i;
+        }
+        if(!std::isnan(upperBound.f)) {
+            if(data.i > upperBound.i)
+                data.i = upperBound.i;
+        }
     }
     else if(type == RM_ATTRIBUTE_FLOAT) {
         data.f = (float) value;
+        if(!std::isnan(lowerBound.f)) {
+            if(data.f < lowerBound.f)
+                data.f = lowerBound.f;
+        }
+        if(!std::isnan(upperBound.f)) {
+            if(data.f > upperBound.f)
+                data.f = upperBound.f;
+        }
     }
     else if(type == RM_ATTRIBUTE_STRING) {
-        if(data.s != nullptr)
+        char *str = new char[12];
+        snprintf(str, 11, "%d", value);
+        str[11] = '\0';
+        if(data.s != nullptr) {
+            if(strcmp(data.s, str) == 0) {
+                delete str;
+                return;
+            }
             delete data.s;
-        data.s = new char[12];
-        snprintf(data.s, 11, "%d", value);
-        data.s[11] = '\0';
+        }
+        data.s = str;
     }
 }
 
@@ -178,20 +223,42 @@ void rmAttribute::setValue(int32_t value) {
  */
 void rmAttribute::setValue(float value) {
     if(type == RM_ATTRIBUTE_BOOL) {
-        data.b = std::isnan(value);
+        data.b = !std::isnan(value);
     }
     else if(type == RM_ATTRIBUTE_INT) {
-        data.i = (int32_t) value;
+        data.i = (float) value;
+        if(!std::isnan(lowerBound.f)) {
+            if(data.i < lowerBound.i)
+                data.i = lowerBound.i;
+        }
+        if(!std::isnan(upperBound.f)) {
+            if(data.i > upperBound.i)
+                data.i = upperBound.i;
+        }
     }
     else if(type == RM_ATTRIBUTE_FLOAT) {
         data.f = value;
+        if(!std::isnan(lowerBound.f)) {
+            if(data.f < lowerBound.f)
+                data.f = lowerBound.f;
+        }
+        if(!std::isnan(upperBound.f)) {
+            if(data.f > upperBound.f)
+                data.f = upperBound.f;
+        }
     }
     else if(type == RM_ATTRIBUTE_STRING) {
-        if(data.s != nullptr)
+        char *str = new char[16];
+        snprintf(str, 15, "%f", value);
+        str[15] = '\0';
+        if(data.s != nullptr) {
+            if(strcmp(data.s, str) == 0) {
+                delete str;
+                return;
+            }
             delete data.s;
-        data.s = new char[16];
-        snprintf(data.s, 15, "%f", value);
-        data.s[15] = '\0';
+        }
+        data.s = str;
     }
 }
 
@@ -215,14 +282,33 @@ void rmAttribute::setValue(const char* value) {
     }
     else if(type == RM_ATTRIBUTE_INT) {
         data.i = atoi(value);
+        if(!std::isnan(lowerBound.f)) {
+            if(data.i < lowerBound.i)
+                data.i = lowerBound.i;
+        }
+        if(!std::isnan(upperBound.f)) {
+            if(data.i > upperBound.i)
+                data.i = upperBound.i;
+        }
     }
     else if(type == RM_ATTRIBUTE_FLOAT) {
         data.f = atof(value);
+        if(!std::isnan(lowerBound.f)) {
+            if(data.f < lowerBound.f)
+                data.f = lowerBound.f;
+        }
+        if(!std::isnan(upperBound.f)) {
+            if(data.f > upperBound.f)
+                data.f = upperBound.f;
+        }
     }
     else if(type == RM_ATTRIBUTE_STRING) {
-        size_t len = strnlen(value, 127);
-        if(data.s != nullptr)
+        if(data.s != NULL) {
+            if(strcmp(value, data.s) == 0)
+                return;
             delete data.s;
+        }
+        size_t len = strnlen(value, 127);
         data.s = new char[len + 1];
         memcpy(data.s, value, len);
         data.s[len] = '\0';
