@@ -200,6 +200,7 @@ void rmClient::removeAttribute(const char* key) {
     size_t pos = binarySearch1(0, attrCount - 1, key);
     if(strcmp(attributes[pos]->getName(), key) != 0)
         return;
+    delete attributes[pos];
     
     rmAttribute** newArr = new rmAttribute*[attrCount - 1];
     for(size_t i=0; i<=pos; i++) {
@@ -314,6 +315,7 @@ void rmClient::removeCall(const char* key) {
     size_t pos = binarySearch2(0, callCount - 1, key);
     if(strcmp(calls[pos]->getName(), key) != 0)
         return;
+    delete calls[pos];
     
     rmCall** newArr = new rmCall*[callCount - 1];
     for(size_t i=0; i<=pos; i++) {
