@@ -28,6 +28,9 @@
 #endif
 
 
+class rmClient;
+
+
 #include "attribute.hpp"
 #include "call.hpp"
 #include "encryption.hpp"
@@ -69,7 +72,10 @@ class RM_API rmClient {
     FILE* tx_fp = NULL;
     size_t rx_fp_pos = 0;
     
+    int binarySearch1(int low, int high, const char* key) const;
+    int binarySearch2(int low, int high, const char* key) const;
     bool appendAttribute(rmAttribute* attr);
+    bool appendCall(rmCall* call);
     
   public:
     /**
@@ -165,7 +171,7 @@ class RM_API rmClient {
      * 
      * @return Requested attribute. Null if the request is unavailable.
      */
-    rmAttribute* getAttribute(const char* key) const;
+    rmAttribute* getAttribute(const char* key)const;
     
     /**
      * @brief Removes an attribute from the map by name

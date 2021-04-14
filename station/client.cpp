@@ -56,11 +56,44 @@ const char* rmClient::getDeviceName() const { return name; }
 
 
 
+int rmClient::binarySearch1(int low, int high, const char* key) const {
+    while(true) {
+        if(low >= high) {
+            if(strcmp(key, attributes[low]->getName()) > 0)
+                return low + 1;
+            else
+                return low;
+        }
+        int mid = low + (high - low) / 2;
+        int cmp = strcmp(key, attributes[mid]->getName());
+        if(cmp == 0)
+            return mid;
+        else if(cmp < 0)
+            high = mid - 1;
+        else
+            low = mid + 1;
+    }
+}
+
 bool rmClient::appendAttribute(rmAttribute* attr) {
+    size_t pos = 0;
+    if(attrCount > 0) {
+        pos = binarySearch1(0, attrCount - 1, attr->getName());
+        if(pos < attrCount) {
+            if(strcmp(attr->getName(), attributes[pos]->getName()) == 0)
+                return false;
+        }
+    }
+    
     rmAttribute** newArr = new rmAttribute*[attrCount + 1];
-    for(size_t i=0; i<attrCount; i++)
+    for(size_t i=0; i<pos; i++) {
         newArr[i] = attributes[i];
-    newArr[attrCount++] = attr;
+    }
+    for(size_t i=pos; i<attrCount; i++) {
+        newArr[i + 1] = attributes[i];
+    }
+    newArr[pos] = attr;
+    attrCount++;
     
     if(attributes != nullptr)
         delete attributes;
@@ -82,8 +115,10 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t) {
     bool valid = appendAttribute(attr);
     if(valid)
         return attr;
-    else
+    else {
+        delete attr;
         return nullptr;
+    }
 }
 
 /**
@@ -105,8 +140,10 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t,
     bool valid = appendAttribute(attr);
     if(valid)
         return attr;
-    else
+    else {
+        delete attr;
         return nullptr;
+    }
 }
 
 /**
@@ -128,8 +165,10 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t, float lower,
     bool valid = appendAttribute(attr);
     if(valid)
         return attr;
-    else
+    else {
+        delete attr;
         return nullptr;
+    }
 }
 
 /**
@@ -140,9 +179,12 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t, float lower,
  * @return Requested attribute. Null if the request is unavailable.
  */
 rmAttribute* rmClient::getAttribute(const char* key) const {
-    for(size_t i=0; i<attrCount; i++) {
-        if(strcmp(attributes[i]->getName(), key) == 0)
-            return attributes[i];
+    if(attributes != nullptr) {
+        size_t pos = binarySearch1(0, attrCount - 1, key);
+        if(pos < attrCount) {
+            if(strcmp(attributes[pos]->getName(), key) == 0)
+                return attributes[pos];
+        }
     }
     return nullptr;
 }
@@ -153,7 +195,73 @@ rmAttribute* rmClient::getAttribute(const char* key) const {
  * @param key Unique name
  */
 void rmClient::removeAttribute(const char* key) {
+    if(attrCount == 0)
+        return;
+    size_t pos = binarySearch1(0, attrCount - 1, key);
+    if(strcmp(attributes[pos]->getName(), key) != 0)
+        return;
+    delete attributes[pos];
     
+    rmAttribute** newArr = new rmAttribute*[attrCount - 1];
+    for(size_t i=0; i<=pos; i++) {
+        newArr[i] = attributes[i];
+    }
+    for(size_t i=pos+1; i<attrCount; i++) {
+        newArr[i - 1] = attributes[i];
+    }
+    attrCount--;
+    
+    if(attributes != nullptr)
+        delete attributes;
+    attributes = newArr;
+}
+
+
+
+
+int rmClient::binarySearch2(int low, int high, const char* key) const {
+    while(true) {
+        if(low >= high) {
+            if(strcmp(key, calls[low]->getName()) > 0)
+                return low + 1;
+            else
+                return low;
+        }
+        int mid = low + (high - low) / 2;
+        int cmp = strcmp(key, calls[mid]->getName());
+        if(cmp == 0)
+            return mid;
+        else if(cmp < 0)
+            high = mid - 1;
+        else
+            low = mid + 1;
+    }
+}
+
+bool rmClient::appendCall(rmCall* call) {
+    size_t pos = 0;
+    if(callCount > 0) {
+        pos = binarySearch2(0, callCount - 1, call->getName());
+        if(pos < callCount) {
+            if(strcmp(call->getName(), calls[pos]->getName()) == 0)
+                return false;
+        }
+    }
+    
+    rmCall** newArr = new rmCall*[callCount + 1];
+    for(size_t i=0; i<pos; i++) {
+        newArr[i] = calls[i];
+    }
+    for(size_t i=pos; i<callCount; i++) {
+        newArr[i + 1] = calls[i];
+    }
+    newArr[pos] = call;
+    callCount++;
+    
+    if(calls != nullptr)
+        delete calls;
+    calls = newArr;
+    return true;
 }
 
 /**
@@ -168,7 +276,14 @@ void rmClient::removeAttribute(const char* key) {
  *         already exists or the creation is invalid.
  */
 rmCall* rmClient::createCall(const char* key, void (*func)(int, char**)) {
-    return nullptr;
+    rmCall* call = new rmCall(key, func);
+    bool valid = appendCall(call);
+    if(valid)
+        return call;
+    else {
+        delete call;
+        return nullptr;
+    }
 }
 
 /**
@@ -179,6 +294,13 @@ rmCall* rmClient::createCall(const char* key, void (*func)(int, char**)) {
  * @return Requested call. Null if the request is unavailable.
  */
 rmCall* rmClient::getCall(const char* key) const {
+    if(calls != nullptr) {
+        size_t pos = binarySearch2(0, callCount - 1, key);
+        if(pos < callCount) {
+            if(strcmp(calls[pos]->getName(), key) == 0)
+                return calls[pos];
+        }
+    }
     return nullptr;
 }
 
@@ -188,7 +310,25 @@ rmCall* rmClient::getCall(const char* key) const {
  * @param key Unique name
  */
 void rmClient::removeCall(const char* key) {
+    if(callCount == 0)
+        return;
+    size_t pos = binarySearch2(0, callCount - 1, key);
+    if(strcmp(calls[pos]->getName(), key) != 0)
+        return;
+    delete calls[pos];
     
+    rmCall** newArr = new rmCall*[callCount - 1];
+    for(size_t i=0; i<=pos; i++) {
+        newArr[i] = calls[i];
+    }
+    for(size_t i=pos+1; i<callCount; i++) {
+        newArr[i - 1] = calls[i];
+    }
+    callCount--;
+    
+    if(calls != nullptr)
+        delete calls;
+    calls = newArr;
 }
 
 /**

@@ -1,5 +1,6 @@
 add_library(rmonitor SHARED
     attribute.cpp
+    call.cpp
     client.cpp
     encryption.cpp
     widget.cpp
