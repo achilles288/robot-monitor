@@ -35,10 +35,16 @@ set(wxWidgets_CONFIGURATION mswu)
 endif()
 find_package(wxWidgets 3.1 COMPONENTS base core)
 
+# 
+# USB serial library
+# 
+add_subdirectory(external/serial)
 
 
 
+# 
 # Compile flags
+# 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 add_definitions(
     -Wall
@@ -60,7 +66,9 @@ add_definitions(
 )
 endif()
 
+# 
 # Compile Robot Monitor
+# 
 add_subdirectory(station)
 
 

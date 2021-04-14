@@ -12,6 +12,10 @@ add_library(rmonitor SHARED
     rm/widget.hpp
 )
 
+target_link_libraries(rmonitor PUBLIC
+    serial
+)
+
 set_target_properties(rmonitor PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}

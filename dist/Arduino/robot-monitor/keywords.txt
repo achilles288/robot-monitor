@@ -1,0 +1,39 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+rmAttribute	KEYWORD1
+rmAttributeData	KEYWORD1
+rmCall	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+rmAttributeSetBool	KEYWORD2
+rmAttributeSetBoundary	KEYWORD2
+rmAttributeSetChar	KEYWORD2
+rmAttributeSetFloat	KEYWORD2
+rmAttributeSetInt	KEYWORD2
+rmAttributeSetString	KEYWORD2
+rmAttributeSetValue	KEYWORD2
+rmConnectUSART	KEYWORD2
+rmCreateAttribute	KEYWORD2
+rmCreateCall	KEYWORD2
+rmGetAttribute	KEYWORD2
+rmGetCall	KEYWORD2
+rmReadMessage	KEYWORD2
+rmSendMessage	KEYWORD2
+
+######################################
+# Constants (LITERAL1)
+#######################################
+RM_ATTRIBUTE_BOOL	LITERAL1
+RM_ATTRIBUTE_CHAR	LITERAL1
+RM_ATTRIBUTE_FLOAT	LITERAL1
+RM_ATTRIBUTE_INT	LITERAL1
+RM_ATTRIBUTE_STRING	LITERAL1
+RM_USART_ISR	LITERAL1
