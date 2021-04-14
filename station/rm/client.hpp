@@ -72,8 +72,10 @@ class RM_API rmClient {
     FILE* tx_fp = NULL;
     size_t rx_fp_pos = 0;
     
+    int binarySearch1(int low, int high, const char* key) const;
+    int binarySearch2(int low, int high, const char* key) const;
     bool appendAttribute(rmAttribute* attr);
-    int binarySearch(rmAttribute** arr, int low, int high, const char* key) const;
+    bool appendCall(rmCall* call);
     
   public:
     /**

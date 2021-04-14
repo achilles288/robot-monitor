@@ -105,7 +105,7 @@ TEST(Client, removeCall) {
     
     rmCall* call;
     call = client.getCall("drive");
-    EXPECT_EQ(nullptr, call);
+    ASSERT_NE(nullptr, call);
     EXPECT_STREQ("drive", call->getName());
     client.removeCall("drive");
     call = client.getCall("drive");
