@@ -46,6 +46,25 @@ rmClient::~rmClient() {
         fclose(tx_fp);
 }
 
+
+/**
+* @brief Binary search algorithm
+* 
+* @return The corresponding index of the input data 
+*/
+int rmClient::binarySearch(rmAttribute** arr, int low, int high, const char* key) const{
+    if(high >= low) {
+        int mid = low + (high - low) / 2;
+        if (strcmp(key,arr[mid]->getName())==0) { return mid; }
+        else if (strcmp(key,arr[mid]->getName())<0) {
+            return binarySearch(arr, low, mid - 1, key);
+        }
+        else {
+            return binarySearch(arr, mid + 1, high, key);
+        }
+    }
+}
+
 /**
  * @brief Gets the name of the client device
  * 
@@ -61,6 +80,16 @@ bool rmClient::appendAttribute(rmAttribute* attr) {
     for(size_t i=0; i<attrCount; i++)
         newArr[i] = attributes[i];
     newArr[attrCount++] = attr;
+
+    int pos = binarySearch(attributes, 0, attrCount - 1, attr->getName());
+    for (int i = 0; i <= pos; i++) {
+        newArr[i] = attributes[i];
+    }
+    for (int i = pos + 1; i < attrCount; i++) {
+        newArr[i + 1] = attributes[i];
+    }
+    newArr[pos + 1] = attr;
+    attrCount++;
     
     if(attributes != nullptr)
         delete attributes;
@@ -140,9 +169,8 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t, float lower,
  * @return Requested attribute. Null if the request is unavailable.
  */
 rmAttribute* rmClient::getAttribute(const char* key) const {
-    for(size_t i=0; i<attrCount; i++) {
-        if(strcmp(attributes[i]->getName(), key) == 0)
-            return attributes[i];
+    if (attributes != nullptr) {
+        return attributes[binarySearch(attributes, 0, attrCount - 1, key)];
     }
     return nullptr;
 }
@@ -153,7 +181,22 @@ rmAttribute* rmClient::getAttribute(const char* key) const {
  * @param key Unique name
  */
 void rmClient::removeAttribute(const char* key) {
+    rmAttribute** newArr = new rmAttribute * [attrCount - 1];
     
+    int pos = binarySearch(attributes, 0, attrCount - 1, key);
+    if (strcmp(attributes[pos]->getName(),key)==0) {
+        for (int i = 0; i <= pos; i++) {
+            newArr[i] = attributes[i];
+        }
+        for (int i = pos + 1; i < attrCount; i++) {
+            newArr[i - 1] = attributes[i];
+        }
+        attrCount--;
+        if (attributes != nullptr) {
+            delete attributes;
+        }
+        attributes = newArr;
+    }
 }
 
 /**

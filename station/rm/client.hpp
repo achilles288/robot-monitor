@@ -73,6 +73,7 @@ class RM_API rmClient {
     size_t rx_fp_pos = 0;
     
     bool appendAttribute(rmAttribute* attr);
+    int binarySearch(rmAttribute** arr, int low, int high, const char* key) const;
     
   public:
     /**
@@ -168,7 +169,7 @@ class RM_API rmClient {
      * 
      * @return Requested attribute. Null if the request is unavailable.
      */
-    rmAttribute* getAttribute(const char* key) const;
+    rmAttribute* getAttribute(const char* key)const;
     
     /**
      * @brief Removes an attribute from the map by name
