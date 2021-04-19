@@ -1,0 +1,4 @@
+<map id="rmEcho" name="rmEcho">
+<area shape="rect" id="node1" title="To print regular messages for the client object." alt="" coords="18,5,89,32"/>
+<area shape="rect" id="node2" href="$classrmEchoBox.html" title="A text box widget that shows the console output messages." alt="" coords="5,80,101,107"/>
+</map>
