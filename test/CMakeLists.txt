@@ -1,5 +1,10 @@
 include_directories(${RMONITOR_INCLUDE_DIRS})
 
+file(COPY
+    ${PROJECT_SOURCE_DIR}/docs/app_icon.png
+    DESTINATION ${CMAKE_BINARY_DIR}/bin
+)
+
 file(GLOB_RECURSE RMTEST_UNIT_SOURCES unit/*.cpp)
 
 add_executable(rmonitor_test
@@ -20,7 +25,8 @@ target_link_libraries(rmonitor_test PUBLIC
 
 
 add_executable(rmonitor_systest1
-    system1/wxglade_out.cpp
+    system1/station/wxglade_out.cpp
+    system1/station/wxglade_user.cpp
 )
 
 target_compile_definitions(rmonitor_systest1 PUBLIC

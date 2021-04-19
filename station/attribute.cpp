@@ -171,13 +171,16 @@ void rmAttribute::setValue(char value) {
  * @param value The integer value
  */
 void rmAttribute::setValue(int32_t value) {
-    if(type == RM_ATTRIBUTE_BOOL) {
+    switch(type) {
+      case RM_ATTRIBUTE_BOOL:
         data.b = (bool) value;
-    }
-    else if(type == RM_ATTRIBUTE_CHAR) {
+        break;
+        
+      case RM_ATTRIBUTE_CHAR:
         data.c = (char) value;
-    }
-    else if(type == RM_ATTRIBUTE_INT) {
+        break;
+        
+      case RM_ATTRIBUTE_INT:
         data.i = value;
         if(!std::isnan(lowerBound.f)) {
             if(data.i < lowerBound.i)
@@ -187,8 +190,9 @@ void rmAttribute::setValue(int32_t value) {
             if(data.i > upperBound.i)
                 data.i = upperBound.i;
         }
-    }
-    else if(type == RM_ATTRIBUTE_FLOAT) {
+        break;
+        
+      case RM_ATTRIBUTE_FLOAT:
         data.f = (float) value;
         if(!std::isnan(lowerBound.f)) {
             if(data.f < lowerBound.f)
@@ -198,8 +202,9 @@ void rmAttribute::setValue(int32_t value) {
             if(data.f > upperBound.f)
                 data.f = upperBound.f;
         }
-    }
-    else if(type == RM_ATTRIBUTE_STRING) {
+        break;
+        
+      case RM_ATTRIBUTE_STRING:
         char *str = new char[12];
         snprintf(str, 11, "%d", value);
         str[11] = '\0';
@@ -222,11 +227,13 @@ void rmAttribute::setValue(int32_t value) {
  * @param value The floating point value
  */
 void rmAttribute::setValue(float value) {
-    if(type == RM_ATTRIBUTE_BOOL) {
+    switch(type) {
+      case RM_ATTRIBUTE_BOOL:
         data.b = !std::isnan(value);
-    }
-    else if(type == RM_ATTRIBUTE_INT) {
-        data.i = (float) value;
+        break;
+        
+      case RM_ATTRIBUTE_INT:
+        data.i = (int32_t) value;
         if(!std::isnan(lowerBound.f)) {
             if(data.i < lowerBound.i)
                 data.i = lowerBound.i;
@@ -235,8 +242,9 @@ void rmAttribute::setValue(float value) {
             if(data.i > upperBound.i)
                 data.i = upperBound.i;
         }
-    }
-    else if(type == RM_ATTRIBUTE_FLOAT) {
+        break;
+        
+      case RM_ATTRIBUTE_FLOAT:
         data.f = value;
         if(!std::isnan(lowerBound.f)) {
             if(data.f < lowerBound.f)
@@ -246,8 +254,9 @@ void rmAttribute::setValue(float value) {
             if(data.f > upperBound.f)
                 data.f = upperBound.f;
         }
-    }
-    else if(type == RM_ATTRIBUTE_STRING) {
+        break;
+        
+      case RM_ATTRIBUTE_STRING:
         char *str = new char[16];
         snprintf(str, 15, "%f", value);
         str[15] = '\0';
@@ -270,17 +279,20 @@ void rmAttribute::setValue(float value) {
  * @param value The string value or blob. The array is copied.
  */
 void rmAttribute::setValue(const char* value) {
-    if(type == RM_ATTRIBUTE_BOOL) {
+    switch(type) {
+      case RM_ATTRIBUTE_BOOL:
         if(strcmp(value, "false") == 0)
             data.b = false;
         else if(strcmp(value, "true") == 0)
             data.b = true;
-    }
-    else if(type == RM_ATTRIBUTE_CHAR) {
+        break;
+        
+      case RM_ATTRIBUTE_CHAR:
         if(value != nullptr)
             data.c = value[0];
-    }
-    else if(type == RM_ATTRIBUTE_INT) {
+        break;
+        
+      case RM_ATTRIBUTE_INT:
         data.i = atoi(value);
         if(!std::isnan(lowerBound.f)) {
             if(data.i < lowerBound.i)
@@ -290,8 +302,9 @@ void rmAttribute::setValue(const char* value) {
             if(data.i > upperBound.i)
                 data.i = upperBound.i;
         }
-    }
-    else if(type == RM_ATTRIBUTE_FLOAT) {
+        break;
+        
+      case RM_ATTRIBUTE_FLOAT:
         data.f = atof(value);
         if(!std::isnan(lowerBound.f)) {
             if(data.f < lowerBound.f)
@@ -301,8 +314,9 @@ void rmAttribute::setValue(const char* value) {
             if(data.f > upperBound.f)
                 data.f = upperBound.f;
         }
-    }
-    else if(type == RM_ATTRIBUTE_STRING) {
+        break;
+        
+      case RM_ATTRIBUTE_STRING:
         if(data.s != NULL) {
             if(strcmp(value, data.s) == 0)
                 return;
@@ -329,29 +343,32 @@ rmAttributeData rmAttribute::getValue() const { return data; }
  * @return Any type of attribute value parsed into a string
  */
 std::string rmAttribute::getValueString() const {
-    if(type == RM_ATTRIBUTE_BOOL) {
+    char buff[16];
+    switch(type) {
+      case RM_ATTRIBUTE_BOOL:
         return data.b ? "true" : "false";
-    }
-    else if(type == RM_ATTRIBUTE_CHAR) {
-        char buff[2] = {data.c, '\0'};
+        
+      case RM_ATTRIBUTE_CHAR:
+        buff[0] = data.c;
+        buff[1] = '\0';
         return std::string(buff);
-    }
-    else if(type == RM_ATTRIBUTE_INT) {
-        char buff[12];
+        
+      case RM_ATTRIBUTE_INT:
         snprintf(buff, 11, "%d", data.i);
         buff[11] = '\0';
         return std::string(buff);
-    }
-    else if(type == RM_ATTRIBUTE_FLOAT) {
-        char buff[16];
+        
+      case RM_ATTRIBUTE_FLOAT:
         snprintf(buff, 15, "%f", data.f);
         buff[15] = '\0';
         return std::string(buff);
-    }
-    else if(type == RM_ATTRIBUTE_STRING) {
+        
+      case RM_ATTRIBUTE_STRING:
         return std::string(data.s);
+        
+      default:
+        return std::string();
     }
-    return std::string();
 }
 
 /**
@@ -368,11 +385,13 @@ int8_t rmAttribute::getType() const { return type; }
  * @param upper Upper bound value
  */
 void rmAttribute::setBoundary(int32_t lower, int32_t upper) {
-    if(type == RM_ATTRIBUTE_INT) {
+    switch(type) {
+      case RM_ATTRIBUTE_INT:
         lowerBound.i = lower;
         upperBound.i = upper;
-    }
-    else if(type == RM_ATTRIBUTE_FLOAT) {
+        break;
+        
+      case RM_ATTRIBUTE_FLOAT:
         lowerBound.f = (float) lower;
         upperBound.f = (float) upper;
     }
@@ -385,11 +404,13 @@ void rmAttribute::setBoundary(int32_t lower, int32_t upper) {
  * @param upper Upper bound value
  */
 void rmAttribute::setBoundary(float lower, float upper) {
-    if(type == RM_ATTRIBUTE_INT) {
+    switch(type) {
+      case RM_ATTRIBUTE_INT:
         lowerBound.i = (int32_t) lower;
         upperBound.i = (int32_t) upper;
-    }
-    else if(type == RM_ATTRIBUTE_FLOAT) {
+        break;
+        
+      case RM_ATTRIBUTE_FLOAT:
         lowerBound.f = lower;
         upperBound.f = upper;
     }

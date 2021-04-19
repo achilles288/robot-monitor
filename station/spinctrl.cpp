@@ -57,8 +57,7 @@ rmSpinCtrl::rmSpinCtrl(wxWindow* parent, rmClient* cli, const char* key,
             this
         );
     }
-    else
-        Disable();
+    Disable();
 }
 
 /**

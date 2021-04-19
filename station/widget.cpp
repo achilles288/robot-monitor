@@ -1,5 +1,5 @@
 /**
- * @file widget1.cpp
+ * @file widget.cpp
  * @brief The base class of the widgets for robot monitor
  * 
  * The widgets are for wxWidgets library. The functions here are to make the
@@ -33,15 +33,6 @@ rmWidget::rmWidget(rmClient* cli) {
     wx_id = getWxID();
     client = cli;
     client->appendWidget(this);
-}
-
-/**
- * @brief Destructor
- */
-rmWidget::~rmWidget() {
-    client->removeWidget(this);
-    if(attribute != nullptr)
-        client->removeAttribute(attribute->getName());
 }
 
 /**

@@ -305,10 +305,16 @@ class RM_API rmAttribute {
 };
 
 
+/**
+ * @brief Class that handles the events that triggers upon the change of
+ *        attribute
+ */
 class RM_API rmAttributeNotifier {
+  private:
+    void (*customCallback)() = nullptr;
+    
   protected:
     rmAttribute* attribute = nullptr; ///< The attribute to track
-    void (*customCallback)() = nullptr;
     
   public:
     /**

@@ -25,40 +25,46 @@
  * @param value The string value or blob. The array is copied.
  */
 void rmAttributeSetValue(rmAttribute* attr, const char* value) {
-    if(attr->type == RM_ATTRIBUTE_BOOL) {
+    switch(attr->type) {
+      rmAttributeData d;
+      case RM_ATTRIBUTE_BOOL:
         if(strcmp(value, "false") == 0)
             attr->data.b = false;
         else if(strcmp(value, "true") == 0)
             attr->data.b = true;
-    }
-    else if(attr->type == RM_ATTRIBUTE_CHAR) {
+        break;
+        
+      case RM_ATTRIBUTE_CHAR:
         attr->data.c = value[0];
-    }
-    else if(attr->type == RM_ATTRIBUTE_INT) {
-        int32_t i = atoi(value);
+        break;
+        
+      case RM_ATTRIBUTE_INT:
+        d.i = atoi(value);
         if(!isnan(attr->lowerBound.f)) {
-            if(i < attr->lowerBound.i)
-                i = attr->lowerBound.i;
+            if(d.i < attr->lowerBound.i)
+                d.i = attr->lowerBound.i;
         }
         if(!isnan(attr->upperBound.f)) {
-            if(i > attr->upperBound.i)
-                i = attr->upperBound.i;
+            if(d.i > attr->upperBound.i)
+                d.i = attr->upperBound.i;
         }
-        attr->data.i = i;
-    }
-    else if(attr->type == RM_ATTRIBUTE_FLOAT) {
-        float f = atof(value);
+        attr->data.i = d.i;
+        break;
+        
+      case RM_ATTRIBUTE_FLOAT:
+        d.f = atof(value);
         if(!isnan(attr->lowerBound.f)) {
-            if(f < attr->lowerBound.f)
-                f = attr->lowerBound.f;
+            if(d.f < attr->lowerBound.f)
+                d.f = attr->lowerBound.f;
         }
         if(!isnan(attr->upperBound.f)) {
-            if(f > attr->upperBound.f)
-                f = attr->upperBound.f;
+            if(d.f > attr->upperBound.f)
+                d.f = attr->upperBound.f;
         }
-        attr->data.f = f;
-    }
-    else if(attr->type == RM_ATTRIBUTE_STRING) {
+        attr->data.f = d.f;
+        break;
+        
+      case RM_ATTRIBUTE_STRING:
         if(attr->data.s != NULL) {
             if(strcmp(value, attr->data.s) == 0)
                 return;

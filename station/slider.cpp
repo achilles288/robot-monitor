@@ -48,14 +48,16 @@ rmSlider::rmSlider(wxWindow* parent, rmClient* cli, const char* key,
 {
     attribute = client->createAttribute(key, RM_ATTRIBUTE_INT, lower, upper);
     if(attribute != nullptr) {
-        SetClientData((void*) this);
-        wxSlider::Connect(
-            wx_id, wxEVT_SLIDER,
-            (wxObjectEventFunction)&rmSlider::onSlide
+        attribute->setNotifier(this);
+        Connect(
+            wx_id,
+            wxEVT_SLIDER,
+            wxCommandEventHandler(rmSlider::onSlide),
+            NULL,
+            this
         );
     }
-    else
-        Disable();
+    Disable();
 }
 
 /**
@@ -84,8 +86,7 @@ rmSlider::rmSlider(wxWindow* parent, rmClient* cli, const char* key,
             this
         );
     }
-    else
-        Disable();
+    Disable();
 }
 
 /**

@@ -5,8 +5,6 @@ project("Robot Monitor" VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 17)
 
 
-# Robot Monitor documentation
-add_subdirectory(docs)
 
 
 if(UNIX)
@@ -35,10 +33,18 @@ set(wxWidgets_CONFIGURATION mswu)
 endif()
 find_package(wxWidgets 3.1 COMPONENTS base core)
 
-# 
-# USB serial library
-# 
 add_subdirectory(external/serial)
+set(serial_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/external/serial/include)
+set(serial_LIBRARIES serial)
+
+
+
+
+configure_file(
+    ${PROJECT_SOURCE_DIR}/station/rm/config.h.in
+    ${PROJECT_SOURCE_DIR}/station/rm/config.h
+)
+
 
 
 
@@ -72,6 +78,8 @@ endif()
 add_subdirectory(station)
 
 
+
+
 # 
 # Compile definitions, include directories and libraries
 # 
@@ -80,6 +88,7 @@ set(RMONITOR_DEFINITIONS
 )
 
 set(RMONITOR_INCLUDE_DIRS
+    ${serial_INCLUDE_DIRS}
     ${wxWidgets_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/station
 )

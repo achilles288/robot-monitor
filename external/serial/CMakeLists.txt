@@ -23,6 +23,10 @@ else()
     list(APPEND serial_SRCS src/impl/list_ports/list_ports_win.cc)
 endif()
 
+if(UNIX)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+endif()
+
 ## Add serial library
 add_library(serial STATIC ${serial_SRCS})
 if(APPLE)

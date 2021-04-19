@@ -30,6 +30,23 @@ long rmStaticText::getWxID() {
  * 
  * @param parent The parent window
  * @param cli The client
+ * @param key Not used
+ * @param label The text displayed along side the attribute value
+ */
+rmStaticText::rmStaticText(wxWindow* parent, rmClient* cli, const char* key,
+                           const char* label)
+             :rmWidget(cli),
+              wxStaticText(parent, wx_id, wxString(label))
+{
+    this->label[0] = '\0';
+    Disable();
+}
+
+/**
+ * @brief Constructs a label widget
+ * 
+ * @param parent The parent window
+ * @param cli The client
  * @param key Unique name of the attribute with maximum 11 characters
  * @param label The text displayed along side the attribute value
  * @param t Data type of the value stored
@@ -39,6 +56,12 @@ rmStaticText::rmStaticText(wxWindow* parent, rmClient* cli, const char* key,
              :rmWidget(cli),
               wxStaticText(parent, wx_id, wxEmptyString)
 {
+    if(key == nullptr) {
+        SetLabel(wxString(label));
+        Disable();
+        return;
+    }
+    
     attribute = client->createAttribute(key, t);
     strncpy(this->label, label, 23);
     this->label[23] = '\0';
@@ -52,7 +75,15 @@ rmStaticText::rmStaticText(wxWindow* parent, rmClient* cli, const char* key,
         wstr = wxString::Format(wxT("%s:"), label);
     }
     SetLabel(wstr);
+    Disable();
 }
+
+/**
+ * @brief Enables or disables the user input
+ * 
+ * @param en True for enable and false for otherwise
+ */
+void rmStaticText::setEnabled(bool en) { Enable(en); }
 
 /**
  * @brief Triggers on attribute value change

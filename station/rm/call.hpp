@@ -50,6 +50,11 @@ class RM_API rmCall {
     rmCall() = default;
     
     /**
+     * @brief Destructor
+     */
+    virtual ~rmCall() = default;
+    
+    /**
      * @brief Constructs a call with a name and a function pointer
      * 
      * @param key Unique name of the call with maximum 11 characters
@@ -60,11 +65,47 @@ class RM_API rmCall {
     rmCall(const char* key, void (*func)(int, char**));
     
     /**
-     * @brief Gets the attribute name
+     * @brief Copy constructor (deleted)
      * 
-     * @return The name of the attribute
+     * @param call Source
+     */
+    rmCall(const rmCall& call) = delete;
+    
+    /**
+     * @brief Move constructor
+     * 
+     * @param call Source
+     */
+    rmCall(rmCall&& call) noexcept = default;
+    
+    /**
+     * @brief Copy assignment (deleted)
+     * 
+     * @param call Source
+     */
+    rmCall& operator=(const rmCall& call) = delete;
+    
+    /**
+     * @brief Move assignment
+     * 
+     * @param call Source
+     */
+    rmCall& operator=(rmCall&& call) noexcept = default;
+    
+    /**
+     * @brief Gets the call name
+     * 
+     * @return The name of the call
      */
     const char* getName() const;
+    
+    /**
+     * @brief Invokes the callback of the object
+     * 
+     * @param argc Argument count
+     * @param argv Tokens
+     */
+    virtual void invoke(int argc, char* argv[]);
 };
 
 #endif

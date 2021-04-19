@@ -56,12 +56,30 @@ class RM_WX_API rmStaticText: public rmWidget, public wxStaticText {
      * 
      * @param parent The parent window
      * @param cli The client
+     * @param key Not used
+     * @param label The text displayed along side the attribute value
+     */
+    rmStaticText(wxWindow* parent, rmClient* cli, const char* key,
+                 const char* label);
+    
+    /**
+     * @brief Constructs a label widget
+     * 
+     * @param parent The parent window
+     * @param cli The client
      * @param key Unique name of the attribute with maximum 11 characters
      * @param label The text displayed along side the attribute value
      * @param t Data type of the value stored
      */
     rmStaticText(wxWindow* parent, rmClient* cli, const char* key,
                  const char* label, int8_t t);
+    
+    /**
+     * @brief Enables or disables the user input
+     * 
+     * @param en True for enable and false for otherwise
+     */
+    void setEnabled(bool en);
     
     /**
      * @brief Triggers on attribute value change

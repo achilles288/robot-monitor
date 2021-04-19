@@ -37,7 +37,8 @@ long rmButton::getWxID() {
  */
 rmButton::rmButton(wxWindow* parent, rmClient* cli, const char* cmd,
                    const char* label)
-         :wxButton(parent, wx_id, wxString(label))
+         :rmWidget(cli),
+          wxButton(parent, wx_id, wxString(label))
 {
     strncpy(command, cmd, 11);
     command[11] = '\0';
@@ -48,6 +49,7 @@ rmButton::rmButton(wxWindow* parent, rmClient* cli, const char* cmd,
         NULL,
         this
     );
+    Disable();
 }
 
 /**

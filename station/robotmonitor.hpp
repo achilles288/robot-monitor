@@ -19,6 +19,8 @@
 #ifndef __ROBOT_MONITOR_H__
 #define __ROBOT_MONITOR_H__
 
+#include "rm/config.h"
+
 #include "rm/attribute.hpp"
 #include "rm/call.hpp"
 #include "rm/client.hpp"
@@ -26,7 +28,9 @@
 #ifndef RM_NO_WX
 #include "rm/button.hpp"
 #include "rm/checkbox.hpp"
+#include "rm/echobox.hpp"
 #include "rm/gauge.hpp"
+#include "rm/icon.h"
 #include "rm/slider.hpp"
 #include "rm/spinctrl.hpp"
 #include "rm/stattext.hpp"

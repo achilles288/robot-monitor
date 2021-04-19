@@ -156,13 +156,15 @@ void rmReadMessage() {
         if(i == 255)
             c = '\n';
         
-        if(c == ' ') {
+        switch(c) {
+          case ' ':
             if(!space) {
-                cmd[i] = '\0';
+                cmd[i++] = '\0';
                 space = true;
             }
-        }
-        else if(c == '\n') {
+            break;
+            
+          case '\n':
             cmd[i] = '\0';
             call = _rmGetCall(cmd);
             if(call != NULL)
@@ -170,17 +172,15 @@ void rmReadMessage() {
             i = 0;
             tokenCount = 0;
             space = false;
-            c = rmRead();
-            continue;
-        }
-        else {
-            cmd[i] = c;
+            break;
+            
+          default:
             if(space) {
                 tokens[tokenCount++] = cmd + i;
                 space = false;
             }
+            cmd[i++] = c;
         }
         c = rmRead();
-        i++;
     }
 }

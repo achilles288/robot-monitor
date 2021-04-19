@@ -33,18 +33,22 @@ class rmClient;
 
 #include "attribute.hpp"
 #include "call.hpp"
+#include "echo.hpp"
 #include "encryption.hpp"
+#include "serial.hpp"
 #include "widget.hpp"
 
 #include <cstdint>
 #include <cstdio>
+#include <thread>
+#include <mutex>
 
 
-#define RM_CONNECTION_USB  1 ///< USB interface
-#define RM_CONNECTION_UART 2 ///< RX TX connection
-#define RM_CONNECTION_I2C  3 ///< I2C interface
-#define RM_CONNECTION_SPI  4 ///< SPI interface
-#define RM_CONNECTION_SELF 5 ///< Connection within the same device
+#define RM_CONNECTION_SERIAL 1 ///< Serial interface
+#define RM_CONNECTION_USART  2 ///< RX TX connection
+#define RM_CONNECTION_I2C    3 ///< I2C interface
+#define RM_CONNECTION_SPI    4 ///< SPI interface
+#define RM_CONNECTION_SELF   5 ///< Connection within the same device
 
 
 /**
@@ -66,22 +70,26 @@ class RM_API rmClient {
     size_t widgetCount = 0;
     bool connected = false;
     int8_t connectionMethod = 0;
-    char port[16] = {0};
-    int baudRate = 0;
-    FILE* rx_fp = NULL;
-    FILE* tx_fp = NULL;
-    size_t rx_fp_pos = 0;
+    rmSerialPort* mySerial = nullptr;
+    std::thread* thread1 = nullptr;
+    std::mutex mutex1;
+    bool thread1End = false;
+    rmEcho *myEcho = nullptr;
     
     int binarySearch1(int low, int high, const char* key) const;
     int binarySearch2(int low, int high, const char* key) const;
     bool appendAttribute(rmAttribute* attr);
     bool appendCall(rmCall* call);
+    void startConnection();
+    char read();
+    
+    friend void rmConnectionThread(rmClient* client);
     
   public:
     /**
      * @brief Default constructor
      */
-    rmClient() = default;
+    rmClient();
     
     /**
      * @brief Destructor
@@ -171,7 +179,7 @@ class RM_API rmClient {
      * 
      * @return Requested attribute. Null if the request is unavailable.
      */
-    rmAttribute* getAttribute(const char* key)const;
+    rmAttribute* getAttribute(const char* key);
     
     /**
      * @brief Removes an attribute from the map by name
@@ -200,7 +208,7 @@ class RM_API rmClient {
      * 
      * @return Requested call. Null if the request is unavailable.
      */
-    rmCall* getCall(const char* key) const;
+    rmCall* getCall(const char* key);
     
     /**
      * @brief Removes a call from the map by name
@@ -224,26 +232,32 @@ class RM_API rmClient {
     void removeWidget(rmWidget* widget);
     
     /**
-     * @brief Connects to a USB device
+     * @brief Checks the connection and processes the incoming messages
+     */
+    void onIdle();
+    
+    /**
+     * @brief Connects to a device via RS-232 serial
      * 
-     * @param port Port
+     * @param port The address of the serial port, which would be something
+     *             like 'COM1' on Windows and '/dev/ttyACM0' on Linux.
+     * @param baud Baudrate
+     * @param crypt Enable encryption
+     */
+    void connectSerial(const char* port, uint32_t baud, bool crypt=false);
+    
+    /**
+     * @brief Connects to a device via RS-232 serial
+     * 
+     * @param portInfo The serial port information for the device
      * @param baud Baud rate
      * @param crypt Enable encryption
      */
-    void connectUSB(const char* port, int baud, bool crypt=false);
-    
-    /**
-     * @brief Connects to the host device itself
-     * 
-     * This method is used to communicate with different programs or different
-     * systems within the same program. This is intented to be used in
-     * automated testing.
-     * 
-     * @param rx The file which the station listens to
-     * @param tx The file where the station writes messages
-     * @param crypt Enable encryption
-     */
-    void connectSelf(const char* rx, const char* tx, bool crypt=false);
+    inline void connectSerial(rmSerialPortInfo portInfo, uint32_t baud,
+                              bool crypt=false)
+    {
+        connectSerial(portInfo.port, baud, crypt);
+    }
     
     /**
      * @brief Disconnects the current connection
@@ -263,28 +277,34 @@ class RM_API rmClient {
      * @param msg Message string
      * @param crypt True to encrypt the message if the connection supports it
      */
-    void sendMessage(const char* msg, bool crypt=true) const;
+    void sendMessage(const char* msg, bool crypt=true);
     
     /**
      * @brief Sends the value of attribute to the client
      * 
      * @param attr The attribute
      */
-    void sendAttribute(rmAttribute* attr) const;
+    void sendAttribute(rmAttribute* attr);
     
     /**
-     * @brief Reads a message from the client device
+     * @brief Sets the printer for echoing messages
      * 
-     * @return Message string
+     * @param printer The echo object
      */
-    const char* readMessage() const;
+    void setEcho(rmEcho* printer);
     
     /**
-     * @brief Reads a message that is not decrypted from the client device
+     * @brief Echos the messages
      * 
-     * @return Message string the is not yet decrypted
+     * Intended to be called from 'echo' command by the client device. This
+     * command is usually to print normal output messages other than attribute
+     * changes and functional callbacks.
+     * 
+     * @param msg The message
+     * @param status The status code. Status code other than 0 may print red
+     *         messages.
      */
-    const char* readMessageRaw() const;
+    void echo(const char* msg, int status=0);
 };
 
 #endif

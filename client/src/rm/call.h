@@ -37,8 +37,8 @@ extern "C" {
  * within the callback.
  */
 typedef struct _rmCall {
-    char name[12];
-    void (*callback)(int, char**);
+    char name[12]; ///< Name of the call or command
+    void (*callback)(int, char**); ///< Function triggers when command detected
 } rmCall;
 
 

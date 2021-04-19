@@ -86,7 +86,7 @@ class RM_WX_API rmSpinCtrl: public rmWidget, public wxSpinCtrl {
      * 
      * @param evt The event object
      */
-    void onUpdate(wxSpinEvent& event);
+    void onUpdate(wxSpinEvent& evt);
 };
 
 #endif

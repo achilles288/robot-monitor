@@ -66,11 +66,6 @@ class RM_API rmWidget: public rmAttributeNotifier {
     rmWidget(rmClient* cli);
     
     /**
-     * @brief Destructor
-     */
-    virtual ~rmWidget();
-    
-    /**
      * @brief Enables or disables the user input
      * 
      * @param en True for enable and false for otherwise

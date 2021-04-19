@@ -41,3 +41,11 @@ rmCall::rmCall(const char* key, void (*func)(int, char**)) {
  * @return The name of the attribute
  */
 const char* rmCall::getName() const { return name; }
+
+/**
+ * @brief Invokes the callback of the object
+ * 
+ * @param argc Argument count
+ * @param argv Tokens
+ */
+void rmCall::invoke(int argc, char* argv[]) { callback(argc, argv); }

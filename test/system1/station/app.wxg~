@@ -8,7 +8,6 @@
         <style>wxDEFAULT_FRAME_STYLE</style>
         <icon>app_icon.png</icon>
         <menubar>1</menubar>
-        <toolbar>1</toolbar>
         <object class="wxMenuBar" name="frame_menubar" base="EditMenuBar">
             <extracode>#include &lt;robotmonitor.hpp&gt;\n</extracode>
             <extracode_pre>construct_user();\n</extracode_pre>
@@ -69,10 +68,6 @@
                     </item>
                 </menu>
             </menus>
-        </object>
-        <object class="wxToolBar" name="frame_toolbar" base="EditToolBar">
-            <tools>
-            </tools>
         </object>
         <object class="wxBoxSizer" name="sizer_1" base="EditBoxSizer">
             <orient>wxVERTICAL</orient>

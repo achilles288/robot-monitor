@@ -54,11 +54,8 @@ rmCheckBox::rmCheckBox(wxWindow* parent, rmClient* cli, const char* key,
                 this
             );
         }
-        else
-            Disable();
     }
-    else
-        Disable();
+    Disable();
 }
 
 /**

@@ -26,8 +26,8 @@
 #endif
 
 
-#define RM_PRIVATE_KEY_SIZE 32
-#define RM_PUBLIC_KEY_SIZE 8
+#define RM_PRIVATE_KEY_SIZE 32 ///< Private key size
+#define RM_PUBLIC_KEY_SIZE 8 ///< Public key size
 
 
 /**

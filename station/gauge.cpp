@@ -41,6 +41,7 @@ rmGauge::rmGauge(wxWindow* parent, rmClient* cli, const char* key,
     attribute = client->createAttribute(key, RM_ATTRIBUTE_INT, 0, range);
     if(attribute != nullptr)
         attribute->setNotifier(this);
+    Disable();
 }
 
 /**
@@ -60,6 +61,7 @@ rmGauge::rmGauge(wxWindow* parent, rmClient* cli, const char* key,
     stepSize = range / 100.0f;
     if(attribute != nullptr)
         attribute->setNotifier(this);
+    Disable();
 }
 
 /**
