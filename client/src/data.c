@@ -26,6 +26,49 @@ static rmCall* calls = NULL;
 static uint8_t callCount = 0;
 
 
+static int8_t cmp = 0;
+
+static uint8_t binarySearch1(int8_t low, int8_t high, const char* key) {
+    while(true) {
+        if(low >= high) {
+            cmp = strcmp(key, attributes[low].name);
+            if(cmp > 0)
+                return low + 1;
+            else
+                return low;
+        }
+        int8_t mid = low + (high - low) / 2;
+        cmp = strcmp(key, attributes[mid].name);
+        if(cmp == 0)
+            return mid;
+        else if(cmp < 0)
+            high = mid - 1;
+        else
+            low = mid + 1;
+    }
+}
+
+static uint8_t binarySearch2(int8_t low, int8_t high, const char* key) {
+    while(true) {
+        if(low >= high) {
+            cmp = strcmp(key, calls[low].name);
+            if(cmp > 0)
+                return low + 1;
+            else
+                return low;
+        }
+        int8_t mid = low + (high - low) / 2;
+        cmp = strcmp(key, calls[mid].name);
+        if(cmp == 0)
+            return mid;
+        else if(cmp < 0)
+            high = mid - 1;
+        else
+            low = mid + 1;
+    }
+}
+
+
 /**
  * @brief Creates an attribute and stored in the list
  * 
@@ -46,17 +89,26 @@ rmAttribute* _rmCreateAttribute(const char* key, int8_t t)
     attr.upperBound.f = NAN;
     attr.onChange = NULL;
     
+    uint8_t pos = 0;
+    if(attrCount > 0)
+        pos = binarySearch1(0, attrCount - 1, attr.name);
+    
     size_t size = sizeof(rmAttribute) * (attrCount + 1);
     rmAttribute* newArr = (rmAttribute*) malloc(size);
-    for(uint8_t i=0; i<attrCount; i++)
+    for(uint8_t i=0; i<pos; i++) {
         newArr[i] = attributes[i];
-    newArr[attrCount++] = attr;
+    }
+    for(uint8_t i=pos; i<attrCount; i++) {
+        newArr[i + 1] = attributes[i];
+    }
+    newArr[pos] = attr;
+    attrCount++;
     
     if(attributes != NULL)
         free(attributes);
     attributes = newArr;
     
-    return &attributes[attrCount - 1];
+    return &attributes[pos];
 }
 
 /**
@@ -67,10 +119,9 @@ rmAttribute* _rmCreateAttribute(const char* key, int8_t t)
  * @return Requested attribute. Null if the request is unavailable.
  */
 rmAttribute* _rmGetAttribute(const char* key) {
-    for(uint8_t i=0; i<attrCount; i++) {
-        if(strcmp(attributes[i].name, key) == 0)
-            return &attributes[i];
-    }
+    uint8_t pos = binarySearch1(0, attrCount - 1, key);
+    if(cmp == 0)
+        return &attributes[pos];
     return NULL;
 }
 
@@ -91,17 +142,26 @@ rmCall* _rmCreateCall(const char* key, void (*func)(int, char**)) {
     call.name[11] = '\0';
     call.callback = func;
     
+    uint8_t pos = 0;
+    if(callCount > 0)
+        pos = binarySearch2(0, callCount - 1, call.name);
+    
     size_t size = sizeof(rmCall) * (callCount + 1);
     rmCall* newArr = (rmCall*) malloc(size);
-    for(uint8_t i=0; i<callCount; i++)
+    for(uint8_t i=0; i<pos; i++) {
         newArr[i] = calls[i];
-    newArr[callCount++] = call;
+    }
+    for(uint8_t i=pos; i<callCount; i++) {
+        newArr[i + 1] = calls[i];
+    }
+    newArr[pos] = call;
+    callCount++;
     
     if(calls != NULL)
         free(calls);
     calls = newArr;
     
-    return &calls[callCount - 1];
+    return &calls[pos];
 }
 
 static void builtinCallSet(int argc, char* argv[]) {
@@ -133,10 +193,9 @@ rmCall* _rmGetCall(const char* key) {
         addedBuiltins = true;
     }
     
-    for(uint8_t i=0; i<callCount; i++) {
-        if(strcmp(calls[i].name, key) == 0)
-            return &calls[i];
-    }
+    uint8_t pos = binarySearch2(0, callCount - 1, key);
+    if(cmp == 0)
+        return &calls[pos];
     return NULL;
 }
 

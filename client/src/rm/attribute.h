@@ -85,6 +85,7 @@ typedef struct _rmAttribute {
  */
 rmAttribute* _rmCreateAttribute(const char* key, int8_t t);
 
+#ifndef RM_EXPORT
 /**
  * @brief Creates an attribute and stored in the list
  * 
@@ -97,14 +98,26 @@ rmAttribute* _rmCreateAttribute(const char* key, int8_t t);
  *         are added. rmGetAttribute() function can be used after adding all
  *         the objects.
  */
-#ifndef RM_EXPORT
-static inline rmAttribute* rmCreateAttribute(const char* key, int8_t t)
+static inline rmAttribute* rmCreateAttribute_P(const char* key, int8_t t)
 {
     char name[12];
     strncpy_P(name, key, 11);
     name[11] = '\0';
     return _rmCreateAttribute(name, t);
 }
+
+/**
+ * @brief Creates an attribute and stored in the list
+ * 
+ * @param T Unique name of the attribute with maximum 11 characters
+ * @param K Data type of the value stored
+ * 
+ * @return The newly created attribute. The returned pointer is not recommended
+ *         to be used since the memory location is changing as the new objects
+ *         are added. rmGetAttribute() function can be used after adding all
+ *         the objects.
+ */
+#define rmCreateAttribute(K, T) rmCreateAttribute_P(PSTR(K), T)
 #endif
 
 /**
@@ -116,6 +129,7 @@ static inline rmAttribute* rmCreateAttribute(const char* key, int8_t t)
  */
 rmAttribute* _rmGetAttribute(const char* key);
 
+#ifndef RM_EXPORT
 /**
  * @brief Looks for an attribute by name
  * 
@@ -123,13 +137,21 @@ rmAttribute* _rmGetAttribute(const char* key);
  * 
  * @return Requested attribute. Null if the request is unavailable.
  */
-#ifndef RM_EXPORT
-static inline rmAttribute* rmGetAttribute(const char* key) {
+static inline rmAttribute* rmGetAttribute_P(const char* key) {
     char name[12];
     strncpy_P(name, key, 11);
     name[11] = '\0';
     return _rmGetAttribute(name);
 }
+
+/**
+ * @brief Looks for an attribute by name
+ * 
+ * @param key Unique name
+ * 
+ * @return Requested attribute. Null if the request is unavailable.
+ */
+#define rmGetAttribute(K) rmGetAttribute_P(PSTR(K))
 #endif
 
 /**

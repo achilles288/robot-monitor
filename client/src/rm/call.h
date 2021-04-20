@@ -54,6 +54,7 @@ typedef struct _rmCall {
  */
 rmCall* _rmCreateCall(const char* key, void (*func)(int, char**));
 
+#ifndef RM_EXPORT
 /**
  * @brief Creates a call in the map structure
  * 
@@ -68,14 +69,29 @@ rmCall* _rmCreateCall(const char* key, void (*func)(int, char**));
  *         added. rmGetAttribute() function can be used after adding all the
  *         objects.
  */
-#ifndef RM_EXPORT
-static inline rmCall* rmCreateCall(const char* key, void (*func)(int, char**))
+static inline rmCall* rmCreateCall_P(const char* key, void (*func)(int,char**))
 {
     char name[12];
     strncpy_P(name, key, 11);
     name[11] = '\0';
     return _rmCreateCall(name, func);
 }
+
+/**
+ * @brief Creates a call in the map structure
+ * 
+ * @param key Unique name of the attribute with maximum 11 characters.
+ *            The param must be the string stored in program space.
+ * @param func The callback function. The callback should have two parameters,
+ *        an integer representing the number of extra tokens and the array of
+ *        strings.
+ * 
+ * @return The newly created call. The returned pointer is not recommended to
+ *         be used since the memory location is changing as the new objects are
+ *         added. rmGetAttribute() function can be used after adding all the
+ *         objects.
+ */
+#define rmCreateCall(K, F) rmCreateCall_P(PSTR(K), F)
 #endif
 
 /**
@@ -87,6 +103,7 @@ static inline rmCall* rmCreateCall(const char* key, void (*func)(int, char**))
  */
 rmCall* _rmGetCall(const char* key);
 
+#ifndef RM_EXPORT
 /**
  * @brief Looks for a call by name
  * 
@@ -94,13 +111,21 @@ rmCall* _rmGetCall(const char* key);
  * 
  * @return Requested call. Null if the request is unavailable.
  */
-#ifndef RM_EXPORT
-static inline rmCall* rmGetCall(const char* key) {
+static inline rmCall* rmGetCall_P(const char* key) {
     char name[12];
     strncpy_P(name, key, 11);
     name[11] = '\0';
     return _rmGetCall(name);
 }
+
+/**
+ * @brief Looks for a call by name
+ * 
+ * @param key Unique name
+ * 
+ * @return Requested call. Null if the request is unavailable.
+ */
+#define rmGetCall(K) rmGetCall_P(PSTR(K))
 #endif
 
 
