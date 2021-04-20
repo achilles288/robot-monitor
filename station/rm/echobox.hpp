@@ -44,13 +44,8 @@
 class RM_WX_API rmEchoBox: public rmEcho, public wxTextCtrl {
   private:
     long wx_id = 0;
+    int prevColor = 0;
     
-  protected:
-    /**
-     * @brief Gets an ID to use for constructing a wxWidget
-     * 
-     * @return wxWidget ID
-     */
     long getWxID();
     
   public:

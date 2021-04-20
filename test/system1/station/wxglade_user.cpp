@@ -1,22 +1,23 @@
 #include "wxglade_out.h"
 
+#include <iostream>
+
 
 /*
 class MyFrame: public wxFrame {
 private:
     rmClient client;
+    rmTimer timer;
     void construct_user();
     
 public:
-    void setPortList(rmSerialPortList& ports);
+    void onPortDetected(wxEvent& evt);
 };
 
 
 }
 */
 
-
-static MyFrame* frame;
 
 long ID_MENU_PORT;
 long ID_MENU_BAUDRATE;
@@ -27,7 +28,6 @@ long ID_B57600;
 
 
 void MyFrame::construct_user() {
-    frame = this;
     ID_MENU_PORT = wxNewId();
     ID_MENU_BAUDRATE = wxNewId();
     ID_B9600 = wxNewId();
@@ -35,6 +35,7 @@ void MyFrame::construct_user() {
     ID_B38400 = wxNewId();
     ID_B57600 = wxNewId();
     
+    client.setTimer(&timer);
     label_1 = new rmStaticText(this, &client, nullptr, "pot 1");
     label_2 = new rmStaticText(this, &client, nullptr, "LED 1");
     gauge_1 = new rmGauge(this, &client, "pot1", 1024);
@@ -44,16 +45,17 @@ void MyFrame::construct_user() {
     button_1 = new rmButton(this, &client, "command1", "Command 1");
     text_ctrl_1 = new rmEchoBox(this, &client);
     
-    rmSerialPort::setOnPortDetected([]() {
-        auto ports = rmSerialPort::listPorts();
-        frame->setPortList(ports);
-    });
+    rmSerialPort::setOnPortDetected(
+        wxEventHandler(MyFrame::onPortDetected),
+        this
+    );
 }
 
 
-void MyFrame::setPortList(rmSerialPortList& ports) {
-    if(ports.size() > 0)
-        client.connectSerial(ports[0].port, 38400);
+void MyFrame::onPortDetected(wxEvent &evt) {
+    rmSerialPortList* ports = (rmSerialPortList*) evt.GetEventUserData();
+    if(ports->size() > 0)
+        client.connectSerial((*ports)[0].port, 38400);
 }
 
 

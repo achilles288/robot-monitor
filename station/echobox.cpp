@@ -18,11 +18,6 @@
 #include "rm/echobox.hpp"
 
 
-/**
- * @brief Gets an ID to use for constructing a wxWidget
- * 
- * @return wxWidget ID
- */
 long rmEchoBox::getWxID() { 
     if(wx_id == 0)
         wx_id = wxNewId();
@@ -37,7 +32,7 @@ long rmEchoBox::getWxID() {
  */
 rmEchoBox::rmEchoBox(wxWindow* parent, rmClient* cli)
           :wxTextCtrl(parent, getWxID(), wxEmptyString, wxDefaultPosition,
-                      wxDefaultSize, wxTE_MULTILINE)
+                      wxDefaultSize, wxTE_MULTILINE | wxTE_RICH)
 {
     SetCanFocus(false);
     SetEditable(false);
@@ -56,12 +51,32 @@ rmEchoBox::rmEchoBox(wxWindow* parent, rmClient* cli)
  * @param status The status code. Status code other than 0 may print red
  *         messages.
  */
-void rmEchoBox::echo(const char* msg, int status) {/*
+void rmEchoBox::echo(const char* msg, int status) {
+    int c;
+    wxColor color;
+    if(status == 0) {
+        color = wxNullColour;
+        c = 0;
+    }
+    else if(status == 2) {
+        color = wxColour(230, 173, 0);
+        c = 2;
+    }
+    else {
+        color = wxColour(230, 0, 0);
+        c = 1;
+    }
+    
+    if(c != prevColor) {
+        SetDefaultStyle(wxTextAttr(color));
+        prevColor = c;
+    }
+    
     AppendText(wxString(msg));
     AppendText(wxT("\n"));
-    long pos = GetLastPosition();
-    if(pos > 1024)*/
-        ;//Remove(0, pos - 1024);
+    int ln = GetNumberOfLines();
+    if(ln > 32)
+        Remove(0, GetLineLength(0) + 1);
 }
 
 /**

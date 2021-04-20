@@ -47,6 +47,28 @@ void rmBuiltinCallSet::invoke(int argc, char* argv[]) {
 
 
 
+static void echo(rmClient *client, int status, int argc, char *argv[]) {
+    char str[128];
+    int i=0, j=0, k=0;
+    while(i < argc) {
+        char c;
+        while((c = argv[i][j++]) != '\0')
+            str[k++] = c;
+        if(i < argc - 1)
+            str[k++] = ' ';
+        i++;
+        j = 0;
+        if(k == 127)
+            break;
+    }
+    str[k] = '\0';
+    str[127] = '\0';
+    client->echo(str, status);
+}
+
+
+
+
 /**
  * @brief Constructs with a client
  * 
@@ -65,22 +87,31 @@ rmBuiltinCallEcho::rmBuiltinCallEcho(rmClient* cli)
  * @param argv Tokens
  */
 void rmBuiltinCallEcho::invoke(int argc, char* argv[]) {
-    char str[128];
-    int i=0, j=0, k=0;
-    while(i < argc) {
-        char c;
-        while((c = argv[i][j++]) != '\0')
-            str[k++] = c;
-        if(i < argc - 1)
-            str[k++] = ' ';
-        i++;
-        j = 0;
-        if(k == 127)
-            break;
-    }
-    str[k] = '\0';
-    str[127] = '\0';
-    client->echo(str, 0);
+    echo(client, 0, argc, argv);
+}
+
+
+
+
+/**
+ * @brief Constructs with a client
+ * 
+ * @param cli The client
+ */
+rmBuiltinCallWarn::rmBuiltinCallWarn(rmClient* cli)
+                  :rmCall("warn", nullptr)
+{
+    client = cli;
+}
+
+/**
+ * @brief Invokes the callback of the object
+ * 
+ * @param argc Argument count
+ * @param argv Tokens
+ */
+void rmBuiltinCallWarn::invoke(int argc, char* argv[]) {
+    echo(client, 2, argc, argv);
 }
 
 
@@ -92,7 +123,7 @@ void rmBuiltinCallEcho::invoke(int argc, char* argv[]) {
  * @param cli The client
  */
 rmBuiltinCallError::rmBuiltinCallError(rmClient* cli)
-                  :rmCall("echo", nullptr)
+                  :rmCall("error", nullptr)
 {
     client = cli;
 }
@@ -104,20 +135,5 @@ rmBuiltinCallError::rmBuiltinCallError(rmClient* cli)
  * @param argv Tokens
  */
 void rmBuiltinCallError::invoke(int argc, char* argv[]) {
-    char str[128];
-    int i=0, j=0, k=0;
-    while(i < argc) {
-        char c;
-        while((c = argv[i][j++]) != '\0')
-            str[k++] = c;
-        if(i < argc - 1)
-            str[k++] = ' ';
-        i++;
-        j = 0;
-        if(k == 127)
-            break;
-    }
-    str[k] = '\0';
-    str[127] = '\0';
-    client->echo(str, 2);
+    echo(client, 1, argc, argv);
 }

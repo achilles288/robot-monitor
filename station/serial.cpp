@@ -15,8 +15,6 @@
 
 #include "rm/serial.hpp"
 
-#include "rm/config.h"
-
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -25,51 +23,11 @@
 
 
 /**
- * @brief Destructor
+ * @brief Default constructor
  */
-rmSerialPortList::~rmSerialPortList() {
-    if(ports != nullptr)
-        delete ports;
-}
-
-/**
- * @brief Return the number of elements
- * 
- * @return This is the number of actual objects held in the vector, which
- *         is not necessarily equal to its storage capacity.
- */
-size_t rmSerialPortList::size() const { return portCount; }
-
-/**
- * @brief Returns a reference to the element at position n in the vector
- *        container
- * 
- * @param i Array index
- * 
- * @return The element at the specified position in the vector
- */
-rmSerialPortInfo const& rmSerialPortList::operator [] (size_t i) const {
-    return ports[i];
-}
-
-/**
- * @brief Adds a new element at the end of the vector, after its current
- *        last element
- * 
- * @param val Value to be copied or moved to the new element
- */
-void rmSerialPortList::push_back(const rmSerialPortInfo& val) {
-    rmSerialPortInfo* temp = new rmSerialPortInfo[portCount + 1];
-    for(size_t i=0; i<portCount; i++)
-        temp[i] = ports[i];
-    temp[portCount++] = val;
-    if(ports != nullptr)
-        delete ports;
-    ports = temp;
-}
-
-
-
+rmSerialPort::rmSerialPort()
+             :mySerial("", 9600, serial::Timeout::simpleTimeout(5000))
+{}
 
 /**
  * @brief Connects to a device via RS-232 serial
@@ -83,16 +41,37 @@ rmSerialPort::rmSerialPort(const char* port, uint32_t baud)
 {}
 
 /**
- * @brief Checks if the serial port if open
- * 
- * @return True if the serial port is opened and false otherwise
+ * @param port The address of the serial port, which would be something like
+ *             'COM1' on Windows and '/dev/ttyACM0' on Linux.
+ * @param baud Baudrate
  */
-bool rmSerialPort::isOpen() { return mySerial.isOpen(); }
+void rmSerialPort::connect(const char* port, uint32_t baud) {
+    try {
+        if(mySerial.isOpen())
+            mySerial.close();
+        mySerial.setPort(port);
+        mySerial.setBaudrate(baud);
+        mySerial.open();
+    }
+    catch(std::exception& e) {}
+}
 
 /**
  * @brief Closes the serial port
  */
-void rmSerialPort::close() { mySerial.close(); }
+void rmSerialPort::disconnect() {
+    try {
+        mySerial.close();
+    }
+    catch(std::exception& e) {}
+}
+
+/**
+ * @brief Checks if the serial port if open
+ * 
+ * @return True if the serial port is opened and false otherwise
+ */
+bool rmSerialPort::isConnected() { return mySerial.isOpen(); }
 
 /**
  * @brief Reads a character from the serial port
@@ -106,8 +85,8 @@ char rmSerialPort::read() {
         if(mySerial.available())
             mySerial.read(&c, 1);
     }
-    catch(serial::IOException& e) {
-        mySerial.close();
+    catch(std::exception& e) {
+        disconnect();
     }
     return (char) c;
 }
@@ -119,10 +98,10 @@ char rmSerialPort::read() {
  */
 void rmSerialPort::write(const char* msg) {
     try {
-        mySerial.write(std::string(msg));
+        mySerial.write(msg);
     }
-    catch(serial::IOException& e) {
-        mySerial.close();
+    catch(std::exception& e) {
+        disconnect();
     }
 }
 
@@ -168,10 +147,6 @@ static void portDetectionThread() {
     size_t count = 0;
     do {
         m.lock();
-        if(callback == nullptr) {
-            m.unlock();
-            break;
-        }
         auto ports = serial::list_ports();
         if(ports.size() != count) {
             callback();
@@ -204,3 +179,12 @@ void rmSerialPort::setOnPortDetected(void (*func)()) {
     }
     m.unlock();
 }
+
+/**
+ * @brief Sets a callback function on serial port detecteds
+ * 
+ * @param func The event function
+ * @param h Owner instance of the event function
+ */
+extern void rmSetOnPortDetectedWx(void (wxEvtHandler::*func)(wxEvent&),
+                                  wxEvtHandler* h);

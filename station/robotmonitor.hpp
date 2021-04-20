@@ -35,6 +35,7 @@
 #include "rm/spinctrl.hpp"
 #include "rm/stattext.hpp"
 #include "rm/textctrl.hpp"
+#include "rm/timer.hpp"
 #endif
 
 #endif

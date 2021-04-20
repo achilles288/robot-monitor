@@ -71,10 +71,11 @@ public:
     
 private:
     rmClient client;
+    rmTimer timer;
     void construct_user();
     
 public:
-    void setPortList(rmSerialPortList& ports);
+    void onPortDetected(wxEvent& evt);
 }; // wxGlade: end class
 
 

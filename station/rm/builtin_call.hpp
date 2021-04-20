@@ -37,7 +37,7 @@ class rmBuiltinCallSet: public rmCall {
      * @param argc Argument count
      * @param argv Tokens
      */
-    void invoke(int argc, char* argv[]) override;
+    void invoke(int argc, char *argv[]) override;
 };
 
 
@@ -62,7 +62,32 @@ class rmBuiltinCallEcho: public rmCall {
      * @param argc Argument count
      * @param argv Tokens
      */
-    void invoke(int argc, char* argv[]) override;
+    void invoke(int argc, char *argv[]) override;
+};
+
+
+/**
+ * @brief The built in call 'warn'
+ */
+class rmBuiltinCallWarn: public rmCall {
+  private:
+    rmClient* client = nullptr;
+    
+  public:
+    /**
+     * @brief Constructs with a client
+     * 
+     * @param cli The client
+     */
+    rmBuiltinCallWarn(rmClient* cli);
+    
+    /**
+     * @brief Invokes the callback of the object
+     * 
+     * @param argc Argument count
+     * @param argv Tokens
+     */
+    void invoke(int argc, char *argv[]) override;
 };
 
 
@@ -87,7 +112,7 @@ class rmBuiltinCallError: public rmCall {
      * @param argc Argument count
      * @param argv Tokens
      */
-    void invoke(int argc, char* argv[]) override;
+    void invoke(int argc, char *argv[]) override;
 };
 
 #endif

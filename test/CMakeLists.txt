@@ -1,10 +1,5 @@
 include_directories(${RMONITOR_INCLUDE_DIRS})
 
-file(COPY
-    ${PROJECT_SOURCE_DIR}/docs/app_icon.png
-    DESTINATION ${CMAKE_BINARY_DIR}/bin
-)
-
 file(GLOB_RECURSE RMTEST_UNIT_SOURCES unit/*.cpp)
 
 add_executable(rmonitor_test

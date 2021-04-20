@@ -3,9 +3,12 @@ add_library(rmonitor SHARED
     builtin_call.cpp
     call.cpp
     client.cpp
+    client_com.cpp
     echo.cpp
     encryption.cpp
     serial.cpp
+    serial_list.cpp
+    timerbase.cpp
     widget.cpp
     robotmonitor.hpp
     rm/attribute.hpp
@@ -13,6 +16,7 @@ add_library(rmonitor SHARED
     rm/client.hpp
     rm/echo.hpp
     rm/encryption.hpp
+    rm/timerbase.hpp
     rm/widget.hpp
 )
 
@@ -38,10 +42,12 @@ add_library(rmonitor-wx SHARED
     echobox.cpp
     gauge.cpp
     icon.c
+    serial_wx.cpp
     slider.cpp
     spinctrl.cpp
     stattext.cpp
     textctrl.cpp
+    timer.cpp
     rm/button.hpp
     rm/checkbox.hpp
     rm/echobox.hpp
@@ -51,6 +57,7 @@ add_library(rmonitor-wx SHARED
     rm/spinctrl.hpp
     rm/stattext.hpp
     rm/textctrl.hpp
+    rm/timer.hpp
 )
 
 target_compile_definitions(rmonitor-wx PUBLIC

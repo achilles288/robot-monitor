@@ -51,6 +51,8 @@ class RM_API rmSerialPortList {
     rmSerialPortInfo* ports = nullptr;
     size_t portCount = 0;
     
+    void swap(rmSerialPortList &list) noexcept;
+    
   public:
     /**
      * @brief Default constructor
@@ -63,25 +65,32 @@ class RM_API rmSerialPortList {
     ~rmSerialPortList();
     
     /**
-     * @brief Copy constructor (deleted)
+     * @brief Copy constructor
      * 
      * @param list Source
      */
-    rmSerialPortList(const rmSerialPortList& list) = delete;
+    rmSerialPortList(const rmSerialPortList& list);
     
     /**
      * @brief Move constructor
      * 
      * @param list Source
      */
-    rmSerialPortList(rmSerialPortList&& list) noexcept = default;
+    rmSerialPortList(rmSerialPortList&& list) noexcept;
     
     /**
-     * @brief Copy assignment (deleted)
+     * @brief Copy assignment
      * 
      * @param list Source
      */
-    rmSerialPortList& operator=(const rmSerialPortList& list) = delete;
+    rmSerialPortList& operator = (const rmSerialPortList& list);
+    
+    /**
+     * @brief Move assignment
+     * 
+     * @param list Source
+     */
+    rmSerialPortList& operator = (rmSerialPortList&& list);
     
     /**
      * @brief Return the number of elements
@@ -111,6 +120,21 @@ class RM_API rmSerialPortList {
 };
 
 
+#ifndef RM_NO_WX
+class wxEvent;
+class wxEvtHandler;
+
+/**
+ * @brief Sets a callback function on serial port detecteds
+ * 
+ * @param func The event function
+ * @param h Owner instance of the event function
+ */
+extern void rmSetOnPortDetectedWx(void (wxEvtHandler::*func)(wxEvent&),
+                                  wxEvtHandler* h);
+#endif
+
+
 /**
  * @brief Class that provides a portable serial port interface.
  */
@@ -119,6 +143,11 @@ class RM_API rmSerialPort {
     serial::Serial mySerial;
     
   public:
+    /**
+     * @brief Default constructor
+     */
+    rmSerialPort();
+    
     /**
      * @brief Connects to a device via RS-232 serial
      * 
@@ -129,16 +158,25 @@ class RM_API rmSerialPort {
     rmSerialPort(const char* port, uint32_t baud);
     
     /**
-     * @brief Checks if the serial port if open
+     * @brief Connects to a device via RS-232 serial
      * 
-     * @return True if the serial port is opened and false otherwise
+     * @param port The address of the serial port, which would be something
+     *             like 'COM1' on Windows and '/dev/ttyACM0' on Linux.
+     * @param baud Baudrate
      */
-    bool isOpen();
+    void connect(const char* port, uint32_t baud);
     
     /**
      * @brief Closes the serial port
      */
-    void close();
+    void disconnect();
+    
+    /**
+     * @brief Checks if the serial port if open
+     * 
+     * @return True if the serial port is opened and false otherwise
+     */
+    bool isConnected();
     
     /**
      * @brief Reads a character from the serial port
@@ -172,6 +210,24 @@ class RM_API rmSerialPort {
      * @param func The callback function
      */
     static void setOnPortDetected(void (*func)());
+    
+    #ifndef RM_NO_WX
+    /**
+     * @brief Sets a callback function on serial port detected
+     * 
+     * Connects function to an event that that triggers on the change of
+     * number of ports detected. Use this function if it is associated with
+     * wxWidgets.
+     * 
+     * @param func The event function
+     * @param h Owner instance of the event function
+     */
+    static inline void setOnPortDetected(void (wxEvtHandler::*func)(wxEvent&),
+                                         wxEvtHandler* h)
+    {
+        rmSetOnPortDetectedWx(func, h);
+    }
+    #endif
 };
 
 

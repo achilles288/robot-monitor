@@ -36,6 +36,7 @@ class rmClient;
 #include "echo.hpp"
 #include "encryption.hpp"
 #include "serial.hpp"
+#include "timerbase.hpp"
 #include "widget.hpp"
 
 #include <cstdint>
@@ -68,13 +69,15 @@ class RM_API rmClient {
     size_t callCount = 0;
     rmWidget** widgets = nullptr;
     size_t widgetCount = 0;
-    bool connected = false;
     int8_t connectionMethod = 0;
-    rmSerialPort* mySerial = nullptr;
-    std::thread* thread1 = nullptr;
-    std::mutex mutex1;
-    bool thread1End = false;
+    rmSerialPort mySerial;
     rmEcho *myEcho = nullptr;
+    char rx_cmd[256];
+    char* rx_tokens[4];
+    uint8_t rx_i = 0;
+    uint8_t rx_tokenCount = 0;
+    bool rx_space = false;
+    rmTimerBase* timer = nullptr;
     
     int binarySearch1(int low, int high, const char* key) const;
     int binarySearch2(int low, int high, const char* key) const;
@@ -82,8 +85,6 @@ class RM_API rmClient {
     bool appendCall(rmCall* call);
     void startConnection();
     char read();
-    
-    friend void rmConnectionThread(rmClient* client);
     
   public:
     /**
@@ -265,11 +266,16 @@ class RM_API rmClient {
     void disconnect();
     
     /**
+     * @brief Function triggers on disconnected
+     */
+    void onDisconnected();
+    
+    /**
      * @brief Checks if the client is connected
      * 
      * @return True if the client is connected
      */
-    bool isConnected() const;
+    bool isConnected();
     
     /**
      * @brief Sends a message to the client device
@@ -305,6 +311,16 @@ class RM_API rmClient {
      *         messages.
      */
     void echo(const char* msg, int status=0);
+    
+    /**
+     * @brief Sets the timer to handle the onIdle() function
+     * 
+     * This is used to replace the default extra thread that runs parallel with
+     * the main thread.
+     * 
+     * @param t The timer object
+     */
+    void setTimer(rmTimerBase* t);
 };
 
 #endif
