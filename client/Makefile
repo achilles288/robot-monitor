@@ -6,7 +6,10 @@ SRCS = \
 	src/attribute_set_string.c \
 	src/attribute_set_int.c \
 	src/connection.c \
-	src/data.c
+	src/data.c \
+	src/echo.c \
+	src/echo_error.c \
+	src/echo_warn.c
 
 OBJS = $(patsubst src/%.c, build/%.o, $(SRCS))
 
