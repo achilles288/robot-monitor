@@ -31,10 +31,7 @@ void rmAttributeSetBool(rmAttribute* attr, bool value) {
         return;
     attr->data.b = value;
     char msg[23];
-    if(value)
-        snprintf(msg, 22, "set %s true\n", attr->name);
-    else
-        snprintf(msg, 22, "set %s false\n", attr->name);
+    snprintf(msg, 22, "set %s %d\n", attr->name, value);
     msg[22] = '\0';
     rmSendMessage(msg);
 }

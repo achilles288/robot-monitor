@@ -28,9 +28,9 @@ void rmAttributeSetValue(rmAttribute* attr, const char* value) {
     switch(attr->type) {
       rmAttributeData d;
       case RM_ATTRIBUTE_BOOL:
-        if(strcmp(value, "false") == 0)
+        if(strcmp(value, "0") == 0)
             attr->data.b = false;
-        else if(strcmp(value, "true") == 0)
+        else if(strcmp(value, "1") == 0)
             attr->data.b = true;
         break;
         

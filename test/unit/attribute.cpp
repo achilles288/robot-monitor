@@ -14,7 +14,7 @@ TEST(Attribute, setValue_bool) {
     attr1.setValue(true);
     EXPECT_TRUE(attr1.getValue().b);
     attr2.setValue(false);
-    EXPECT_STREQ(attr2.getValue().s, "false");
+    EXPECT_STREQ(attr2.getValue().s, "0");
 }
 
 /**
@@ -90,7 +90,7 @@ TEST(Attribute, setValue_string) {
     rmAttribute attr3("attr3", RM_ATTRIBUTE_INT);
     rmAttribute attr4("attr4", RM_ATTRIBUTE_FLOAT);
     rmAttribute attr5("attr5", RM_ATTRIBUTE_STRING);
-    attr1.setValue("true");
+    attr1.setValue("1");
     EXPECT_TRUE(attr1.getValue().b);
     attr2.setValue("c");
     EXPECT_EQ(attr2.getValue().c, 'c');
@@ -114,7 +114,7 @@ TEST(Attribute, getValueString) {
     rmAttribute attr4("attr4", RM_ATTRIBUTE_FLOAT);
     rmAttribute attr5("attr5", RM_ATTRIBUTE_STRING);
     attr1.setValue(false);
-    EXPECT_STREQ(attr1.getValueString().c_str(), "false");
+    EXPECT_STREQ(attr1.getValueString().c_str(), "0");
     attr2.setValue('y');
     EXPECT_STREQ(attr2.getValueString().c_str(), "y");
     attr3.setValue(-535);

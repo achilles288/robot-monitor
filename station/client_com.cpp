@@ -292,10 +292,7 @@ void rmClient::sendAttribute(rmAttribute* attr) {
     const char* name = attr->getName();
     switch(attr->getType()) {
       case RM_ATTRIBUTE_BOOL:
-        if(attr->getValue().b)
-            snprintf(msg, 159, "set %s true\n", name);
-        else
-            snprintf(msg, 159, "set %s false\n", name);
+        snprintf(msg, 159, "set %s %d\n", name, attr->getValue().b);
         break;
         
       case RM_ATTRIBUTE_CHAR:

@@ -113,7 +113,7 @@ void rmAttribute::setValue(bool value) {
         data.i = (int32_t) value;
     }
     else if(type == RM_ATTRIBUTE_STRING) {
-        const char* str = value ? "true" : "false";
+        const char* str = value ? "1" : "0";
         if(data.s != nullptr) {
             if(strcmp(data.s, str) == 0)
                 return;
@@ -281,9 +281,9 @@ void rmAttribute::setValue(float value) {
 void rmAttribute::setValue(const char* value) {
     switch(type) {
       case RM_ATTRIBUTE_BOOL:
-        if(strcmp(value, "false") == 0)
+        if(strcmp(value, "0") == 0)
             data.b = false;
-        else if(strcmp(value, "true") == 0)
+        else if(strcmp(value, "1") == 0)
             data.b = true;
         break;
         
@@ -346,7 +346,7 @@ std::string rmAttribute::getValueString() const {
     char buff[16];
     switch(type) {
       case RM_ATTRIBUTE_BOOL:
-        return data.b ? "true" : "false";
+        return data.b ? "1" : "0";
         
       case RM_ATTRIBUTE_CHAR:
         buff[0] = data.c;
