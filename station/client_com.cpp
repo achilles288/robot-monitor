@@ -201,11 +201,36 @@ void rmClient::connectSerial(const char* port, uint32_t baud, bool crypt) {
 }
 
 /**
+ * @brief Connects to a device via RS-232 serial
+ * 
+ * @param portInfo The serial port information for the device
+ * @param baud Baudrate
+ * @param crypt Enable encryption
+ */
+void rmClient::connectSerial(rmSerialPortInfo portInfo, uint32_t baud,
+                             bool crypt)
+{
+    disconnect();
+    mySerial.connect(portInfo, baud);
+    if(mySerial.isConnected()) {
+        connectionMethod = RM_CONNECTION_SERIAL;
+        startConnection();
+    }
+    else {
+        char buff[34];
+        snprintf(buff, 33, "Cannot open port %s", portInfo.port);
+        buff[33] = '\0';
+        echo(buff, 1);
+    }
+}
+
+/**
  * @brief Disconnects the current connection
  */
 void rmClient::disconnect() {
     if(timer != nullptr) {
         timer->removeClient(this);
+        onDisconnected();
     }
     else {
         m.lock();

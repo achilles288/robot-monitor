@@ -93,6 +93,82 @@ class RM_API rmSerialPortList {
     rmSerialPortList& operator = (rmSerialPortList&& list);
     
     /**
+     * @brief Iterator class for the list of serial ports
+     */
+    class RM_API iterator {
+      private:
+        rmSerialPortInfo* pData;
+        
+      public:
+        /**
+         * @brief Constructs from pointer
+         * 
+         * @param ptr Pointer value
+         */
+        iterator(rmSerialPortInfo* ptr);
+        
+        /**
+         * @brief Pointer dereferencing
+         * 
+         * @return The reference
+         */
+        rmSerialPortInfo& operator * ();
+        
+        /**
+         * @brief Pointer dereferencing
+         * 
+         * @return The pointer
+         */
+        rmSerialPortInfo* operator -> ();
+        
+        /**
+         * @brief The prefix increment operator
+         * 
+         * @return Iterator to the next element
+         */
+        iterator& operator ++ ();
+        
+        /**
+         * @brief The postfix increment operator
+         * 
+         * @return Iterator to the next element
+         */
+        iterator operator ++ (int);
+        
+        /**
+         * @brief Compares the values
+         * 
+         * @param it Iterator 2
+         * 
+         * @return True if the pointers of the two are equal
+         */
+        bool operator == (const iterator& it);
+        
+        /**
+         * @brief Compares the values
+         * 
+         * @param it Iterator 2
+         * 
+         * @return True if the pointers of the two are not equal
+         */
+        bool operator != (const iterator& it);
+    };
+    
+    /**
+     * @brief Gets the beginning iterator
+     * 
+     * @return The iterator pointing to the first element of the list
+     */
+    iterator begin();
+    
+    /**
+     * @brief Gets the ending iterator
+     * 
+     * @return The iterator with the value that indicates the end of the list
+     */
+    iterator end();
+    
+    /**
      * @brief Return the number of elements
      * 
      * @return This is the number of actual objects held in the vector, which
@@ -141,6 +217,7 @@ extern void rmSetOnPortDetectedWx(void (wxEvtHandler::*func)(wxEvent&),
 class RM_API rmSerialPort {
   private:
     serial::Serial mySerial;
+    rmSerialPortInfo portInfo;
     
   public:
     /**
@@ -165,6 +242,14 @@ class RM_API rmSerialPort {
      * @param baud Baudrate
      */
     void connect(const char* port, uint32_t baud);
+    
+    /**
+     * @brief Connects to a device via RS-232 serial
+     * 
+     * @param portInfo The serial port information for the device
+     * @param baud Baudrate
+     */
+    void connect(rmSerialPortInfo portInfo, uint32_t baud);
     
     /**
      * @brief Closes the serial port
@@ -192,6 +277,13 @@ class RM_API rmSerialPort {
      * @param msg A null-terminating string
      */
     void write(const char* msg);
+    
+    /**
+     * @brief Gets the port info
+     * 
+     * @return A structure of port address, hardware id and description
+     */
+    rmSerialPortInfo getInfo();
     
     /**
      * @brief Gets a list of devices available on the serial ports

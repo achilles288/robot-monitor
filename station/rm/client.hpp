@@ -254,11 +254,15 @@ class RM_API rmClient {
      * @param baud Baud rate
      * @param crypt Enable encryption
      */
-    inline void connectSerial(rmSerialPortInfo portInfo, uint32_t baud,
-                              bool crypt=false)
-    {
-        connectSerial(portInfo.port, baud, crypt);
-    }
+    void connectSerial(rmSerialPortInfo portInfo, uint32_t baud,
+                       bool crypt=false);
+    
+    /**
+     * @brief Gets the connected serial port info
+     * 
+     * @return A structure of port address, hardware id and description
+     */
+    rmSerialPortInfo getSerialPortInfo() const;
     
     /**
      * @brief Disconnects the current connection

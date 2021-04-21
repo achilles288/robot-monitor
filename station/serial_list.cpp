@@ -77,6 +77,98 @@ rmSerialPortList& rmSerialPortList::operator = (rmSerialPortList&& list) {
 
 
 
+
+/**
+ * @brief Constructs from pointer
+ * 
+ * @param ptr Pointer value
+ */
+rmSerialPortList::iterator::iterator(rmSerialPortInfo* ptr) {
+    pData = ptr;
+}
+
+/**
+ * @brief Pointer dereferencing
+ * 
+ * @return The reference
+ */
+rmSerialPortInfo& rmSerialPortList::iterator::operator * () {
+    return *pData;
+}
+
+/**
+ * @brief Pointer dereferencing
+ * 
+ * @return The pointer
+ */
+rmSerialPortInfo* rmSerialPortList::iterator::operator -> () {
+    return pData;
+}
+
+/**
+ * @brief The prefix increment operator
+ * 
+ * @return Iterator to the next element
+ */
+rmSerialPortList::iterator& rmSerialPortList::iterator::operator ++ () {
+    pData = &pData[1];
+    return *this;
+}
+
+/**
+ * @brief The postfix increment operator
+ * 
+ * @return Iterator to the next element
+ */
+rmSerialPortList::iterator rmSerialPortList::iterator::operator ++ (int) {
+    iterator tmp = iterator(pData);
+    pData = &pData[1];
+    return tmp;
+}
+
+/**
+ * @brief Compares the values
+ * 
+ * @param it Iterator 2
+ * 
+ * @return True if the pointers of the two are equal
+ */
+bool rmSerialPortList::iterator::operator == (const iterator& it) {
+    return pData == it.pData;
+}
+
+/**
+ * @brief Compares the values
+ * 
+ * @param it Iterator 2
+ * 
+ * @return True if the pointers of the two are not equal
+ */
+bool rmSerialPortList::iterator::operator != (const iterator& it) {
+    return pData != it.pData;
+}
+
+
+
+
+/**
+ * @brief Gets the beginning iterator
+ * 
+ * @return The iterator pointing to the first element of the list
+ */
+rmSerialPortList::iterator rmSerialPortList::begin() {
+    return iterator(ports);
+}
+
+/**
+ * @brief Gets the ending iterator
+ * 
+ * @return The iterator with the value that indicates the end of the list
+ */
+rmSerialPortList::iterator rmSerialPortList::end() {
+    return iterator(&ports[portCount]);
+}
+
 /**
  * @brief Return the number of elements
  * 

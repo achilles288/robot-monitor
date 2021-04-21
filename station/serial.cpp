@@ -27,7 +27,11 @@
  */
 rmSerialPort::rmSerialPort()
              :mySerial("", 9600, serial::Timeout::simpleTimeout(5000))
-{}
+{
+    strcpy(portInfo.port, "");
+    strcpy(portInfo.hardware_id, "n/a");
+    strcpy(portInfo.description, "");
+}
 
 /**
  * @brief Connects to a device via RS-232 serial
@@ -46,12 +50,42 @@ rmSerialPort::rmSerialPort(const char* port, uint32_t baud)
  * @param baud Baudrate
  */
 void rmSerialPort::connect(const char* port, uint32_t baud) {
+    rmSerialPortList ports = listPorts();
+    bool notInList = true;
+    for(auto it=ports.begin(); it!=ports.end(); ++it) {
+        if(strcmp(it->port, port) == 0) {
+            portInfo = *it;
+            notInList = false;
+            break;
+        }
+    }
+    if(notInList)
+        return;
+    
     try {
         if(mySerial.isOpen())
             mySerial.close();
         mySerial.setPort(port);
         mySerial.setBaudrate(baud);
         mySerial.open();
+    }
+    catch(std::exception& e) {}
+}
+
+/**
+ * @brief Connects to a device via RS-232 serial
+ * 
+ * @param portInfo The serial port information for the device
+ * @param baud Baudrate
+ */
+void rmSerialPort::connect(rmSerialPortInfo portInfo, uint32_t baud) {
+    try {
+        if(mySerial.isOpen())
+            mySerial.close();
+        mySerial.setPort(portInfo.port);
+        mySerial.setBaudrate(baud);
+        mySerial.open();
+        this->portInfo = portInfo;
     }
     catch(std::exception& e) {}
 }
@@ -104,6 +138,13 @@ void rmSerialPort::write(const char* msg) {
         disconnect();
     }
 }
+
+/**
+ * @brief Gets the port info
+ * 
+ * @return A structure of port address, hardware id and description
+ */
+rmSerialPortInfo rmSerialPort::getInfo() { return portInfo; }
 
 /**
  * @brief Gets a list of devices available on the serial ports
