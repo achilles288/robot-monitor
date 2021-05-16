@@ -1,6 +1,6 @@
 include_directories(${RMONITOR_INCLUDE_DIRS})
 
-file(GLOB_RECURSE RMTEST_UNIT_SOURCES unit/*.cpp)
+file(GLOB_RECURSE RMTEST_UNIT_SOURCES unit/station/*.cpp)
 
 add_executable(rmonitor_test
     ${RMTEST_UNIT_SOURCES}
@@ -14,6 +14,25 @@ target_link_libraries(rmonitor_test PUBLIC
     gtest
     gtest_main
     rmonitor
+)
+
+
+
+
+file(GLOB_RECURSE RMTEST_CLIENT_UNIT_SOURCES unit/client/*.cpp)
+
+add_executable(rmonitor_client_test
+    ${RMTEST_CLIENT_UNIT_SOURCES}
+)
+
+target_include_directories(rmonitor_client_test PUBLIC
+    ${PROJECT_SOURCE_DIR}/external/googletest/googletest/include
+)
+
+target_link_libraries(rmonitor_client_test PUBLIC
+    gtest
+    gtest_main
+    rmonitor-client
 )
 
 

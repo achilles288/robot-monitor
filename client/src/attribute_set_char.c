@@ -31,7 +31,6 @@ void rmAttributeSetChar(rmAttribute* attr, char value) {
         return;
     attr->data.c = value;
     char msg[19];
-    snprintf(msg, 18, "set %s %c\n", attr->name, value);
-    msg[18] = '\0';
+    sprintf(msg, "set %s %c\n", attr->name, value);
     rmSendMessage(msg);
 }

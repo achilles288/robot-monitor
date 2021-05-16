@@ -18,15 +18,16 @@
 #define __RM_CALL_H__ ///< Header guard
 
 
+#ifndef RM_EXPORT
+#ifdef __AVR
+#include <avr/pgmspace.h>
+#endif
+#endif
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
-#ifndef RM_EXPORT
-#include <avr/pgmspace.h>
-#endif
-
 
 /**
  * @brief Calls that invoke on the station's request
@@ -55,6 +56,7 @@ typedef struct _rmCall {
 rmCall* _rmCreateCall(const char* key, void (*func)(int, char**));
 
 #ifndef RM_EXPORT
+#ifdef __AVR
 /**
  * @brief Creates a call in the map structure
  * 
@@ -69,7 +71,7 @@ rmCall* _rmCreateCall(const char* key, void (*func)(int, char**));
  *         added. rmGetAttribute() function can be used after adding all the
  *         objects.
  */
-static inline rmCall* rmCreateCall_P(const char* key, void (*func)(int,char**))
+static rmCall* rmCreateCall_P(const char* key, void (*func)(int,char**))
 {
     char name[12];
     strncpy_P(name, key, 11);
@@ -91,7 +93,13 @@ static inline rmCall* rmCreateCall_P(const char* key, void (*func)(int,char**))
  *         added. rmGetAttribute() function can be used after adding all the
  *         objects.
  */
+#endif
+
+#ifdef __AVR
 #define rmCreateCall(K, F) rmCreateCall_P(PSTR(K), F)
+#else
+#define rmCreateCall(K, F) _rmCreateCall(K, F)
+#endif
 #endif
 
 /**
@@ -104,6 +112,7 @@ static inline rmCall* rmCreateCall_P(const char* key, void (*func)(int,char**))
 rmCall* _rmGetCall(const char* key);
 
 #ifndef RM_EXPORT
+#ifdef __AVR
 /**
  * @brief Looks for a call by name
  * 
@@ -111,23 +120,25 @@ rmCall* _rmGetCall(const char* key);
  * 
  * @return Requested call. Null if the request is unavailable.
  */
-static inline rmCall* rmGetCall_P(const char* key) {
+static rmCall* rmGetCall_P(const char* key) {
     char name[12];
     strncpy_P(name, key, 11);
     name[11] = '\0';
     return _rmGetCall(name);
 }
-
-/**
- * @brief Looks for a call by name
- * 
- * @param key Unique name
- * 
- * @return Requested call. Null if the request is unavailable.
- */
-#define rmGetCall(K) rmGetCall_P(PSTR(K))
 #endif
 
+#ifdef __AVR
+#define rmGetCall(K) rmGetCall_P(PSTR(K))
+#else
+#define rmGetCall(K) _rmGetCall(K)
+#endif
+#endif
+
+/**
+ * @brief Clears all the attributes and calls created
+ */
+void rmClearData();
 
 #ifdef __cplusplus
 }

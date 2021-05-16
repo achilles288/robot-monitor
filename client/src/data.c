@@ -243,3 +243,19 @@ void rmReadMessage() {
         c = rmRead();
     }
 }
+
+/**
+ * @brief Clears all the attributes and calls created
+ */
+void rmClearData() {
+    if(attributes != NULL) {
+        free(attributes);
+        attributes = NULL;
+    }
+    if(calls != NULL) {
+        free(calls);
+        calls = NULL;
+    }
+    attrCount = 0;
+    callCount = 0;
+}

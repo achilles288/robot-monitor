@@ -16,24 +16,36 @@
 #define __RM_CONNECTION_H__ ///< Header guard
 
 
+#include <stdint.h>
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define RM_RX_BUFFER_SIZE 256 ///< RX buffer size
+#define RM_TX_BUFFER_SIZE 128 ///< TX buffer size
+
+extern uint32_t rmFCPU; ///< CPU clock frequency
+
+extern char rmRxBuffer[]; ///< RX buffer message
+extern uint8_t rmRxHead; ///< RX head
+extern uint8_t rmRxTail; ///< RX tail
+
+extern char rmTxBuffer[]; ///< TX buffer message
+extern uint8_t rmTxHead; ///< TX head
+extern uint8_t rmTxTail; ///< TX tail
+
 
 /**
  * @brief Sends a message through a connection
- * 
- * @param msg The message to be sent
  */
-void rmSendMessage(const char* msg);
+extern void (*rmSendMessage)(const char*);
 
 /**
  * @brief Reads a message from the connection
- * 
- * @return An unread character from the received message
  */
-char rmRead();
+extern char (*rmRead)();
 
 /**
  * @brief Reads a message and process the command line

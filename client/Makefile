@@ -6,6 +6,9 @@ SRCS = \
 	src/attribute_set_string.c \
 	src/attribute_set_int.c \
 	src/connection.c \
+	src/connection_rf24.c \
+	src/connection_spi.c \
+	src/connection_spi_default.c \
 	src/data.c \
 	src/echo.c \
 	src/echo_error.c \
@@ -16,7 +19,9 @@ OBJS = $(patsubst src/%.c, build/%.o, $(SRCS))
 
 
 
-CC = avr-gcc
+PREFIX ?= arm-none-eabi-
+CC = $(PREFIX)gcc
+AR = $(PREFIX)ar
 FLAGS = -Wall -O2
 
 MACROS = \
@@ -33,7 +38,7 @@ CFLAGS = $(FLAGS) $(MACROS) $(INCLUDES)
 all: librmonitor.a
 
 librmonitor.a: mkdir $(OBJS)
-	@ avr-ar -r build/$@ $(OBJS) $(LIBS)
+	@ $(AR) -r build/$@ $(OBJS) $(LIBS)
 
 $(OBJS): build/%.o: src/%.c
 	@ $(CC) -c $(CFLAGS) -o $@ $<

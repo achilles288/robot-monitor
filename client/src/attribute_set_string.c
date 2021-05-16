@@ -40,7 +40,6 @@ void rmAttributeSetString(rmAttribute* attr, const char* value) {
     attr->data.s[len] = '\0';
     
     char msg[160];
-    snprintf(msg, 159, "set %s \"%s\"\n", attr->name, attr->data.s);
-    msg[159] = '\0';
+    sprintf(msg, "set %s \"%s\"\n", attr->name, attr->data.s);
     rmSendMessage(msg);
 }

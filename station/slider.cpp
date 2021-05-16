@@ -125,12 +125,6 @@ void rmSlider::onAttributeChange() {
  * @param evt The event object
  */
 void rmSlider::onSlide(wxCommandEvent& evt) {
-    static wxLongLong t1 = 0;
-    wxLongLong t2 = wxGetLocalTimeMillis();
-    if(t2 - t1 < 100)
-        return;
-    t1 = t2;
-    
     int8_t type = attribute->getType();
     if(type == RM_ATTRIBUTE_INT) {
         attribute->setValue(GetValue());

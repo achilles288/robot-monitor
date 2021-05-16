@@ -88,12 +88,6 @@ void rmSpinCtrl::onAttributeChange() {
  * @param evt The event object
  */
 void rmSpinCtrl::onUpdate(wxSpinEvent& evt) {
-    static wxLongLong t1 = 0;
-    wxLongLong t2 = wxGetLocalTimeMillis();
-    if(t2 - t1 < 100)
-        return;
-    t1 = t2;
-    
     attribute->setValue(GetValue());
     client->sendAttribute(attribute);
 }

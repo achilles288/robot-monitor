@@ -18,18 +18,19 @@
 #define __RM_ATTRIBUTE_H__ ///< Header guard
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 #ifndef RM_EXPORT
+#ifdef __AVR
 #include <avr/pgmspace.h>
+#endif
 #endif
 
 #include <stdbool.h>
 #include <stdint.h>
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define RM_ATTRIBUTE_BOOL   0 ///< Boolean data type
 #define RM_ATTRIBUTE_CHAR   1 ///< A single character
@@ -86,6 +87,7 @@ typedef struct _rmAttribute {
 rmAttribute* _rmCreateAttribute(const char* key, int8_t t);
 
 #ifndef RM_EXPORT
+#ifdef __AVR
 /**
  * @brief Creates an attribute and stored in the list
  * 
@@ -98,7 +100,7 @@ rmAttribute* _rmCreateAttribute(const char* key, int8_t t);
  *         are added. rmGetAttribute() function can be used after adding all
  *         the objects.
  */
-static inline rmAttribute* rmCreateAttribute_P(const char* key, int8_t t)
+static rmAttribute* rmCreateAttribute_P(const char* key, int8_t t)
 {
     char name[12];
     strncpy_P(name, key, 11);
@@ -117,8 +119,15 @@ static inline rmAttribute* rmCreateAttribute_P(const char* key, int8_t t)
  *         are added. rmGetAttribute() function can be used after adding all
  *         the objects.
  */
-#define rmCreateAttribute(K, T) rmCreateAttribute_P(PSTR(K), T)
 #endif
+
+#ifdef __AVR
+#define rmCreateAttribute(K, T) rmCreateAttribute_P(PSTR(K), T)
+#else
+#define rmCreateAttribute(K, T) _rmCreateAttribute(K, T)
+#endif
+#endif
+
 
 /**
  * @brief Looks for an attribute by name
@@ -130,6 +139,7 @@ static inline rmAttribute* rmCreateAttribute_P(const char* key, int8_t t)
 rmAttribute* _rmGetAttribute(const char* key);
 
 #ifndef RM_EXPORT
+#ifdef __AVR
 /**
  * @brief Looks for an attribute by name
  * 
@@ -137,21 +147,19 @@ rmAttribute* _rmGetAttribute(const char* key);
  * 
  * @return Requested attribute. Null if the request is unavailable.
  */
-static inline rmAttribute* rmGetAttribute_P(const char* key) {
+static rmAttribute* rmGetAttribute_P(const char* key) {
     char name[12];
     strncpy_P(name, key, 11);
     name[11] = '\0';
     return _rmGetAttribute(name);
 }
+#endif
 
-/**
- * @brief Looks for an attribute by name
- * 
- * @param key Unique name
- * 
- * @return Requested attribute. Null if the request is unavailable.
- */
+#ifdef __AVR
 #define rmGetAttribute(K) rmGetAttribute_P(PSTR(K))
+#else
+#define rmGetAttribute(K) _rmGetAttribute(K)
+#endif
 #endif
 
 /**
@@ -227,6 +235,10 @@ static inline void rmAttributeSetBoundary(rmAttribute* attr,
     attr->upperBound = upper;
 }
 
+/**
+ * @brief Clears all the attributes and calls created
+ */
+void rmClearData();
 
 #ifdef __cplusplus
 }

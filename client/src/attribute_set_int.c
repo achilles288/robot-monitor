@@ -43,7 +43,6 @@ void rmAttributeSetInt(rmAttribute* attr, int32_t value) {
         return;
     
     char msg[29];
-    snprintf(msg, 28, "set %s %ld\n", attr->name, attr->data.i);
-    msg[28] = '\0';
+    sprintf(msg, "set %s %ld\n", attr->name, attr->data.i);
     rmSendMessage(msg);
 }

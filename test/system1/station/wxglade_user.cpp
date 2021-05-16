@@ -39,9 +39,9 @@ void MyFrame::construct_user() {
     
     client.setTimer(&timer);
     label_1 = new rmStaticText(this, &client, nullptr, "pot 1");
-    label_2 = new rmStaticText(this, &client, nullptr, "LED 1");
+    label_2 = new rmStaticText(this, &client, nullptr, "ESC");
     gauge_1 = new rmGauge(this, &client, "pot1", 1024);
-    slider_1 = new rmSlider(this, &client, "led1", 0, 255);
+    slider_1 = new rmSlider(this, &client, "esc", 1000.0f, 2000.0f);
     checkbox_1 = new rmCheckBox(this, &client, "btn1", "Button 1", false);
     checkbox_2 = new rmCheckBox(this, &client, "led2", "LED 2");
     button_1 = new rmButton(this, &client, "command1", "Command 1");

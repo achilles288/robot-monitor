@@ -21,7 +21,6 @@
 
 #include "rm/attribute.h"
 #include "rm/call.h"
-#include "rm/connection_usart.h"
 #include "rm/echo.h"
 
 #endif
