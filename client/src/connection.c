@@ -29,6 +29,8 @@ char rmTxBuffer[RM_TX_BUFFER_SIZE]; ///< TX message buffer
 uint8_t rmTxHead = 0; ///< TX head
 uint8_t rmTxTail = 0; ///< TX tail
 
+bool rmTxOn = false; ///< States if the messages are being transmitted
+
 
 static void sendMessageDefault(const char* msg) {}
 

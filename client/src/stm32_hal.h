@@ -13,6 +13,10 @@
 #define __RM_HAL_H__ ///< Header guard
 
 
+#ifndef __STM32F1xx_HAL_H
+#define __STM32F1xx_HAL_H
+
+
 #include <stdint.h>
 
 
@@ -43,7 +47,9 @@ typedef enum {
 } GPIO_PinState;
 
 struct __SPI_HandleTypeDef;
+struct __UART_HandleTypeDef;
 typedef struct __SPI_HandleTypeDef SPI_HandleTypeDef;
+typedef struct __UART_HandleTypeDef UART_HandleTypeDef;
 
 void HAL_Delay(uint32_t Delay);
 void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin,
@@ -56,9 +62,14 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData,
 HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi,
                                           uint8_t *pTxData, uint8_t *pRxData,
                                           uint16_t Size, uint32_t Timeout);
+HAL_StatusTypeDef HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart,
+                                        uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart,
+                                       uint8_t *pData, uint16_t Size);
 
 #ifdef __cplusplus
 }
 #endif
 
+#endif
 #endif

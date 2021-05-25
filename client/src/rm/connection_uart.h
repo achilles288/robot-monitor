@@ -15,6 +15,10 @@
 
 #include "connection.h"
 
+#ifdef __arm__
+#include "../stm32_hal.h"
+#endif
+
 #ifndef RM_EXPORT
 #ifdef __AVR
 #include <avr/io.h>
@@ -136,11 +140,38 @@ static void rmUARTSendMessage(const char* msg) {
 #endif
 #elif defined(__arm__)
 /**
+ * @brief Declare this macro in order to use the RX and UDRE ISRs
+ */
+#define RM_UART_ISR \
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) { \
+    rmUARTRxCheck(); \
+} \
+\
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) { \
+    rmTxOn = false \
+    if(rmTxTail != rmTxHead) \
+        rmUARTLoadDMA(); \
+}
+
+/**
  * @brief Initializes the UART connection
  * 
- * @param BAUD UART baud rate
+ * @param huart UART handler
+ * @param hdma_rx DMA RX handler
+ * @param hdma_tx DMA TX handler
  */
-void rmConnectUART();
+void rmConnectUART(UART_HandleTypeDef *huart, DMA_HandleTypeDef *hdma_rx,
+                   DMA_HandleTypeDef *hdma_tx);
+
+/**
+ * @brief Function to be called when using UART DMA with the library
+ */
+void rmUARTRxCheck();
+
+/**
+ * @brief Function to be called when using UART DMA with the library
+ */
+void rmUARTLoadDMA();
 #endif
 
 #ifdef __cplusplus

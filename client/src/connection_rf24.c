@@ -223,7 +223,7 @@ static char read() {
                     rmSPITransfer(0xFF);
                     #elif defined(__arm__)
                     c = 0xFF;
-                    HAL_SPI_TransmiT(rmSPIHandler, &c, &status, 1, 10);
+                    HAL_SPI_Transmit(rmSPIHandler, &c, 1, 10);
                     #endif
                 }
             }

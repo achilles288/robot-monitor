@@ -16,6 +16,7 @@
 #define __RM_CONNECTION_H__ ///< Header guard
 
 
+#include <stdbool.h>
 #include <stdint.h>
 
 
@@ -24,7 +25,7 @@ extern "C" {
 #endif
 
 #define RM_RX_BUFFER_SIZE 256 ///< RX buffer size
-#define RM_TX_BUFFER_SIZE 128 ///< TX buffer size
+#define RM_TX_BUFFER_SIZE 256 ///< TX buffer size
 
 extern uint32_t rmFCPU; ///< CPU clock frequency
 
@@ -35,6 +36,8 @@ extern uint8_t rmRxTail; ///< RX tail
 extern char rmTxBuffer[]; ///< TX buffer message
 extern uint8_t rmTxHead; ///< TX head
 extern uint8_t rmTxTail; ///< TX tail
+
+extern bool rmTxOn; ///< States if the messages are being transmitted
 
 
 /**

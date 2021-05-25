@@ -9,6 +9,7 @@ SRCS = \
 	src/connection_rf24.c \
 	src/connection_spi.c \
 	src/connection_spi_default.c \
+	src/connection_uart.c \
 	src/data.c \
 	src/echo.c \
 	src/echo_error.c \
