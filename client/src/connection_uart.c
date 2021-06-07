@@ -33,7 +33,7 @@ static void rmUARTSendMessage(const char* msg) {
         uint8_t i = (rmTxHead + 1) % RM_TX_BUFFER_SIZE;
         
         if(i == rmTxTail) {
-            if(!txOn)
+            if(!rmTxOn)
                 rmUARTLoadDMA();
         }
         
@@ -57,8 +57,9 @@ void rmConnectUART(UART_HandleTypeDef *huart, DMA_HandleTypeDef *hdma_rx,
     rxDMAHandler = hdma_rx;
     txDMAHandler = hdma_tx;
     rmSendMessage = &rmUARTSendMessage;
+    memset(rmRxBuffer, 0, DMA_RX_BUFFER_SIZE);
     __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
-    HAL_UART_Receive_DMA(huart, rxDMABuffer, DMA_BUFFER_SIZE);
+    HAL_UART_Receive_DMA(huart, rxDMABuffer, DMA_RX_BUFFER_SIZE);
 }
 
 /**
@@ -68,16 +69,20 @@ void rmUARTRxCheck() {
     uint8_t len  = DMA_RX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(rxDMAHandler);
     if(len == 0)
         return;
-    
-    char c = UDR0;
-    uint8_t i = (rmRxHead + 1) % RM_RX_BUFFER_SIZE;
-    if(i != rmRxTail) {
+    uint8_t count = 0;
+    while(count < DMA_RX_BUFFER_SIZE) {
+        uint8_t i = (rmRxHead + 1) % RM_RX_BUFFER_SIZE;
+        if(i == rmRxTail)
+            break;
+        char c = rxDMABuffer[count];
+        if(c == '\0')
+            break;
         rmRxBuffer[rmRxHead] = c;
         rmRxHead = i;
+        count++;
     }
-    
-    memset(rxBuffer, 0, DMA_RX_BUFFER_SIZE);
-    HAL_UART_Receive_DMA(&huart1, rxDMABuffer, DMA_RX_BUFFER_SIZE);
+    memset(rmRxBuffer, 0, count);
+    HAL_UART_Receive_DMA(handler, rxDMABuffer, DMA_RX_BUFFER_SIZE);
 }
 
 /**
@@ -85,15 +90,16 @@ void rmUARTRxCheck() {
  */
 void rmUARTLoadDMA() {
     rmTxOn = true;
-    uint8_t j = rmTxTail;
-    for(uint8_t k=0; k<DMA_TX_BUFFER_SIZE; k++) {
-        if(j == rmTxHead)
+    uint8_t i = rmTxTail;
+    uint8_t count = 0;
+    while(count < DMA_TX_BUFFER_SIZE) {
+        if(i == rmTxHead)
             break;
-        txDMABuffer[k] = rmTxBuffer[j];
-        j = (j + 1) % RM_TX_BUFFER_SIZE;
-        k++;
+        txDMABuffer[count] = rmTxBuffer[count];
+        i = (i + 1) % RM_TX_BUFFER_SIZE;
+        count++;
     }
-    HAL_UART_Transmit_DMA(handler, txDMABuffer, DMA_BUFFER_SIZE);
+    HAL_UART_Transmit_DMA(handler, txDMABuffer, count);
 }
 
 #endif
