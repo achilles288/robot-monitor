@@ -43,8 +43,12 @@ TEST(Attribute, setChar) {
  * @brief Sets the value
  */
 TEST(Attribute, setInt) {
-    rmAttribute attr1 = {"attr1", {.i=0}, RM_ATTRIBUTE_INT, {.i=100},
-                         {.i=600}, NULL};
+    rmAttribute attr1;
+    strcpy(attr1.name, "attr1");
+    attr1.data.i = 0;
+    attr1.type = RM_ATTRIBUTE_INT;
+    attr1.lowerBound.i = 100;
+    attr1.upperBound.i = 600;
     
     rmAttributeSetInt(&attr1, 126);
     EXPECT_EQ(attr1.data.i, 126);
@@ -64,8 +68,12 @@ TEST(Attribute, setInt) {
  * @brief Sets the value
  */
 TEST(Attribute, setFloat) {
-    rmAttribute attr1 = {"attr1", {.f=0}, RM_ATTRIBUTE_FLOAT, {.f=-50.08f},
-                         {.f=124.87f}, NULL};
+    rmAttribute attr1;
+    strcpy(attr1.name, "attr1");
+    attr1.data.f = 0;
+    attr1.type = RM_ATTRIBUTE_FLOAT;
+    attr1.lowerBound.f = -50.08f;
+    attr1.upperBound.f = 124.87f;
     
     rmAttributeSetFloat(&attr1, 32.053f);
     EXPECT_NEAR(attr1.data.f, 32.053f, 0.001f);

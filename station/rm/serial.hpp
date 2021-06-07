@@ -197,8 +197,22 @@ class RM_API rmSerialPortList {
 
 
 #ifndef RM_NO_WX
-class wxEvent;
-class wxEvtHandler;
+
+#ifndef RM_WX_API
+#ifdef _WIN32
+#ifdef RM_WX_EXPORT
+#define RM_WX_API __declspec(dllexport) ///< API
+#else
+#define RM_WX_API __declspec(dllimport) ///< API
+#endif
+#else
+#define RM_WX_API ///< API
+#endif
+#endif
+
+
+#include <wx/event.h>
+
 
 /**
  * @brief Sets a callback function on serial port detecteds
@@ -206,8 +220,8 @@ class wxEvtHandler;
  * @param func The event function
  * @param h Owner instance of the event function
  */
-extern void rmSetOnPortDetectedWx(void (wxEvtHandler::*func)(wxEvent&),
-                                  wxEvtHandler* h);
+RM_WX_API void rmSetOnPortDetectedWx(void (wxEvtHandler::*func)(wxEvent&),
+                                     wxEvtHandler* h);
 #endif
 
 

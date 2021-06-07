@@ -50,7 +50,7 @@ class rmPortDetectionTimer: public wxTimer {
 };
 
 
-void rmSetOnPortDetectedWx(void (wxEvtHandler::*func)(wxEvent&),
+RM_WX_API void rmSetOnPortDetectedWx(void (wxEvtHandler::*func)(wxEvent&),
                            wxEvtHandler* h)
 {
     bool toStart = (callback == nullptr);

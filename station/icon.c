@@ -10,6 +10,9 @@
  */
 
 
+#define RM_WX_EXPORT
+
+
 #include "rm/icon.h"
 
 

@@ -13,7 +13,7 @@
  */
 
 
-#define RM_EXPORT
+#define RM_WX_EXPORT
 
 
 #include "rm/timer.hpp"

@@ -43,7 +43,7 @@
  * function. If the default multithreading is used, there will be data races
  * and conflict with data and event systems of wxWidgets.
  */
-class RM_API rmTimer: public rmTimerBase, public wxTimer {
+class RM_WX_API rmTimer: public rmTimerBase, public wxTimer {
   private:
     long wx_id = 0;
     

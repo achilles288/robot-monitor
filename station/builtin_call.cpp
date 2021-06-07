@@ -8,6 +8,9 @@
  */
 
 
+#define RM_NO_WX
+
+
 #include "rm/builtin_call.hpp"
 
 

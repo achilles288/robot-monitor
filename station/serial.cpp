@@ -11,6 +11,7 @@
 
 
 #define RM_EXPORT
+#define RM_NO_WX
 
 
 #include "rm/serial.hpp"
@@ -220,12 +221,3 @@ void rmSerialPort::setOnPortDetected(void (*func)()) {
     }
     m.unlock();
 }
-
-/**
- * @brief Sets a callback function on serial port detecteds
- * 
- * @param func The event function
- * @param h Owner instance of the event function
- */
-extern void rmSetOnPortDetectedWx(void (wxEvtHandler::*func)(wxEvent&),
-                                  wxEvtHandler* h);

@@ -11,6 +11,7 @@
 
 
 #define RM_EXPORT
+#define RM_NO_WX
 
 
 #include "rm/serial.hpp"
