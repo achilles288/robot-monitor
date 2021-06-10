@@ -1,3 +1,5 @@
+#define RM_NO_WX
+
 #include <rm/serial.hpp>
 
 #include <gtest/gtest.h>

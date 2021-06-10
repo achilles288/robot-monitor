@@ -1,3 +1,5 @@
+#define RM_NO_WX
+
 #include <rm/client.hpp>
 
 #include <gtest/gtest.h>

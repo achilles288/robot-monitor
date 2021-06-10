@@ -1,3 +1,5 @@
+#define RM_NO_WX
+
 #include <rm/attribute.hpp>
 
 #include <gtest/gtest.h>

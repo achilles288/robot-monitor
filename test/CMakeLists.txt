@@ -51,6 +51,22 @@ target_link_libraries(rmonitor_systest1
     ${RMONITOR_LIBRARIES}
 )
 
+
+
+
+add_executable(rmonitor_systest2
+    system2/station/wxglade_out.cpp
+    system2/station/wxglade_user.cpp
+)
+
+target_compile_definitions(rmonitor_systest2 PUBLIC
+    ${RMONITOR_DEFINITIONS}
+)
+
+target_link_libraries(rmonitor_systest2
+    ${RMONITOR_LIBRARIES}
+)
+
 if(WIN32)
 set_target_properties(rmonitor_systest1 PROPERTIES
     LINK_FLAGS /SUBSYSTEM:WINDOWS

@@ -1,3 +1,5 @@
+#define RM_NO_WX
+
 #include <rm/encryption.hpp>
 
 #include <gtest/gtest.h>
