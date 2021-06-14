@@ -25,6 +25,8 @@ long ID_B9600;
 long ID_B19200;
 long ID_B38400;
 long ID_B57600;
+long ID_B74880;
+long ID_B115200;
 
 
 void MyFrame::construct_user() {
@@ -36,16 +38,18 @@ void MyFrame::construct_user() {
     ID_B19200 = wxNewId();
     ID_B38400 = wxNewId();
     ID_B57600 = wxNewId();
+    ID_B74880 = wxNewId();
+    ID_B115200 = wxNewId();
     
     client.setTimer(&timer);
-    label_1 = new rmStaticText(this, &client, nullptr, "pot 1");
-    label_2 = new rmStaticText(this, &client, nullptr, "ESC");
-    gauge_1 = new rmGauge(this, &client, "pot1", 1024);
-    slider_1 = new rmSlider(this, &client, "esc", 1000.0f, 2000.0f);
-    checkbox_1 = new rmCheckBox(this, &client, "btn1", "Button 1", false);
-    checkbox_2 = new rmCheckBox(this, &client, "led2", "LED 2");
-    button_1 = new rmButton(this, &client, "command1", "Command 1");
-    text_ctrl_1 = new rmEchoBox(this, &client);
+    lblPot1 = new rmStaticText(this, &client, nullptr, "pot 1");
+    lblLed1 = new rmStaticText(this, &client, nullptr, "LED 1");
+    gaugePot1 = new rmGauge(this, &client, "pot1", 1024);
+    sliderLed1 = new rmSlider(this, &client, "led1", 0, 255);
+    chkBtn1 = new rmCheckBox(this, &client, "btn1", "Button 1", false);
+    chkLed2 = new rmCheckBox(this, &client, "led2", "LED 2");
+    btnCmd1 = new rmButton(this, &client, "command1", "Command 1");
+    txtEcho = new rmEchoBox(this, &client);
     lblPortStatus = new wxStaticText(this, wxID_ANY, wxT("Not connected"));
     #ifdef _WIN32
     lblPortAddress = new wxStaticText(this, wxID_ANY, wxT("COMXX"));
@@ -118,6 +122,10 @@ void MyFrame::onMenuBaudrate(wxCommandEvent &event) {
         selectedBaudrate = 38400;
     else if(event.GetId() == ID_B57600)
         selectedBaudrate = 57600;
+    else if(event.GetId() == ID_B74880)
+        selectedBaudrate = 74880;
+    else if(event.GetId() == ID_B115200)
+        selectedBaudrate = 115200;
 }
 
 

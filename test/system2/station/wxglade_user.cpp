@@ -25,6 +25,8 @@ long ID_B9600;
 long ID_B19200;
 long ID_B38400;
 long ID_B57600;
+long ID_B74880;
+long ID_B115200;
 
 
 void MyFrame::construct_user() {
@@ -36,6 +38,8 @@ void MyFrame::construct_user() {
     ID_B19200 = wxNewId();
     ID_B38400 = wxNewId();
     ID_B57600 = wxNewId();
+    ID_B74880 = wxNewId();
+    ID_B115200 = wxNewId();
     
     client.setTimer(&timer);
     lblAccX = new rmStaticText(this, &client, "accX", "AccX", RM_ATTRIBUTE_INT);
@@ -47,7 +51,9 @@ void MyFrame::construct_user() {
     lblMagX = new rmStaticText(this, &client, "magX", "MagX", RM_ATTRIBUTE_INT);
     lblMagY = new rmStaticText(this, &client, "magY", "MagY", RM_ATTRIBUTE_INT);
     lblMagZ = new rmStaticText(this, &client, "magZ", "MagZ", RM_ATTRIBUTE_INT);
-    text_ctrl_1 = new rmEchoBox(this, &client);
+    btnCaliGryo = new rmButton(this, &client, "calibrate gyro", "Calibrate 1");
+    btnCaliMag = new rmButton(this, &client, "calibrate mag", "Calibrate 2");
+    txtEcho = new rmEchoBox(this, &client);
     lblPortStatus = new wxStaticText(this, wxID_ANY, wxT("Not connected"));
     #ifdef _WIN32
     lblPortAddress = new wxStaticText(this, wxID_ANY, wxT("COMXX"));
@@ -120,6 +126,10 @@ void MyFrame::onMenuBaudrate(wxCommandEvent &event) {
         selectedBaudrate = 38400;
     else if(event.GetId() == ID_B57600)
         selectedBaudrate = 57600;
+    else if(event.GetId() == ID_B74880)
+        selectedBaudrate = 74880;
+    else if(event.GetId() == ID_B115200)
+        selectedBaudrate = 115200;
 }
 
 
