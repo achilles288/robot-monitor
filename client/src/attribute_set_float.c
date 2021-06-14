@@ -47,6 +47,6 @@ void rmAttributeSetFloat(rmAttribute* attr, float value) {
     int rem = (int) ((value - d) * 1000);
     if(rem < 0)
         rem *= -1;
-    sprintf(msg, "set %s %d.%u\n", attr->name, d, rem);
+    sprintf(msg, "set %s %d.%03u\n", attr->name, d, rem);
     rmSendMessage(msg);
 }
