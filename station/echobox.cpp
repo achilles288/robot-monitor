@@ -18,12 +18,6 @@
 #include "rm/echobox.hpp"
 
 
-long rmEchoBox::getWxID() { 
-    if(wx_id == 0)
-        wx_id = wxNewId();
-    return wx_id;
-}
-
 /**
  * @brief Constructs a echo box widget
  * 
@@ -31,7 +25,7 @@ long rmEchoBox::getWxID() {
  * @param cli The client
  */
 rmEchoBox::rmEchoBox(wxWindow* parent, rmClient* cli)
-          :wxTextCtrl(parent, getWxID(), wxEmptyString, wxDefaultPosition,
+          :wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition,
                       wxDefaultSize, wxTE_MULTILINE | wxTE_RICH)
 {
     SetCanFocus(false);

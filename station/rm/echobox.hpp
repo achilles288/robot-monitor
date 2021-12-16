@@ -29,7 +29,7 @@
 #endif
 
 
-#include "widget.hpp"
+#include "client.hpp"
 
 #include <wx/textctrl.h>
 
@@ -43,10 +43,7 @@
  */
 class RM_WX_API rmEchoBox: public rmEcho, public wxTextCtrl {
   private:
-    long wx_id = 0;
     int prevColor = 0;
-    
-    long getWxID();
     
   public:
     /**
