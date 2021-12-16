@@ -42,17 +42,18 @@ void MyFrame::construct_user() {
     ID_B115200 = wxNewId();
     
     client.setTimer(&timer);
-    lblAccX = new rmStaticText(this, &client, "accX", "AccX", RM_ATTRIBUTE_INT);
-    lblAccY = new rmStaticText(this, &client, "accY", "AccY", RM_ATTRIBUTE_INT);
-    lblAccZ = new rmStaticText(this, &client, "accZ", "AccZ", RM_ATTRIBUTE_INT);
-    lblGyroX = new rmStaticText(this, &client, "gyroX", "GyroX", RM_ATTRIBUTE_INT);
-    lblGyroY = new rmStaticText(this, &client, "gyroY", "GyroY", RM_ATTRIBUTE_INT);
-    lblGyroZ = new rmStaticText(this, &client, "gyroZ", "GyroZ", RM_ATTRIBUTE_INT);
-    lblMagX = new rmStaticText(this, &client, "magX", "MagX", RM_ATTRIBUTE_INT);
-    lblMagY = new rmStaticText(this, &client, "magY", "MagY", RM_ATTRIBUTE_INT);
-    lblMagZ = new rmStaticText(this, &client, "magZ", "MagZ", RM_ATTRIBUTE_INT);
-    btnCaliGryo = new rmButton(this, &client, "calibrate gyro", "Calibrate 1");
-    btnCaliMag = new rmButton(this, &client, "calibrate mag", "Calibrate 2");
+    lblAccelX = new rmStaticText(this, &client, "accelX", "Accel-X", RM_ATTRIBUTE_INT);
+    lblAccelY = new rmStaticText(this, &client, "accelY", "Accel-Y", RM_ATTRIBUTE_INT);
+    lblAccelZ = new rmStaticText(this, &client, "accelZ", "Accel-Z", RM_ATTRIBUTE_INT);
+    lblGyroX = new rmStaticText(this, &client, "gyroX", "Gyro-X", RM_ATTRIBUTE_INT);
+    lblGyroY = new rmStaticText(this, &client, "gyroY", "Gyro-Y", RM_ATTRIBUTE_INT);
+    lblGyroZ = new rmStaticText(this, &client, "gyroZ", "Gyro-Z", RM_ATTRIBUTE_INT);
+    lblMagX = new rmStaticText(this, &client, "magX", "Mag-X", RM_ATTRIBUTE_INT);
+    lblMagY = new rmStaticText(this, &client, "magY", "Mag-Y", RM_ATTRIBUTE_INT);
+    lblMagZ = new rmStaticText(this, &client, "magZ", "Mag-Z", RM_ATTRIBUTE_INT);
+    btnCaliAccel = new rmButton(this, &client, "calibrate accel", "Calibrate Accel");
+    btnCaliGyro = new rmButton(this, &client, "calibrate gyro", "Calibrate Gyro");
+    btnCaliMag = new rmButton(this, &client, "calibrate mag", "Calibrate Mag");
     txtEcho = new rmEchoBox(this, &client);
     lblPortStatus = new wxStaticText(this, wxID_ANY, wxT("Not connected"));
     #ifdef _WIN32
