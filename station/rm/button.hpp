@@ -45,7 +45,7 @@
  */
 class RM_WX_API rmButton: public rmWidget, public wxButton {
   private:
-    char command[12] = {0};
+    char command[128] = {0};
     
   protected:
     /**

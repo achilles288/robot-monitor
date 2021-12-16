@@ -40,8 +40,8 @@ rmButton::rmButton(wxWindow* parent, rmClient* cli, const char* cmd,
          :rmWidget(cli),
           wxButton(parent, wx_id, wxString(label))
 {
-    strncpy(command, cmd, 11);
-    command[11] = '\0';
+    strncpy(command, cmd, 127);
+    command[127] = '\0';
     Connect(
         wx_id,
         wxEVT_BUTTON,
@@ -65,7 +65,7 @@ void rmButton::setEnabled(bool en) { Enable(en); }
  * @param evt The event object
  */
 void rmButton::onClick(wxCommandEvent& evt) {
-    char buff[13];
+    char buff[129];
     sprintf(buff, "%s\n", command);
     client->sendMessage(buff);
 }
