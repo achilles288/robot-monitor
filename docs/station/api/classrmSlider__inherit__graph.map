@@ -1,6 +1,0 @@
-<map id="rmSlider" name="rmSlider">
-<area shape="rect" id="node1" title="A slider widget for the control system." alt="" coords="93,155,171,181"/>
-<area shape="rect" id="node2" href="$classrmWidget.html" title="The base class of the widgets for robot monitor." alt="" coords="35,80,122,107"/>
-<area shape="rect" id="node3" href="$classrmAttributeNotifier.html" title="Class that handles the events that triggers upon the change of attribute." alt="" coords="5,5,152,32"/>
-<area shape="rect" id="node4" title=" " alt="" coords="146,80,225,107"/>
-</map>

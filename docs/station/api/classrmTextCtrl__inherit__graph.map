@@ -1,6 +1,0 @@
-<map id="rmTextCtrl" name="rmTextCtrl">
-<area shape="rect" id="node1" title="A text box widget for the control system." alt="" coords="89,155,180,181"/>
-<area shape="rect" id="node2" href="$classrmWidget.html" title="The base class of the widgets for robot monitor." alt="" coords="35,80,122,107"/>
-<area shape="rect" id="node3" href="$classrmAttributeNotifier.html" title="Class that handles the events that triggers upon the change of attribute." alt="" coords="5,5,152,32"/>
-<area shape="rect" id="node4" title=" " alt="" coords="147,80,237,107"/>
-</map>
