@@ -19,21 +19,21 @@ target_link_libraries(rmonitor_test PUBLIC
 
 
 
-file(GLOB_RECURSE RMTEST_CLIENT_UNIT_SOURCES unit/client/*.cpp)
+# file(GLOB_RECURSE RMTEST_CLIENT_UNIT_SOURCES unit/client/*.cpp)
 
-add_executable(rmonitor_client_test
-    ${RMTEST_CLIENT_UNIT_SOURCES}
-)
+# add_executable(rmonitor_client_test
+#     ${RMTEST_CLIENT_UNIT_SOURCES}
+# )
 
-target_include_directories(rmonitor_client_test PUBLIC
-    ${PROJECT_SOURCE_DIR}/external/googletest/googletest/include
-)
+# target_include_directories(rmonitor_client_test PUBLIC
+#     ${PROJECT_SOURCE_DIR}/external/googletest/googletest/include
+# )
 
-target_link_libraries(rmonitor_client_test PUBLIC
-    gtest
-    gtest_main
-    rmonitor-client
-)
+# target_link_libraries(rmonitor_client_test PUBLIC
+#     gtest
+#     gtest_main
+#     rmonitor-client
+# )
 
 
 
