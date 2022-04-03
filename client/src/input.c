@@ -105,8 +105,10 @@ void rmCreateInputAttribute(const char* key, void* ptr, int8_t t) {
     attributes = newArr;
     
     static bool init = false;
-    if(!init)
+    if(!init) {
         rmCreateCall("set", callbackSet);
+        init = true;
+    }
 }
 
 
@@ -199,6 +201,8 @@ static void attributeSetValue(rmInputAttribute* attr, const char* str) {
             }
         }
         else {
+            if(val < 0)
+                val = 0;
             if(attr->type == RM_ATTRIBUTE_UINT8) {
                 uint8_t* i = (uint8_t*) attr->data;
                 if(val != *i) {

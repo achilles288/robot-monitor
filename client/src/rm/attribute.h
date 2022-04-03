@@ -30,7 +30,6 @@ extern "C" {
 #define RM_ATTRIBUTE_BOOL   0b00000000 ///< Boolean data type
 #define RM_ATTRIBUTE_CHAR   0b00000001 ///< A single character
 #define RM_ATTRIBUTE_STRING 0b00000010 ///< String data type
-#define RM_ATTRIBUTE_INT    0b00011010 ///< Integer data type
 #define RM_ATTRIBUTE_UINT8  0b00010000 ///< 8-bit integer data
 #define RM_ATTRIBUTE_UINT16 0b00010001 ///< 16-bit integer data
 #define RM_ATTRIBUTE_UINT32 0b00010010 ///< 32-bit integer data

@@ -11,19 +11,22 @@
 #include "rm/string.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 
 /**
  * @brief Creates a string with user-defined size
  * 
+ * @param str Initial string value
  * @param len Maximum number of characters to be stored
  * 
  * @return A string object
  */
-rmString rmCreateString(uint8_t len) {
-    rmString str;
-    str.data = (char*) malloc(len + 1);
-    str.data[len] = '\0';
-    str.size = len;
-    return str;
+rmString rmCreateString(const char* str, uint8_t len) {
+    rmString s;
+    s.data = (char*) malloc(len + 1);
+    s.data[len] = '\0';
+    s.size = len;
+    strncpy(s.data, str, len);
+    return s;
 }

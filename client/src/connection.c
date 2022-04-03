@@ -69,7 +69,6 @@ void rmProcessMessage() {
     static uint8_t i = 0;
     static uint8_t tokenCount = 0;
     static uint8_t flag = PROCESS_DEFAULT;
-    static rmCall* call = NULL;
     
     char c = rmRead();
     while(c != '\0') {
@@ -81,6 +80,7 @@ void rmProcessMessage() {
             i = 0;
             tokenCount = 0;
             flag = PROCESS_STARTED;
+            break;
             
           case ' ':
             if(flag & PROCESS_STARTED) {
@@ -92,7 +92,7 @@ void rmProcessMessage() {
           case '\n':
             if(flag & PROCESS_STARTED) {
                 cmd[i] = '\0';
-                call = _rmCallGet(cmd);
+                rmCall* call = _rmCallGet(cmd);
                 if(call != NULL)
                     call->callback(tokenCount, tokens);
                 flag = PROCESS_DEFAULT;
@@ -101,7 +101,7 @@ void rmProcessMessage() {
             
           default:
             if(flag & PROCESS_STARTED) {
-                if(flag & PROCESS_SEPERATOR) {
+                if(flag == PROCESS_SEPERATOR) {
                     tokens[tokenCount++] = cmd + i;
                     flag = PROCESS_STARTED;
                 }
@@ -110,6 +110,25 @@ void rmProcessMessage() {
         }
         c = rmRead();
     }
+}
+
+
+/**
+ * @brief Sends a command-line to the station
+ * 
+ * @param cmd The command (a format string for the arguments should be included
+ *            if necessary)
+ * @param ... The command-line arguments
+ */
+void rmSendCommand(const char* cmd, ...) {
+    char buff[128];
+    va_list args;
+    va_start(args, cmd);
+    uint8_t len = vsnprintf(buff, 128, cmd, args);
+    va_end(args);
+    buff[len + 6] = '\n';
+    buff[len + 7] = '\0';
+    rmSendMessage(buff);
 }
 
 
@@ -125,7 +144,7 @@ void rmEcho(const char* msg, ...) {
     memcpy(buff, "$echo ", 6);
     va_list args;
     va_start(args, msg);
-    uint8_t len = vsnprintf(buff + 6, 126 - 6, msg, args);
+    uint8_t len = vsnprintf(buff + 6, 128 - 6, msg, args);
     va_end(args);
     buff[len + 6] = '\n';
     buff[len + 7] = '\0';
@@ -145,7 +164,7 @@ void rmWarn(const char* msg, ...) {
     memcpy(buff, "$warn ", 6);
     va_list args;
     va_start(args, msg);
-    uint8_t len = vsnprintf(buff + 6, 126 - 6, msg, args);
+    uint8_t len = vsnprintf(buff + 6, 128 - 6, msg, args);
     va_end(args);
     buff[len + 6] = '\n';
     buff[len + 7] = '\0';
@@ -162,12 +181,12 @@ void rmWarn(const char* msg, ...) {
  */
 void rmError(const char* msg, ...) {
     char buff[128];
-    memcpy(buff, "$error ", 7);
+    memcpy(buff, "$err ", 5);
     va_list args;
     va_start(args, msg);
-    uint8_t len = vsnprintf(buff + 7, 126 - 7, msg, args);
+    uint8_t len = vsnprintf(buff + 5, 128 - 5, msg, args);
     va_end(args);
-    buff[len + 7] = '\n';
-    buff[len + 8] = '\0';
+    buff[len + 5] = '\n';
+    buff[len + 6] = '\0';
     rmSendMessage(buff);
 }

@@ -16,10 +16,27 @@
 #define __RM_CONNECTION_H__ ///< Header guard
 
 
+#if defined(__arm__)
+#include "../rm/hal/uart.h"
+#elif defined(Arduino_h)
+#include "../rm/Arduino/uart0.h"
+#endif
+
+
 /**
  * @brief Reads a message and processes it
  */
 void rmProcessMessage();
+
+
+/**
+ * @brief Sends a command-line to the station
+ * 
+ * @param cmd The command (a format string for the arguments should be included
+ *            if necessary)
+ * @param ... The command-line arguments
+ */
+void rmSendCommand(const char* cmd, ...);
 
 
 /**

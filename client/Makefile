@@ -28,8 +28,11 @@ src/call.c \
 src/connection.c \
 src/input.c \
 src/output.c \
+src/request.c \
 src/string.c \
-src/sync.c
+src/sync.c \
+src/hal/uart.c \
+src/hal/usbd_cdc.c
 
 # ASM sources
 ASM_SOURCES = 

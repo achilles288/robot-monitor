@@ -33,11 +33,12 @@ typedef struct _rmString {
 /**
  * @brief Creates a string with user-defined size
  * 
+ * @param str Initial string value
  * @param len Maximum number of characters to be stored
  * 
  * @return A string object
  */
-rmString rmCreateString(uint8_t len);
+rmString rmCreateString(const char* str, uint8_t len);
 
 
 #ifdef __cplusplus
