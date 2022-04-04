@@ -75,7 +75,7 @@ endif()
 # 
 # Compile Robot Monitor
 # 
-# add_subdirectory(client)
+add_subdirectory(client/test)
 add_subdirectory(station)
 
 
