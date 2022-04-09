@@ -2,13 +2,13 @@
 # The version of client firmware for testing purpose
 #
 add_library(rmonitor_client STATIC
-    ../src/call.c
-    ../src/connection.c
-    ../src/input.c
-    ../src/output.c
-    ../src/request.c
-    ../src/string.c
-    ../src/sync.c
+    ../src/rm_call.c
+    ../src/rm_connection.c
+    ../src/rm_input.c
+    ../src/rm_output.c
+    ../src/rm_request.c
+    ../src/rm_string.c
+    ../src/rm_sync.c
     virtual_connection.c
 )
 
