@@ -73,10 +73,10 @@ class RM_API rmClient {
     rmSerialPort mySerial;
     rmEcho *myEcho = nullptr;
     char rx_cmd[256];
-    char* rx_tokens[4];
+    char* rx_tokens[8];
     uint8_t rx_i = 0;
     uint8_t rx_tokenCount = 0;
-    bool rx_space = false;
+    bool rx_flag = 0b00;
     rmTimerBase* timer = nullptr;
     
     int binarySearch1(int low, int high, const char* key) const;

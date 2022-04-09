@@ -30,6 +30,11 @@ static std::thread thread;
 static std::mutex m;
 
 
+#define PROCESS_DEFAULT   0b00
+#define PROCESS_STARTED   0b01
+#define PROCESS_SEPERATOR 0b11
+
+
 /**
  * @brief Checks the connection and processes the incoming messages
  */
@@ -40,30 +45,35 @@ void rmClient::onIdle() {
         if(rx_i == 255)
             c = '\n';
         
-        switch(c) {
-          case ' ':
-            if(!rx_space) {
+        if(rx_flag & PROCESS_STARTED) {
+            switch(c) {
+              case ' ':
                 rx_cmd[rx_i++] = '\0';
-                rx_space = true;
+                rx_flag = PROCESS_SEPERATOR;
+                break;
+                
+              case '\n':
+                rx_cmd[i] = '\0';
+                rmCall* call = getCall(rx_cmd);
+                if(call != NULL)
+                    call->callback(rx_tokenCount, rx_tokens);
+                rx_flag = PROCESS_DEFAULT;
+                break;
+                
+              default:
+                if(rx_flag == PROCESS_SEPERATOR) {
+                    if(rx_tokenCount == 8)
+                        break;
+                    rx_tokens[rx_tokenCount++] = &rx_cmd[rx_i];
+                    rx_flag = PROCESS_STARTED;
+                }
+                rx_cmd[rx_i++] = c;
             }
-            break;
-            
-          case '\n':
-            rx_cmd[rx_i] = '\0';
-            call = getCall(rx_cmd);
-            if(call != nullptr)
-                call->invoke(rx_tokenCount, rx_tokens);
+        }
+        else if(c == '$') {
             rx_i = 0;
             rx_tokenCount = 0;
-            rx_space = false;
-            break;
-            
-          default:
-            if(rx_space) {
-                rx_tokens[rx_tokenCount++] = rx_cmd + rx_i;
-                rx_space = false;
-            }
-            rx_cmd[rx_i++] = c;
+            rx_flag = PROCESS_STARTED;
         }
         c = read();
     }
