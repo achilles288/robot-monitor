@@ -20,7 +20,7 @@
 typedef struct _rmInputAttribute {
     char name[12];
     void *data;
-    int8_t type;
+    rmAttributeDataType type;
     float lowerBound;
     float upperBound;
     void (*onChange)();
@@ -75,7 +75,8 @@ static void callbackSet(int argc, char* argv[]);
  * @param ptr The pointer of the data which the key links with
  * @param t The data type
  */
-void rmCreateInputAttribute(const char* key, void* ptr, int8_t t) {
+void rmCreateInputAttribute(const char* key, void* ptr, rmAttributeDataType t)
+{
     rmInputAttribute attr;
     strncpy(attr.name, key, 11);
     attr.name[11] = '\0';

@@ -56,7 +56,7 @@ static void listAttributes(int argc, char *argv[]) {
     }
     msg[len++] = '\n';
     msg[len++] = '\0';
-    rmSendMessage(msg);
+    _rmSendMessage(msg);
 }
 
 
@@ -89,7 +89,7 @@ uint8_t rmCreateSync() {
  * @param t The data type
  * @param sync_id The sync table ID
  */
-void rmCreateOutputAttribute(const char* key, void* ptr, int8_t t,
+void rmCreateOutputAttribute(const char* key, void* ptr, rmAttributeDataType t,
                              uint8_t sync_id)
 {
     rmOutputAttribute attr;
@@ -131,5 +131,5 @@ void rmSyncUpdate(uint8_t id) {
     }
     msg[len++] = '\n';
     msg[len++] = '\0';
-    rmSendMessage(msg);
+    _rmSendMessage(msg);
 }

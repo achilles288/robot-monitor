@@ -41,7 +41,7 @@ uint8_t rmCreateSync();
  * @param t The data type
  * @param sync The sync table ID
  */
-void rmCreateOutputAttribute(const char* key, void* ptr, int8_t t,
+void rmCreateOutputAttribute(const char* key, void* ptr, rmAttributeDataType t,
                              uint8_t sync_id);
 
 

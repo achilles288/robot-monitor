@@ -27,16 +27,21 @@
 extern "C" {
 #endif
 
-#define RM_ATTRIBUTE_BOOL   0b00000000 ///< Boolean data type
-#define RM_ATTRIBUTE_CHAR   0b00000001 ///< A single character
-#define RM_ATTRIBUTE_STRING 0b00000010 ///< String data type
-#define RM_ATTRIBUTE_UINT8  0b00010000 ///< 8-bit integer data
-#define RM_ATTRIBUTE_UINT16 0b00010001 ///< 16-bit integer data
-#define RM_ATTRIBUTE_UINT32 0b00010010 ///< 32-bit integer data
-#define RM_ATTRIBUTE_INT8   0b00011000 ///< 8-bit integer data
-#define RM_ATTRIBUTE_INT16  0b00011001 ///< 16-bit integer data
-#define RM_ATTRIBUTE_INT32  0b00011010 ///< 32-bit integer data
-#define RM_ATTRIBUTE_FLOAT  0b00011100 ///< Floating point data type
+/**
+ * @brief Represents different data types for use withing the library
+ */
+typedef enum _rmAttributeDataType {
+    RM_ATTRIBUTE_BOOL   = 0b00000000, ///< Boolean data type
+    RM_ATTRIBUTE_CHAR   = 0b00000001, ///< A single character
+    RM_ATTRIBUTE_STRING = 0b00000010, ///< String data type
+    RM_ATTRIBUTE_UINT8  = 0b00010000, ///< 8-bit integer data
+    RM_ATTRIBUTE_UINT16 = 0b00010001, ///< 16-bit integer data
+    RM_ATTRIBUTE_UINT32 = 0b00010010, ///< 32-bit integer data
+    RM_ATTRIBUTE_INT8   = 0b00011000, ///< 8-bit integer data
+    RM_ATTRIBUTE_INT16  = 0b00011001, ///< 16-bit integer data
+    RM_ATTRIBUTE_INT32  = 0b00011010, ///< 32-bit integer data
+    RM_ATTRIBUTE_FLOAT  = 0b00011100  ///< Floating point data type
+} rmAttributeDataType;
 
 
 /**
@@ -48,7 +53,7 @@ extern "C" {
 typedef struct _rmOutputAttribute {
     char name[12]; ///< Unique name of the attribute (maximum length is 11)
     void* data; ///< The pointer of the data which the key links with
-    int8_t type; ///< The data type
+    rmAttributeDataType type; ///< The data type
 } rmOutputAttribute;
 
 
@@ -61,7 +66,7 @@ typedef struct _rmOutputAttribute {
  * @param ptr The pointer of the data which the key links with
  * @param t The data type
  */
-void rmCreateInputAttribute(const char* key, void* ptr, int8_t t);
+void rmCreateInputAttribute(const char* key, void* ptr, rmAttributeDataType t);
 
 
 /**
@@ -101,10 +106,22 @@ void rmOutputAttributeUpdate(rmOutputAttribute *attr);
  * @param attr The attribute
  * 
  * @return String representation of the attribute data. The string returned
- *         must be used or copied before the next function call since it is
+ *         must be used or copied before some next function calls since it is
  *         allocated in a temporary memory.
  */
 char* rmOutputAttributeGetStringData(rmOutputAttribute *attr);
+
+
+/**
+ * @brief Converts the floating point number to a string
+ * 
+ * @param f The floating point value
+ * 
+ * @return String representation of the float number. The string returned
+ *         must be used or copied before some next function calls since it is
+ *         allocated in a temporary memory.
+ */
+char* rmFloatToString(float f);
 
 
 #ifdef __cplusplus
