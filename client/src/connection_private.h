@@ -32,11 +32,14 @@ extern char rmTxBuffer[];
 extern uint8_t rmTxHead;
 extern uint8_t rmTxTail;
 
+extern bool rmRxOn;
 extern bool rmTxOn;
 
-extern void (*rmSendMessage)(const char*);
+extern char (*_rmRead)();
 
-extern char (*rmRead)();
+extern void (*_rmSendMessage)(const char*);
+
+extern void (*_rmConnectionIdle)();
 
 
 #ifdef __cplusplus

@@ -14,7 +14,6 @@
 
 
 #ifndef __STM32F1xx_HAL_H
-#define __STM32F1xx_HAL_H
 
 
 #include <stdint.h>
@@ -163,6 +162,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart,
                                         uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart,
                                        uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart);
 
 #define UART_CR1_REG_INDEX 1U
 #define UART_CR2_REG_INDEX 2U

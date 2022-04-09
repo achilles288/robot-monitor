@@ -13,8 +13,7 @@
 #include "../rm/hal/uart.h"
 
 #include "../connection_private.h"
-
-#include <string.h>
+#include "../time.h"
 
 
 #define DMA_RX_BUFFER_SIZE 128
@@ -32,15 +31,20 @@ static void rmUARTSendMessage(const char* msg) {
     while((c = *msg++) != '\0') {
         uint8_t i = (rmTxHead + 1) % RM_TX_BUFFER_SIZE;
         
+        // Waits for the TX to reduce the buffer
         if(i == rmTxTail) {
-            if(!rmTxOn)
-                rmUARTLoadDMA();
+            uint32_t t1 = _rmGetTime();
+            while(i == rmTxTail) {
+                if(_rmGetTime() - t1 > 10)
+                    rmTxTail = rmTxHead;
+            }
         }
         
-        while(i == rmTxTail) {}
         rmTxBuffer[rmTxHead] = c;
         rmTxHead = i;
     }
+    if(!rmTxOn)
+        rmUARTLoadDMA();
 }
 
 /**
@@ -56,8 +60,7 @@ void rmConnectUART(UART_HandleTypeDef *huart, DMA_HandleTypeDef *hdma_rx,
     handler = huart;
     rxDMAHandler = hdma_rx;
     txDMAHandler = hdma_tx;
-    rmSendMessage = &rmUARTSendMessage;
-    memset(rmRxBuffer, 0, DMA_RX_BUFFER_SIZE);
+    _rmSendMessage = rmUARTSendMessage;
     __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
     HAL_UART_Receive_DMA(huart, rxDMABuffer, DMA_RX_BUFFER_SIZE);
 }
@@ -66,12 +69,12 @@ void rmConnectUART(UART_HandleTypeDef *huart, DMA_HandleTypeDef *hdma_rx,
  * @brief Function to be called when using UART DMA with the library
  */
 void rmUARTRxCheck() {
-    uint8_t len  = DMA_RX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(rxDMAHandler);
-    if(rxOn)
+    if(rmRxOn)
         return;
+    uint8_t len  = DMA_RX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(rxDMAHandler);
     if(len == 0)
         return;
-    rxOn = true;
+    rmRxOn = true;
     
     // Reads the buffer
     HAL_UART_DMAStop(handler);
@@ -79,13 +82,13 @@ void rmUARTRxCheck() {
         uint8_t j = (rmRxHead + 1) % RM_RX_BUFFER_SIZE;
         if(j == rmRxTail)
             break;
-        rmRxBuffer[rmRxHead] = rmRxDMABuffer[i];
+        rmRxBuffer[rmRxHead] = rxDMABuffer[i];
         rmRxHead = j;
     }
     
     // Returns everything to normal
     rmRxOn = false;
-    HAL_UART_Receive_DMA(handler, rmRxDMABuffer, DMA_RX_BUFFER_SIZE);
+    HAL_UART_Receive_DMA(handler, rxDMABuffer, DMA_RX_BUFFER_SIZE);
 }
 
 /**
@@ -105,7 +108,7 @@ void rmUARTLoadDMA() {
         count++;
     }
     HAL_UART_Transmit_DMA(handler, txDMABuffer, count);
-    txTail = i;
+    rmTxTail = i;
     rmTxOn = true;
 }
 

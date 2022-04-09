@@ -18,7 +18,7 @@ extern "C" {
 
 
 /**
- * @brief Initializes the USB connection
+ * @brief Initializes the USB device connection
  */
 void rmConnectUSBD();
 

@@ -17,9 +17,10 @@
 
 
 #if defined(__arm__)
-#include "../rm/hal/uart.h"
+#include "hal/uart.h"
+#include "hal/usbd_cdc.h"
 #elif defined(Arduino_h)
-#include "../rm/Arduino/uart0.h"
+#include "Arduino/uart0.h"
 #endif
 
 

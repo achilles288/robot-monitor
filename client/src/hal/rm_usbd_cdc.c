@@ -10,96 +10,75 @@
 
 #ifdef __arm__
 
-#include "../rm/hal/uart.h"
+#include "../rm/hal/usbd_cdc.h"
+#include "usbd_cdc_private.h"
 
 #include "../connection_private.h"
-
-#include <string.h>
-
-
-#define DMA_RX_BUFFER_SIZE 128
-#define DMA_TX_BUFFER_SIZE 128
-
-static UART_HandleTypeDef *handler;
-static DMA_HandleTypeDef *rxDMAHandler;
-static DMA_HandleTypeDef *txDMAHandler;
-static uint8_t rxDMABuffer[DMA_RX_BUFFER_SIZE];
-static uint8_t txDMABuffer[DMA_TX_BUFFER_SIZE];
+#include "../time.h"
 
 
-static void rmUARTSendMessage(const char* msg) {
+static int8_t rmUSBDReceive(uint8_t* Buf, uint32_t* Len) {
+    for(uint8_t i=0; i<*Len; i++) {
+        uint8_t j = (rmRxHead + 1) % RM_RX_BUFFER_SIZE;
+        if(j == rmRxTail)
+            break;
+        rmRxBuffer[rmRxHead] = Buf[i];
+        rmRxHead = j;
+    }
+    USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+    USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+    return 0U;
+}
+
+
+static void rmUSBDTransmit() {
+    USBD_CDC_HandleTypeDef *hcdc
+        = (USBD_CDC_HandleTypeDef*) hUsbDeviceFS.pClassData;
+    if(hcdc->TxState != 0)
+        return;
+    
+    char buffer[128];
+    uint8_t count = 0;
+    while(count < 128) {
+        if(rmTxTail == rmTxHead)
+            break;
+        buffer[count] = rmTxBuffer[rmTxTail];
+        rmTxTail = (rmTxTail + 1) % RM_TX_BUFFER_SIZE;
+        count++;
+    }
+    USBD_CDC_SetTxBuffer(&hUsbDeviceFS, (uint8_t*) buffer, count);
+    USBD_CDC_TransmitPacket(&hUsbDeviceFS);
+}
+
+
+static void rmUSBDSendMessage(const char* msg) {
     char c;
     while((c = *msg++) != '\0') {
         uint8_t i = (rmTxHead + 1) % RM_TX_BUFFER_SIZE;
         
+        // Waits for the TX to reduce the buffer
         if(i == rmTxTail) {
-            if(!rmTxOn)
-                rmUARTLoadDMA();
+            uint32_t t1 = _rmGetTime();
+            while(i == rmTxTail) {
+                if(_rmGetTime() - t1 > 10)
+                    rmTxTail = rmTxHead;
+            }
         }
         
-        while(i == rmTxTail) {}
         rmTxBuffer[rmTxHead] = c;
         rmTxHead = i;
     }
+    rmUSBDTransmit();
 }
 
 /**
- * @brief Initializes the UART connection
- * 
- * @param huart UART handler
- * @param hdma_rx DMA RX handler
- * @param hdma_tx DMA TX handler
+ * @brief Initializes the USB device connection
  */
-void rmConnectUART(UART_HandleTypeDef *huart, DMA_HandleTypeDef *hdma_rx,
-                   DMA_HandleTypeDef *hdma_tx)
-{
-    handler = huart;
-    rxDMAHandler = hdma_rx;
-    txDMAHandler = hdma_tx;
-    rmSendMessage = &rmUARTSendMessage;
-    memset(rmRxBuffer, 0, DMA_RX_BUFFER_SIZE);
-    __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
-    HAL_UART_Receive_DMA(huart, rxDMABuffer, DMA_RX_BUFFER_SIZE);
-}
-
-/**
- * @brief Function to be called when using UART DMA with the library
- */
-void rmUARTRxCheck() {
-    uint8_t len  = DMA_RX_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(rxDMAHandler);
-    if(len == 0)
-        return;
-    uint8_t count = 0;
-    while(count < DMA_RX_BUFFER_SIZE) {
-        uint8_t i = (rmRxHead + 1) % RM_RX_BUFFER_SIZE;
-        if(i == rmRxTail)
-            break;
-        char c = rxDMABuffer[count];
-        if(c == '\0')
-            break;
-        rmRxBuffer[rmRxHead] = c;
-        rmRxHead = i;
-        count++;
-    }
-    memset(rmRxBuffer, 0, count);
-    HAL_UART_Receive_DMA(handler, rxDMABuffer, DMA_RX_BUFFER_SIZE);
-}
-
-/**
- * @brief Function to be called when using UART DMA with the library
- */
-void rmUARTLoadDMA() {
-    rmTxOn = true;
-    uint8_t i = rmTxTail;
-    uint8_t count = 0;
-    while(count < DMA_TX_BUFFER_SIZE) {
-        if(i == rmTxHead)
-            break;
-        txDMABuffer[count] = rmTxBuffer[count];
-        i = (i + 1) % RM_TX_BUFFER_SIZE;
-        count++;
-    }
-    HAL_UART_Transmit_DMA(handler, txDMABuffer, count);
+void rmConnectUSBD() {
+    USBD_CDC_ItfTypeDef* fops = (USBD_CDC_ItfTypeDef*) hUsbDeviceFS.pUserData;
+    fops->Receive = rmUSBDReceive;
+    _rmSendMessage = rmUSBDSendMessage;
+    _rmConnectionIdle = rmUSBDTransmit;
 }
 
 #endif

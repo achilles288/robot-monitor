@@ -30,6 +30,7 @@ char rmTxBuffer[RM_TX_BUFFER_SIZE];
 uint8_t rmTxHead = 0;
 uint8_t rmTxTail = 0;
 
+bool rmRxOn = false;
 bool rmTxOn = false;
 
 
@@ -48,9 +49,11 @@ static char readDefault() {
 
 static void sendMessageDefault(const char* msg) {}
 
-char (*rmRead)() = &readDefault;
+char (*_rmRead)() = &readDefault;
 
-void (*rmSendMessage)(const char*) = &sendMessageDefault;
+void (*_rmSendMessage)(const char*) = &sendMessageDefault;
+
+void (*_rmConnectionIdle)() = NULL;
 
 
 
@@ -64,51 +67,51 @@ void (*rmSendMessage)(const char*) = &sendMessageDefault;
  * @brief Reads a message and processes it
  */
 void rmProcessMessage() {
+    if(_rmConnectionIdle != NULL)
+        _rmConnectionIdle();
+    
     static char cmd[256];
     static char* tokens[8];
     static uint8_t i = 0;
     static uint8_t tokenCount = 0;
     static uint8_t flag = PROCESS_DEFAULT;
     
-    char c = rmRead();
+    char c = _rmRead();
     while(c != '\0') {
         if(i == 255)
             c = '\n';
         
-        switch(c) {
-          case '$':
-            i = 0;
-            tokenCount = 0;
-            flag = PROCESS_STARTED;
-            break;
-            
-          case ' ':
-            if(flag & PROCESS_STARTED) {
+        if(flag & PROCESS_STARTED) {
+            switch(c) {
+              case ' ':
                 cmd[i++] = '\0';
                 flag = PROCESS_SEPERATOR;
-            }
-            break;
-            
-          case '\n':
-            if(flag & PROCESS_STARTED) {
+                break;
+                
+              case '\n':
                 cmd[i] = '\0';
                 rmCall* call = _rmCallGet(cmd);
                 if(call != NULL)
                     call->callback(tokenCount, tokens);
                 flag = PROCESS_DEFAULT;
                 break;
-            }
-            
-          default:
-            if(flag & PROCESS_STARTED) {
+                
+              default:
                 if(flag == PROCESS_SEPERATOR) {
-                    tokens[tokenCount++] = cmd + i;
+                    if(tokenCount == 8)
+                        break;
+                    tokens[tokenCount++] = &cmd[i];
                     flag = PROCESS_STARTED;
                 }
                 cmd[i++] = c;
             }
         }
-        c = rmRead();
+        else if(c == '$') {
+            i = 0;
+            tokenCount = 0;
+            flag = PROCESS_STARTED;
+        }
+        c = _rmRead();
     }
 }
 
@@ -128,7 +131,7 @@ void rmSendCommand(const char* cmd, ...) {
     va_end(args);
     buff[len + 6] = '\n';
     buff[len + 7] = '\0';
-    rmSendMessage(buff);
+    _rmSendMessage(buff);
 }
 
 
@@ -148,7 +151,7 @@ void rmEcho(const char* msg, ...) {
     va_end(args);
     buff[len + 6] = '\n';
     buff[len + 7] = '\0';
-    rmSendMessage(buff);
+    _rmSendMessage(buff);
 }
 
 
@@ -168,7 +171,7 @@ void rmWarn(const char* msg, ...) {
     va_end(args);
     buff[len + 6] = '\n';
     buff[len + 7] = '\0';
-    rmSendMessage(buff);
+    _rmSendMessage(buff);
 }
 
 
@@ -188,5 +191,5 @@ void rmError(const char* msg, ...) {
     va_end(args);
     buff[len + 5] = '\n';
     buff[len + 6] = '\0';
-    rmSendMessage(buff);
+    _rmSendMessage(buff);
 }
