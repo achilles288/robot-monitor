@@ -40,7 +40,7 @@ long rmSlider::getWxID() {
  * @param upper Upper bound value
  */
 rmSlider::rmSlider(wxWindow* parent, rmClient* cli, const char* key, 
-                   int32_t lower, int32_t upper)
+                   int lower, int upper)
          :rmWidget(cli),
           wxSlider(parent, wx_id, lower, lower, upper, wxDefaultPosition,
                    wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator,
@@ -113,7 +113,7 @@ void rmSlider::onAttributeChange() {
     }
     else if(attribute->getType() == RM_ATTRIBUTE_FLOAT) {
         float val = attribute->getValue().f;
-        float a = attribute->getLowerBound().f;
+        float a = attribute->getLowerBound();
         int step = (int) ((val - a) / stepSize);
         SetValue(step);
     }
@@ -130,7 +130,7 @@ void rmSlider::onSlide(wxCommandEvent& evt) {
         attribute->setValue(GetValue());
     }
     else if(type == RM_ATTRIBUTE_FLOAT) {
-        float a = attribute->getLowerBound().f;
+        float a = attribute->getLowerBound();
         float val = a + GetValue() * stepSize;
         attribute->setValue(val);
     }

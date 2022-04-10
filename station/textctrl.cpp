@@ -36,7 +36,7 @@ long rmTextCtrl::getWxID() {
  * @param t Data type of the value stored
  */
 rmTextCtrl::rmTextCtrl(wxWindow* parent, rmClient* cli, const char* key,
-                       int8_t t)
+                       rmAttributeDataType t)
            :rmWidget(cli),
             wxTextCtrl(parent, wx_id, wxEmptyString, wxDefaultPosition,
                        wxDefaultSize, wxTE_PROCESS_ENTER)

@@ -133,7 +133,7 @@ class RM_API rmClient {
      * @return The newly created attribute. Null if the attribute with the same
      *         name already exists or the creation is invalid.
      */
-    rmAttribute* createAttribute(const char* key, int8_t t);
+    rmAttribute* createAttribute(const char* key, rmAttributeDataType t);
     
     /**
      * @brief Creates an attribute in the map structure
@@ -147,23 +147,8 @@ class RM_API rmClient {
      * @return The newly created attribute. Null if the attribute with the same
      *         name already exists or the creation is invalid.
      */
-    rmAttribute* createAttribute(const char* key, int8_t t, int32_t lower,
-                                 int32_t upper);
-    
-    /**
-     * @brief Creates an attribute in the map structure
-     * 
-     * @param key Unique name of the attribute with maximum 11 characters
-     * @param t Data type of the value stored
-     * @param lower Lower bound value. The type of the lower and upper should
-     *              be of the same type as t.
-     * @param upper Upper bound value
-     * 
-     * @return The newly created attribute. Null if the attribute with the same
-     *         name already exists or the creation is invalid.
-     */
-    rmAttribute* createAttribute(const char* key, int8_t t, float lower,
-                                 float upper);
+    rmAttribute* createAttribute(const char* key, rmAttributeDataType t,
+                                 float lower, float upper);
     
     /**
      * @brief Looks for an attribute by name

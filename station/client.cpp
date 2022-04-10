@@ -124,7 +124,8 @@ bool rmClient::appendAttribute(rmAttribute* attr) {
  * @return The newly created attribute. Null if the attribute with the same
  *         name already exists or the creation is invalid.
  */
-rmAttribute* rmClient::createAttribute(const char* key, int8_t t) {
+rmAttribute* rmClient::createAttribute(const char* key, rmAttributeDataType t)
+{
     m.lock();
     rmAttribute* attr = new rmAttribute(key, t);
     bool valid = appendAttribute(attr);
@@ -149,35 +150,8 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t) {
  * @return The newly created attribute. Null if the attribute with the same
  *         name already exists or the creation is invalid.
  */
-rmAttribute* rmClient::createAttribute(const char* key, int8_t t,
-                                       int32_t lower, int32_t upper)
-{
-    m.lock();
-    rmAttribute* attr = new rmAttribute(key, t, lower, upper);
-    bool valid = appendAttribute(attr);
-    m.unlock();
-    if(valid)
-        return attr;
-    else {
-        delete attr;
-        return nullptr;
-    }
-}
-
-/**
- * @brief Creates an attribute in the map structure
- * 
- * @param key Unique name of the attribute with maximum 11 characters
- * @param t Data type of the value stored
- * @param lower Lower bound value. The type of the lower and upper should be
- *              of the same type as t.
- * @param upper Upper bound value
- * 
- * @return The newly created attribute. Null if the attribute with the same
- *         name already exists or the creation is invalid.
- */
-rmAttribute* rmClient::createAttribute(const char* key, int8_t t, float lower,
-                                       float upper)
+rmAttribute* rmClient::createAttribute(const char* key, rmAttributeDataType t,
+                                       float lower, float upper)
 {
     m.lock();
     rmAttribute* attr = new rmAttribute(key, t, lower, upper);

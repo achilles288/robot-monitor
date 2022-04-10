@@ -52,7 +52,7 @@ rmStaticText::rmStaticText(wxWindow* parent, rmClient* cli, const char* key,
  * @param t Data type of the value stored
  */
 rmStaticText::rmStaticText(wxWindow* parent, rmClient* cli, const char* key,
-                           const char* label, int8_t t)
+                           const char* label, rmAttributeDataType t)
              :rmWidget(cli),
               wxStaticText(parent, wx_id, wxEmptyString)
 {

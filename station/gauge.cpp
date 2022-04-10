@@ -33,8 +33,7 @@ long rmGauge::getWxID() {
  * @param key Unique name of the attribute with maximum 11 characters
  * @param range Upper bound value
  */
-rmGauge::rmGauge(wxWindow* parent, rmClient* cli, const char* key,
-                 int32_t range)
+rmGauge::rmGauge(wxWindow* parent, rmClient* cli, const char* key, int range)
         :rmWidget(cli),
          wxGauge(parent, wx_id, range)
 {

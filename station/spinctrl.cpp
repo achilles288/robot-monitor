@@ -41,7 +41,7 @@ long rmSpinCtrl::getWxID() {
  * @param upper Upper bound value
  */
 rmSpinCtrl::rmSpinCtrl(wxWindow* parent, rmClient* cli, const char* key,
-                       int32_t lower, int32_t upper)
+                       int lower, int upper)
            :rmWidget(cli),
             wxSpinCtrl(parent, wx_id, wxEmptyString)
 {
