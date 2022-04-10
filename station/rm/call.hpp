@@ -30,6 +30,9 @@
 #endif
 
 
+class rmClient;
+
+
 /**
  * @brief Calls that invoke on the client's request
  * 
@@ -107,5 +110,36 @@ class RM_API rmCall {
      */
     virtual void invoke(int argc, char* argv[]);
 };
+
+
+/**
+ * @breif The built in call objects with a privilege to access the client
+ */
+class RM_API rmBuiltinCall: public rmCall {
+  private:
+    rmClient* client = nullptr;
+    void (*callback2)(int, char**, rmClient*) = nullptr;
+    
+  public:
+    /**
+     * @brief Constructs a call with a name and a function pointer
+     * 
+     * @param key Unique name of the call with maximum 11 characters
+     * @param func The callback function. The callback should have two
+     *             parameters, an integer representing the number of extra
+     *             tokens and the array of strings.
+     * @param cli The client instance which the callback has access to
+     */
+    rmBuiltinCall(const char* key, void (*func)(int, char**, rmClient*),
+                  rmClient* cli);
+    
+    /**
+     * @brief Invokes the callback of the object
+     * 
+     * @param argc Argument count
+     * @param argv Tokens
+     */
+    void invoke(int argc, char *argv[]) override;
+}
 
 #endif

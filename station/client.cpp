@@ -17,22 +17,25 @@
 
 #include "rm/client.hpp"
 
-#include "rm/builtin_call.hpp"
-
 #include <cstring>
 
 
 static std::mutex m;
+
+void rmCallbackSet (int argc, char *argv[], rmClient* cli);
+void rmCallbackEcho(int argc, char *argv[], rmClient* cli);
+void rmCallbackWarn(int argc, char *argv[], rmClient* cli);
+void rmCallbackErr (int argc, char *argv[], rmClient* cli);
 
 
 /**
  * @brief Default constructor
  */
 rmClient::rmClient() {
-    appendCall(new rmBuiltinCallSet(this));
-    appendCall(new rmBuiltinCallEcho(this));
-    appendCall(new rmBuiltinCallWarn(this));
-    appendCall(new rmBuiltinCallError(this));
+    rmAppendCall(new rmBuiltinCall("set", rmCallbackSet, this));
+    rmAppendCall(new rmBuiltinCall("echo", rmCallbackEcho, this));
+    rmAppendCall(new rmBuiltinCall("warn", rmCallbackWarn, this));
+    rmAppendCall(new rmBuiltinCall("err", rmCallbackErr, this));
 }
 
 /**
@@ -405,4 +408,21 @@ void rmClient::removeWidget(rmWidget* widget) {
         }
     }
     m.unlock();
+}
+
+
+void rmCallbackSet(int argc, char *argv[], rmClient* cli) {
+    if(argc != 2)
+        return;
+    
+    rmAttribute* attr = cli->getAttribute(argv[0]);
+    if(attr != nullptr) {
+        rmAttributeData prev = attr->getValue();
+        attr->setValue(argv[1]);
+        if(attr->getValue().i != prev.i) {
+            rmAttributeNotifier* noti = attr->getNotifier();
+            if(noti != nullptr)
+                noti->triggerCallback();
+        }
+    }
 }
