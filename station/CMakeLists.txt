@@ -1,6 +1,5 @@
 add_library(rmonitor SHARED
     attribute.cpp
-    builtin_call.cpp
     call.cpp
     client.cpp
     client_com.cpp

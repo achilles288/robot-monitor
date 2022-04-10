@@ -13,6 +13,7 @@
 
 
 #define RM_EXPORT
+#define RM_NO_WX
 
 
 #include "rm/echo.hpp"
@@ -64,15 +65,15 @@ static void echo(rmClient *client, int status, int argc, char *argv[]) {
 
 
 void rmCallbackEcho(int argc, char *argv[], rmClient* cli) {
-    echo(client, 0, argc, argv);
+    echo(cli, 0, argc, argv);
 }
 
 
 void rmCallbackWarn(int argc, char *argv[], rmClient* cli) {
-    echo(client, 2, argc, argv);
+    echo(cli, 2, argc, argv);
 }
 
 
 void rmCallbackErr(int argc, char *argv[], rmClient* cli) {
-    echo(client, 1, argc, argv);
+    echo(cli, 1, argc, argv);
 }

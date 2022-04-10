@@ -82,6 +82,7 @@ void rmProcessMessage() {
             c = '\n';
         
         if(flag & PROCESS_STARTED) {
+            rmCall* call;
             switch(c) {
               case ' ':
                 cmd[i++] = '\0';
@@ -90,7 +91,7 @@ void rmProcessMessage() {
                 
               case '\n':
                 cmd[i] = '\0';
-                rmCall* call = _rmCallGet(cmd);
+                call = _rmCallGet(cmd);
                 if(call != NULL)
                     call->callback(tokenCount, tokens);
                 flag = PROCESS_DEFAULT;

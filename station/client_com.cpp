@@ -46,6 +46,7 @@ void rmClient::onIdle() {
             c = '\n';
         
         if(rx_flag & PROCESS_STARTED) {
+            rmCall* call;
             switch(c) {
               case ' ':
                 rx_cmd[rx_i++] = '\0';
@@ -53,10 +54,10 @@ void rmClient::onIdle() {
                 break;
                 
               case '\n':
-                rx_cmd[i] = '\0';
-                rmCall* call = getCall(rx_cmd);
+                rx_cmd[rx_i] = '\0';
+                call = getCall(rx_cmd);
                 if(call != NULL)
-                    call->callback(rx_tokenCount, rx_tokens);
+                    call->invoke(rx_tokenCount, rx_tokens);
                 rx_flag = PROCESS_DEFAULT;
                 break;
                 
@@ -199,8 +200,8 @@ void rmClient::startConnection() {
 void rmClient::connectSerial(const char* port, uint32_t baud, bool crypt) {
     disconnect();
     mySerial.connect(port, baud);
+    
     if(mySerial.isConnected()) {
-        connectionMethod = RM_CONNECTION_SERIAL;
         startConnection();
     }
     else {
@@ -223,8 +224,8 @@ void rmClient::connectSerial(rmSerialPortInfo portInfo, uint32_t baud,
 {
     disconnect();
     mySerial.connect(portInfo, baud);
+    
     if(mySerial.isConnected()) {
-        connectionMethod = RM_CONNECTION_SERIAL;
         startConnection();
     }
     else {
@@ -267,10 +268,7 @@ void rmClient::onDisconnected() {
     for(size_t i=0; i<widgetCount; i++) {
         widgets[i]->setEnabled(false);
     }
-    switch(connectionMethod) {
-      case RM_CONNECTION_SERIAL:
-        mySerial.disconnect();
-    }
+    mySerial.disconnect();
     m.unlock();
 }
 
@@ -280,12 +278,8 @@ void rmClient::onDisconnected() {
  * @return True if the client is connected
  */
 bool rmClient::isConnected() {
-    bool b = false;
     m.lock();
-    switch(connectionMethod) {
-      case RM_CONNECTION_SERIAL:
-        b = mySerial.isConnected();
-    }
+    bool b = mySerial.isConnected();
     m.unlock();
     return b;
 }
@@ -298,22 +292,14 @@ bool rmClient::isConnected() {
  */
 void rmClient::sendMessage(const char* msg, bool crypt) {
     m.lock();
-    switch(connectionMethod) {
-      case RM_CONNECTION_SERIAL:
-        mySerial.write(msg);
-        break;
-    }
+    mySerial.write(msg);
     m.unlock();
 }
 
 char rmClient::read() {
     m.lock();
     char c = '\0';
-    switch(connectionMethod) {
-      case RM_CONNECTION_SERIAL:
-        c = mySerial.read();
-        break;
-    }
+    c = mySerial.read();
     m.unlock();
     return c;
 }

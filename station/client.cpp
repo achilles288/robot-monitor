@@ -32,10 +32,10 @@ void rmCallbackErr (int argc, char *argv[], rmClient* cli);
  * @brief Default constructor
  */
 rmClient::rmClient() {
-    rmAppendCall(new rmBuiltinCall("set", rmCallbackSet, this));
-    rmAppendCall(new rmBuiltinCall("echo", rmCallbackEcho, this));
-    rmAppendCall(new rmBuiltinCall("warn", rmCallbackWarn, this));
-    rmAppendCall(new rmBuiltinCall("err", rmCallbackErr, this));
+    appendCall(new rmBuiltinCall("set", rmCallbackSet, this));
+    appendCall(new rmBuiltinCall("echo", rmCallbackEcho, this));
+    appendCall(new rmBuiltinCall("warn", rmCallbackWarn, this));
+    appendCall(new rmBuiltinCall("err", rmCallbackErr, this));
 }
 
 /**

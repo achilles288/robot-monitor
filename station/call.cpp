@@ -78,6 +78,6 @@ rmBuiltinCall::rmBuiltinCall(const char* key,
  * @param argc Argument count
  * @param argv Tokens
  */
-void rmBuiltinCall::invoke(int argc, char *argv[]) override {
+void rmBuiltinCall::invoke(int argc, char *argv[]) {
     callback2(argc, argv, client);
 }

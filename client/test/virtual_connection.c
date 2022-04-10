@@ -52,7 +52,7 @@ static void sendMessage(const char* msg) {
  * @brief Initializes the virtual connection
  */
 void rmConnectVirtual() {
-    rmSendMessage = &sendMessage;
+    _rmSendMessage = &sendMessage;
     rx2Buffer[RX2_BUFFER_SIZE - 1] = '\0';
 }
 

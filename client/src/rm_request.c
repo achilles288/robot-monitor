@@ -32,24 +32,8 @@ static void respond(int argc, char *argv[]) {
         requested = false;
         return;
     }
-    
-    // Combines the tokens
-    char str[128];
-    int i=0, j=0, k=0;
-    while(i < argc) {
-        char c;
-        while((c = argv[i][j++]) != '\0')
-            str[k++] = c;
-        if(i < argc - 1)
-            str[k++] = ' ';
-        i++;
-        j = 0;
-        if(k == 127)
-            break;
-    }
-    str[k] = '\0';
-    
-    respCallback(str);
+    if(argc > 0)
+        respCallback(argv[0]);
 }
 
 

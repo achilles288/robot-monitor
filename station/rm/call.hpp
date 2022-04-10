@@ -43,8 +43,10 @@ class rmClient;
  */
 class RM_API rmCall {
   private:
-    char name[12] = {0};
     void (*callback)(int, char**) = nullptr;
+    
+  protected:
+    char name[12] = {0};
     
   public:
     /**
@@ -140,6 +142,6 @@ class RM_API rmBuiltinCall: public rmCall {
      * @param argv Tokens
      */
     void invoke(int argc, char *argv[]) override;
-}
+};
 
 #endif

@@ -45,13 +45,6 @@ class rmClient;
 #include <mutex>
 
 
-#define RM_CONNECTION_SERIAL 1 ///< Serial interface
-#define RM_CONNECTION_USART  2 ///< RX TX connection
-#define RM_CONNECTION_I2C    3 ///< I2C interface
-#define RM_CONNECTION_SPI    4 ///< SPI interface
-#define RM_CONNECTION_SELF   5 ///< Connection within the same device
-
-
 /**
  * @brief The client device connected to the station
  * 
@@ -69,14 +62,13 @@ class RM_API rmClient {
     size_t callCount = 0;
     rmWidget** widgets = nullptr;
     size_t widgetCount = 0;
-    int8_t connectionMethod = 0;
     rmSerialPort mySerial;
     rmEcho *myEcho = nullptr;
     char rx_cmd[256];
     char* rx_tokens[8];
     uint8_t rx_i = 0;
     uint8_t rx_tokenCount = 0;
-    bool rx_flag = 0b00;
+    uint8_t rx_flag = 0b00;
     rmTimerBase* timer = nullptr;
     
     int binarySearch1(int low, int high, const char* key) const;
