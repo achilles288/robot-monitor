@@ -93,7 +93,7 @@ void rmTextCtrl::onEnter(wxCommandEvent& evt) {
     std::string val = GetValue().ToStdString();
     if(strncmp(val.c_str(), lastVal, 127) != 0) {
         attribute->setValue(val.c_str());
-        client->sendAttribute(attribute);
+        client->updateAttribute(attribute);
         strncpy(lastVal, val.c_str(), 127);
         lastVal[127] = '\0';
     }
@@ -108,7 +108,7 @@ void rmTextCtrl::onFocusLoss(wxFocusEvent& evt) {
     std::string val = GetValue().ToStdString();
     if(strncmp(val.c_str(), lastVal, 127) != 0) {
         attribute->setValue(val.c_str());
-        client->sendAttribute(attribute);
+        client->updateAttribute(attribute);
         strncpy(lastVal, val.c_str(), 127);
         lastVal[127] = '\0';
     }

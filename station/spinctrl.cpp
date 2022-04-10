@@ -89,5 +89,5 @@ void rmSpinCtrl::onAttributeChange() {
  */
 void rmSpinCtrl::onUpdate(wxSpinEvent& evt) {
     attribute->setValue(GetValue());
-    client->sendAttribute(attribute);
+    client->updateAttribute(attribute);
 }

@@ -271,7 +271,7 @@ class RM_API rmClient {
      * 
      * @param attr The attribute
      */
-    void sendAttribute(rmAttribute* attr);
+    void updateAttribute(rmAttribute* attr);
     
     /**
      * @brief Sets the printer for echoing messages

@@ -137,5 +137,5 @@ void rmSlider::onSlide(wxCommandEvent& evt) {
     else {
         return;
     }
-    client->sendAttribute(attribute);
+    client->updateAttribute(attribute);
 }

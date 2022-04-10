@@ -309,7 +309,7 @@ char rmClient::read() {
  * 
  * @param attr The attribute
  */
-void rmClient::sendAttribute(rmAttribute* attr) {
+void rmClient::updateAttribute(rmAttribute* attr) {
     char msg[160];
     const char* name = attr->getName();
     switch(attr->getType()) {
@@ -330,7 +330,7 @@ void rmClient::sendAttribute(rmAttribute* attr) {
         break;
         
       case RM_ATTRIBUTE_STRING:
-        snprintf(msg, 159, "set %s \"%s\"\n", name, attr->getValue().s);
+        snprintf(msg, 159, "set %s %s\n", name, attr->getValue().s);
         break;
         
       default:
