@@ -65,9 +65,8 @@ void rmCall::invoke(int argc, char* argv[]) { callback(argc, argv); }
 rmBuiltinCall::rmBuiltinCall(const char* key,
                              void (*func)(int, char**, rmClient*),
                              rmClient* cli)
+              :rmCall(key, nullptr)
 {
-    strncpy(name, key, 11);
-    name[11] = '\0';
     client = cli;
     callback2 = func;
 }

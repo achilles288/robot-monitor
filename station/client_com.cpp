@@ -314,23 +314,23 @@ void rmClient::updateAttribute(rmAttribute* attr) {
     const char* name = attr->getName();
     switch(attr->getType()) {
       case RM_ATTRIBUTE_BOOL:
-        snprintf(msg, 159, "set %s %d\n", name, attr->getValue().b);
+        snprintf(msg, 159, "$set %s %d\n", name, attr->getValue().b);
         break;
         
       case RM_ATTRIBUTE_CHAR:
-        snprintf(msg, 159, "set %s %c\n", name, attr->getValue().c);
+        snprintf(msg, 159, "$set %s %c\n", name, attr->getValue().c);
         break;
         
       case RM_ATTRIBUTE_INT:
-        snprintf(msg, 159, "set %s %d\n", name, attr->getValue().i);
+        snprintf(msg, 159, "$set %s %d\n", name, attr->getValue().i);
         break;
         
       case RM_ATTRIBUTE_FLOAT:
-        snprintf(msg, 159, "set %s %f\n", name, attr->getValue().f);
+        snprintf(msg, 159, "$set %s %f\n", name, attr->getValue().f);
         break;
         
       case RM_ATTRIBUTE_STRING:
-        snprintf(msg, 159, "set %s %s\n", name, attr->getValue().s);
+        snprintf(msg, 159, "$set %s %s\n", name, attr->getValue().s);
         break;
         
       default:
@@ -339,6 +339,15 @@ void rmClient::updateAttribute(rmAttribute* attr) {
     msg[159] = '\0';
     sendMessage(msg);
 }
+
+/**
+ * @brief Sends a request to the station
+ * 
+ * Can only handle one request at a time.
+ * 
+ * @param req The request instance with a set of parameters
+ */
+void sendRequest(rmRequest req) {}
 
 /**
  * @brief Sets the printer for echoing messages

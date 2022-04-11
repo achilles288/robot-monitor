@@ -35,7 +35,9 @@ class rmClient;
 #include "call.hpp"
 #include "echo.hpp"
 #include "encryption.hpp"
+#include "request.hpp"
 #include "serial.hpp"
+#include "sync.hpp"
 #include "timerbase.hpp"
 #include "widget.hpp"
 
@@ -56,6 +58,8 @@ class RM_API rmClient {
     char name[32] = "Unknown Device";
     uint8_t key[RM_PUBLIC_KEY_SIZE];
     bool useEncryption = false;
+    rmSync* syncs = nullptr;
+    uint8_t syncCount = 0;
     rmAttribute** attributes = nullptr;
     size_t attrCount = 0;
     rmCall** calls = nullptr;
@@ -70,6 +74,7 @@ class RM_API rmClient {
     uint8_t rx_tokenCount = 0;
     uint8_t rx_flag = 0b00;
     rmTimerBase* timer = nullptr;
+    rmRequest* request = nullptr;
     
     int binarySearch1(int low, int high, const char* key) const;
     int binarySearch2(int low, int high, const char* key) const;
@@ -272,6 +277,15 @@ class RM_API rmClient {
      * @param attr The attribute
      */
     void updateAttribute(rmAttribute* attr);
+    
+    /**
+     * @brief Sends a request to the station
+     * 
+     * Can only handle one request at a time.
+     * 
+     * @param req The request instance with a set of parameters
+     */
+    void sendRequest(rmRequest req);
     
     /**
      * @brief Sets the printer for echoing messages

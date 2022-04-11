@@ -65,7 +65,7 @@ void rmButton::setEnabled(bool en) { Enable(en); }
  * @param evt The event object
  */
 void rmButton::onClick(wxCommandEvent& evt) {
-    char buff[129];
-    sprintf(buff, "%s\n", command);
+    char buff[130];
+    sprintf(buff, "$%s\n", command);
     client->sendMessage(buff);
 }

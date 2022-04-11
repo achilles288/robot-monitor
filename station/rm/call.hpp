@@ -43,10 +43,8 @@ class rmClient;
  */
 class RM_API rmCall {
   private:
-    void (*callback)(int, char**) = nullptr;
-    
-  protected:
     char name[12] = {0};
+    void (*callback)(int, char**) = nullptr;
     
   public:
     /**
