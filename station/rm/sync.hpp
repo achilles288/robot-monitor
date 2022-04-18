@@ -29,6 +29,14 @@
 #endif
 
 
+#include <cstdint>
+#include <cstddef>
+
+
+class rmAttribute;
+class rmClient;
+
+
 /**
  * @brief Handles the data synchronization between client and station
  * 
@@ -39,7 +47,7 @@
 class RM_API rmSync {
   private:
     uint8_t id = 0;
-    rmAttribute* attributes = nullptr;
+    rmAttribute** attributes = nullptr;
     size_t count = 0;
     
   public:
@@ -49,16 +57,51 @@ class RM_API rmSync {
     rmSync() = default;
     
     /**
+     * @brief Destructor
+     */
+    ~rmSync();
+    
+    /**
      * @brief Constructs the sync table with an index
      * 
-     * @param i ID or index
+     * @param i ID or index which is between 0 and 9
      */
     rmSync(uint8_t i);
     
     /**
-     * @breif Retrive the list of attributes to work in a sync
+     * @brief Copy constructor (deleted)
+     * 
+     * @param sync Source
      */
-    void updateList();
+    rmSync(const rmSync& sync) = delete;
+    
+    /**
+     * @brief Move constructor
+     * 
+     * @param sync Source
+     */
+    rmSync(rmSync&& sync) noexcept = default;
+    
+    /**
+     * @brief Copy assignment (deleted)
+     * 
+     * @param sync Source
+     */
+    rmSync& operator=(const rmSync& sync) = delete;
+    
+    /**
+     * @brief Move assignment
+     * 
+     * @param sync Source
+     */
+    rmSync& operator=(rmSync&& sync) noexcept = default;
+    
+    /**
+     * @breif Retrive the list of attributes to work in a sync
+     * 
+     * @param cli The client instance
+     */
+    void updateList(rmClient* cli);
     
     /**
      * @breif Updates the attribute values

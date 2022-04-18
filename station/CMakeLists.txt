@@ -5,8 +5,10 @@ add_library(rmonitor SHARED
     client_com.cpp
     echo.cpp
     encryption.cpp
+    request.cpp
     serial.cpp
     serial_list.cpp
+    sync.cpp
     timerbase.cpp
     widget.cpp
     robotmonitor.hpp

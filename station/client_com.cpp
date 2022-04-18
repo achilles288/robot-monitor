@@ -80,6 +80,7 @@ void rmClient::onIdle() {
     }
 }
 
+
 static void connectionThread() {
     do {
         m.lock();
@@ -104,6 +105,7 @@ static void connectionThread() {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     } while(true);
 }
+
 
 void rmClient::startConnection() {
     /*char cmd[256];
@@ -296,6 +298,7 @@ void rmClient::sendMessage(const char* msg, bool crypt) {
     m.unlock();
 }
 
+
 char rmClient::read() {
     m.lock();
     char c = '\0';
@@ -341,13 +344,38 @@ void rmClient::updateAttribute(rmAttribute* attr) {
 }
 
 /**
+ * @brief Updates the attributes by sync table method
+ * 
+ * @param i Sync table ID
+ * @param value The string representing the array of attribute values
+ */
+void rmClient::syncUpdate(uint8_t i, const char* value) {
+    if(i < 10) {
+        syncs[i].onSync(value);
+    }
+}
+
+/**
  * @brief Sends a request to the station
  * 
  * Can only handle one request at a time.
  * 
  * @param req The request instance with a set of parameters
  */
-void sendRequest(rmRequest req) {}
+void rmClient::sendRequest(rmRequest req) {
+    request = req;
+    char msg[130];
+    snprintf(msg, 129, "$%s\n", req.getMessage());
+    msg[129] = '\0';
+    sendMessage(msg);
+}
+
+/**
+ * @brief Gets the request waiting for a response
+ * 
+ * @return The pending request
+ */
+rmRequest rmClient::getPendingRequest() const { return request; }
 
 /**
  * @brief Sets the printer for echoing messages
@@ -359,6 +387,7 @@ void rmClient::setEcho(rmEcho* printer) {
     myEcho = printer;
     m.unlock();
 }
+
 
 /**
  * @brief Echos the messages
@@ -379,6 +408,7 @@ void rmClient::echo(const char* msg, int status) {
         std::cout << msg << std::endl;
     m.unlock();
 }
+
 
 /**
  * @brief Sets the timer to handle the onIdle() function

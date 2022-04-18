@@ -53,7 +53,7 @@ class RM_API rmCall {
     rmCall() = default;
     
     /**
-     * @brief Destructor
+     * @brief Default constructor
      */
     virtual ~rmCall() = default;
     
@@ -66,34 +66,6 @@ class RM_API rmCall {
      *             tokens and the array of strings.
      */
     rmCall(const char* key, void (*func)(int, char**));
-    
-    /**
-     * @brief Copy constructor (deleted)
-     * 
-     * @param call Source
-     */
-    rmCall(const rmCall& call) = delete;
-    
-    /**
-     * @brief Move constructor
-     * 
-     * @param call Source
-     */
-    rmCall(rmCall&& call) noexcept = default;
-    
-    /**
-     * @brief Copy assignment (deleted)
-     * 
-     * @param call Source
-     */
-    rmCall& operator=(const rmCall& call) = delete;
-    
-    /**
-     * @brief Move assignment
-     * 
-     * @param call Source
-     */
-    rmCall& operator=(rmCall&& call) noexcept = default;
     
     /**
      * @brief Gets the call name

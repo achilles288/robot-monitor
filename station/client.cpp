@@ -22,20 +22,25 @@
 
 static std::mutex m;
 
-void rmCallbackSet (int argc, char *argv[], rmClient* cli);
 void rmCallbackEcho(int argc, char *argv[], rmClient* cli);
 void rmCallbackWarn(int argc, char *argv[], rmClient* cli);
 void rmCallbackErr (int argc, char *argv[], rmClient* cli);
+void rmCallbackResp(int argc, char *argv[], rmClient* cli);
+
+static void callbackSet (int argc, char *argv[], rmClient* cli);
+static void callbackSync(int argc, char *argv[], rmClient* cli);
 
 
 /**
  * @brief Default constructor
  */
 rmClient::rmClient() {
-    appendCall(new rmBuiltinCall("set", rmCallbackSet, this));
     appendCall(new rmBuiltinCall("echo", rmCallbackEcho, this));
     appendCall(new rmBuiltinCall("warn", rmCallbackWarn, this));
     appendCall(new rmBuiltinCall("err", rmCallbackErr, this));
+    appendCall(new rmBuiltinCall("resp", rmCallbackResp, this));
+    appendCall(new rmBuiltinCall("set", callbackSet, this));
+    appendCall(new rmBuiltinCall("sync", callbackSync, this));
 }
 
 /**
@@ -385,7 +390,7 @@ void rmClient::removeWidget(rmWidget* widget) {
 }
 
 
-void rmCallbackSet(int argc, char *argv[], rmClient* cli) {
+static void callbackSet(int argc, char *argv[], rmClient* cli) {
     if(argc != 2)
         return;
     
@@ -399,4 +404,12 @@ void rmCallbackSet(int argc, char *argv[], rmClient* cli) {
                 noti->triggerCallback();
         }
     }
+}
+
+
+static void callbackSync(int argc, char *argv[], rmClient* cli) {
+    if(argc < 2)
+        return;
+    uint8_t i = atoi(argv[0]);
+    cli->syncUpdate(i, argv[1]);
 }

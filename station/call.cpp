@@ -48,7 +48,10 @@ const char* rmCall::getName() const { return name; }
  * @param argc Argument count
  * @param argv Tokens
  */
-void rmCall::invoke(int argc, char* argv[]) { callback(argc, argv); }
+void rmCall::invoke(int argc, char* argv[]) {
+    if(callback != nullptr)
+        callback(argc, argv);
+}
 
 
 
@@ -78,5 +81,6 @@ rmBuiltinCall::rmBuiltinCall(const char* key,
  * @param argv Tokens
  */
 void rmBuiltinCall::invoke(int argc, char *argv[]) {
-    callback2(argc, argv, client);
+    if(callback2 != nullptr && client != nullptr)
+        callback2(argc, argv, client);
 }

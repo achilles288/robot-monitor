@@ -33,8 +33,10 @@ class rmClient;
  */
 class RM_API rmRequest {
   private:
-    char message[128] = {0};
+    rmClient* client = nullptr;
+    char message[64] = {0};
     void (*callback)(const char*) = nullptr;
+    void (*callback2)(const char*, rmClient*) = nullptr;
     long timeout = 1000;
     
   public:
@@ -50,7 +52,18 @@ class RM_API rmRequest {
      * @param func The callback function
      * @param t Timeout in milliseconds
      */
-    rmRequest(const char* msg, void (*func)(const char*), long t);
+    rmRequest(const char* msg, void (*func)(const char*), long t=1000);
+    
+    /**
+     * @brief Constructs a request instance
+     * 
+     * @param msg The request message
+     * @param func The callback function
+     * @param t Timeout in milliseconds
+     * @param cli The client instance which the callback has access to
+     */
+    rmRequest(const char* msg, void (*func)(const char*, rmClient*), long t,
+              rmClient* cli);
     
     /**
      * @brief Gets the request message
@@ -69,34 +82,7 @@ class RM_API rmRequest {
     /**
      * @brief Triggers when a response message is recieved from the client
      */
-    virtual void onResponse(const char* msg);
-};
-
-
-/**
- * @breif The built in request objects with a privilege to access the client
- */
-class RM_API rmBuiltinRequest: public rmRequest {
-  private:
-    rmClient* client = nullptr;
-    void (*callback2)(const char*, rmClient*) = nullptr;
-    
-  public:
-    /**
-     * @brief Constructs a request instance
-     * 
-     * @param msg The request message
-     * @param func The callback function
-     * @param t Timeout in milliseconds
-     * @param cli The client instance which the callback has access to
-     */
-    rmBuiltinRequest(const char* msg, void (*func)(const char*), long t,
-                     rmClient* cli);
-    
-    /**
-     * @brief Triggers when a response message is recieved from the client
-     */
-    void onResponse(const char* msg) override;
+    void onResponse(const char* msg);
 };
 
 #endif
