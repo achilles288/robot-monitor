@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${prefix}/lib/x86_64-linux-gnu
+includedir=${prefix}/include
+
+Name: rmonitor
+Description: Monitors and commands the microcontrollers for robots
+Version: 1.0.0
+Requires:
+Libs: -L${libdir} -lrmonitor -lrmonitor-wx
+Cflags: -I${includedir}

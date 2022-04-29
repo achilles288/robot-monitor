@@ -1,0 +1,25 @@
+Source: librmonitor
+Section: libs
+Priority: optional
+Maintainer: Khant Kyaw Khaung <khantkyawkhaung288@gmail.com>
+Build-Depends: debhelper (>=11~), g++ (>=8~), libwxgtk3.1unofficial-dev, pkg-config
+Standards-Version: 4.1.4
+
+Package: librmonitor1
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Robot Monitor library
+ Monitors and commands the microcontrollers for robots
+
+Package: librmonitor-wx1
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, librmonitor1 (= ${binary:Version}), libwxgtk3.1-0-unofficial
+Description: Robot Monitor wxWidgets port
+ Widget library for Robot Monitor
+
+Package: librmonitor1-dev
+Architecture: any
+Section: devel
+Depends: ${misc:Depends}, librmonitor-wx1 (= ${binary:Version}), libwxgtk3.1unofficial-dev
+Description: Robot Monitor development files
+ Monitors and commands the microcontrollers for robots
