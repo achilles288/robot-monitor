@@ -23,6 +23,9 @@ long millis();
 
 #define _rmGetTime() millis()
 
+#else
+#define _rmGetTime() 0
+
 #endif
 
 

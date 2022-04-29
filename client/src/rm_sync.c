@@ -114,9 +114,9 @@ void rmSyncUpdate(uint8_t id) {
     if(id >= tableCount)
         return;
     
-    char msg[256];
-    uint8_t len;
-    len = sprintf(msg, "$sync %d ", id);
+    char msg[256] = "$sync i ";
+    uint8_t len = 8;
+    msg[6] = '0' + id;
     rmSync sync = syncTables[id];
     
     for(uint8_t i=0; i<sync.count; i++) {
@@ -124,7 +124,7 @@ void rmSyncUpdate(uint8_t id) {
         uint8_t n = strlen(str);
         if(n > 254 - len)
             n = 254 - len;
-        memcpy(msg + len, str, n);
+        memcpy(&msg[len], str, n);
         len += n;
         if(i < sync.count - 1 && len < 254)
             msg[len++] = ','; 

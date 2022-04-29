@@ -62,7 +62,7 @@ void rmSendRequest(const char* cmd, void (*func)(char*), uint16_t timeout) {
     respCallback = func;
     reqTimeout = timeout;
     reqTime = _rmGetTime();
-    char msg[128];
-    snprintf(msg, 128, "$%s\n", cmd);
-    _rmSendMessage(msg);
+    _rmSendMessage("$");
+    _rmSendMessage(cmd);
+    _rmSendMessage("\n");
 }

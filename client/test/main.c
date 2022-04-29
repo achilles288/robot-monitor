@@ -3,6 +3,7 @@
 #include "virtual_connection.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -27,7 +28,7 @@ void text1OnChange() {
 
 
 void speedOnChange() {
-    rmEcho("speed: %.3f", speed);
+    rmEcho("speed: %f", speed);
 }
 
 
@@ -38,6 +39,13 @@ void bananaOnChange() {
 
 void showAttributes(int argc, char *argv[]) {
     rmSyncUpdate(0);
+}
+
+
+void showRandom(int argc, char *argv[]) {
+    int r = (rand() % 1999999) - 999999;
+    printf("generated: %d\n", r);
+    rmEcho("random: %d %f", r, r/1000.0);;
 }
 
 
@@ -63,6 +71,7 @@ int main() {
     rmCreateOutputAttribute("apple", &apple, RM_ATTRIBUTE_UINT16, 0);
     rmCreateOutputAttribute("pineapple", &pineapple, RM_ATTRIBUTE_UINT16, 0);
     rmCreateCall("show", showAttributes);
+    rmCreateCall("rand", showRandom);
     rmConnectVirtual();
     
     char str1[128];

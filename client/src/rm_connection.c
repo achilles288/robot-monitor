@@ -117,6 +117,9 @@ void rmProcessMessage() {
 }
 
 
+int rm_sprintf(char* buf, const char* fmt, va_list va);
+
+
 /**
  * @brief Sends a command-line to the station
  * 
@@ -125,14 +128,14 @@ void rmProcessMessage() {
  * @param ... The command-line arguments
  */
 void rmSendCommand(const char* cmd, ...) {
-    char buff[128];
+    _rmSendMessage("$");
     va_list args;
     va_start(args, cmd);
-    uint8_t len = vsnprintf(buff, 128, cmd, args);
-    va_end(args);
-    buff[len + 6] = '\n';
-    buff[len + 7] = '\0';
+    char buff[256];
+    rm_sprintf(buff, cmd, args);
     _rmSendMessage(buff);
+    va_end(args);
+    _rmSendMessage("\n");
 }
 
 
@@ -144,15 +147,14 @@ void rmSendCommand(const char* cmd, ...) {
  * @param ... Additional arguments
  */
 void rmEcho(const char* msg, ...) {
-    char buff[128];
-    memcpy(buff, "$echo ", 6);
+    _rmSendMessage("$echo ");
     va_list args;
     va_start(args, msg);
-    uint8_t len = vsnprintf(buff + 6, 128 - 6, msg, args);
-    va_end(args);
-    buff[len + 6] = '\n';
-    buff[len + 7] = '\0';
+    char buff[256];
+    rm_sprintf(buff, msg, args);
     _rmSendMessage(buff);
+    va_end(args);
+    _rmSendMessage("\n");
 }
 
 
@@ -164,15 +166,14 @@ void rmEcho(const char* msg, ...) {
  * @param ... Additional arguments
  */
 void rmWarn(const char* msg, ...) {
-    char buff[128];
-    memcpy(buff, "$warn ", 6);
+    _rmSendMessage("$warn ");
     va_list args;
     va_start(args, msg);
-    uint8_t len = vsnprintf(buff + 6, 128 - 6, msg, args);
-    va_end(args);
-    buff[len + 6] = '\n';
-    buff[len + 7] = '\0';
+    char buff[256];
+    rm_sprintf(buff, msg, args);
     _rmSendMessage(buff);
+    va_end(args);
+    _rmSendMessage("\n");
 }
 
 
@@ -184,13 +185,12 @@ void rmWarn(const char* msg, ...) {
  * @param ... Additional arguments
  */
 void rmError(const char* msg, ...) {
-    char buff[128];
-    memcpy(buff, "$err ", 5);
+    _rmSendMessage("$err ");
     va_list args;
     va_start(args, msg);
-    uint8_t len = vsnprintf(buff + 5, 128 - 5, msg, args);
-    va_end(args);
-    buff[len + 5] = '\n';
-    buff[len + 6] = '\0';
+    char buff[256];
+    rm_sprintf(buff, msg, args);
     _rmSendMessage(buff);
+    va_end(args);
+    _rmSendMessage("\n");
 }

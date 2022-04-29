@@ -252,10 +252,8 @@ static void callbackSet(int argc, char* argv[]) {
  */
 void rmInputAttributeSetBoundaries(const char* key, float lower, float upper) {
     rmInputAttribute* attr = _rmInputAttributeGet(key);
-    if(lower < upper) {
-        attr->lowerBound = lower;
-        attr->upperBound = upper;
-    }
+    attr->lowerBound = lower;
+    attr->upperBound = upper;
 }
 
 

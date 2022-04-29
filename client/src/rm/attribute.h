@@ -106,22 +106,10 @@ void rmOutputAttributeUpdate(rmOutputAttribute *attr);
  * @param attr The attribute
  * 
  * @return String representation of the attribute data. The string returned
- *         must be used or copied before some next function calls since it is
+ *         must be used or copied before the next function call since it is
  *         allocated in a temporary memory.
  */
 char* rmOutputAttributeGetStringData(rmOutputAttribute *attr);
-
-
-/**
- * @brief Converts the floating point number to a string
- * 
- * @param f The floating point value
- * 
- * @return String representation of the float number. The string returned
- *         must be used or copied before some next function calls since it is
- *         allocated in a temporary memory.
- */
-char* rmFloatToString(float f);
 
 
 #ifdef __cplusplus
