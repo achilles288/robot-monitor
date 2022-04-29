@@ -31,11 +31,7 @@ if(WIN32)
 set(wxWidgets_ROOT_DIR C:/wxWidgets-3.1.4)
 set(wxWidgets_CONFIGURATION mswu)
 endif()
-find_package(wxWidgets 3.1 COMPONENTS base core)
-
-add_subdirectory(external/serial)
-set(serial_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/external/serial/include)
-set(serial_LIBRARIES serial)
+find_package(wxWidgets 3.1)
 
 
 
