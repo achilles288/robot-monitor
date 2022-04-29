@@ -25,11 +25,6 @@
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 /**
  * @brief Robot Monitor icon stored as program memory
  */
@@ -41,15 +36,10 @@ RM_WX_API extern unsigned char rmIconRGB[64 * 64 * 3];
 RM_WX_API extern unsigned char rmIconAlpha[64 * 64];
 
 
-#ifdef __cplusplus
-}
-
 #include <wx/bitmap.h>
 
 static wxBitmap rmGetIcon() {
     return wxBitmap(wxImage(64, 64, rmIconRGB, rmIconAlpha, true));
 }
-
-#endif
 
 #endif

@@ -13,7 +13,7 @@
 #define RM_WX_EXPORT
 
 
-#include "rm/icon.h"
+#include "rm/icon.hpp"
 
 
 /**
