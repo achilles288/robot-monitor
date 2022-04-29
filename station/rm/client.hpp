@@ -35,7 +35,9 @@ class rmClient;
 #include "call.hpp"
 #include "echo.hpp"
 #include "encryption.hpp"
+#include "request.hpp"
 #include "serial.hpp"
+#include "sync.hpp"
 #include "timerbase.hpp"
 #include "widget.hpp"
 
@@ -43,13 +45,6 @@ class rmClient;
 #include <cstdio>
 #include <thread>
 #include <mutex>
-
-
-#define RM_CONNECTION_SERIAL 1 ///< Serial interface
-#define RM_CONNECTION_USART  2 ///< RX TX connection
-#define RM_CONNECTION_I2C    3 ///< I2C interface
-#define RM_CONNECTION_SPI    4 ///< SPI interface
-#define RM_CONNECTION_SELF   5 ///< Connection within the same device
 
 
 /**
@@ -63,21 +58,22 @@ class RM_API rmClient {
     char name[32] = "Unknown Device";
     uint8_t key[RM_PUBLIC_KEY_SIZE];
     bool useEncryption = false;
+    rmSync syncs[10];
     rmAttribute** attributes = nullptr;
     size_t attrCount = 0;
     rmCall** calls = nullptr;
     size_t callCount = 0;
     rmWidget** widgets = nullptr;
     size_t widgetCount = 0;
-    int8_t connectionMethod = 0;
     rmSerialPort mySerial;
     rmEcho *myEcho = nullptr;
     char rx_cmd[256];
-    char* rx_tokens[4];
+    char* rx_tokens[8];
     uint8_t rx_i = 0;
     uint8_t rx_tokenCount = 0;
-    bool rx_space = false;
+    uint8_t rx_flag = 0b00;
     rmTimerBase* timer = nullptr;
+    rmRequest request;
     
     int binarySearch1(int low, int high, const char* key) const;
     int binarySearch2(int low, int high, const char* key) const;
@@ -141,7 +137,7 @@ class RM_API rmClient {
      * @return The newly created attribute. Null if the attribute with the same
      *         name already exists or the creation is invalid.
      */
-    rmAttribute* createAttribute(const char* key, int8_t t);
+    rmAttribute* createAttribute(const char* key, rmAttributeDataType t);
     
     /**
      * @brief Creates an attribute in the map structure
@@ -155,23 +151,8 @@ class RM_API rmClient {
      * @return The newly created attribute. Null if the attribute with the same
      *         name already exists or the creation is invalid.
      */
-    rmAttribute* createAttribute(const char* key, int8_t t, int32_t lower,
-                                 int32_t upper);
-    
-    /**
-     * @brief Creates an attribute in the map structure
-     * 
-     * @param key Unique name of the attribute with maximum 11 characters
-     * @param t Data type of the value stored
-     * @param lower Lower bound value. The type of the lower and upper should
-     *              be of the same type as t.
-     * @param upper Upper bound value
-     * 
-     * @return The newly created attribute. Null if the attribute with the same
-     *         name already exists or the creation is invalid.
-     */
-    rmAttribute* createAttribute(const char* key, int8_t t, float lower,
-                                 float upper);
+    rmAttribute* createAttribute(const char* key, rmAttributeDataType t,
+                                 float lower, float upper);
     
     /**
      * @brief Looks for an attribute by name
@@ -294,7 +275,31 @@ class RM_API rmClient {
      * 
      * @param attr The attribute
      */
-    void sendAttribute(rmAttribute* attr);
+    void updateAttribute(rmAttribute* attr);
+    
+    /**
+     * @brief Updates the attributes by sync table method
+     * 
+     * @param i Sync table ID
+     * @param value The string representing the array of attribute values
+     */
+    void syncUpdate(uint8_t i, const char* value);
+    
+    /**
+     * @brief Sends a request to the station
+     * 
+     * Can only handle one request at a time.
+     * 
+     * @param req The request instance with a set of parameters
+     */
+    void sendRequest(rmRequest req);
+    
+    /**
+     * @brief Gets the request waiting for a response
+     * 
+     * @return The pending request
+     */
+    rmRequest getPendingRequest() const;
     
     /**
      * @brief Sets the printer for echoing messages

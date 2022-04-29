@@ -63,7 +63,8 @@ class RM_WX_API rmTextCtrl: public rmWidget, public wxTextCtrl {
      * @param key Unique name of the attribute with maximum 11 characters
      * @param t Data type of the value stored
      */
-    rmTextCtrl(wxWindow* parent, rmClient* cli, const char* key, int8_t t);
+    rmTextCtrl(wxWindow* parent, rmClient* cli, const char* key,
+               rmAttributeDataType t);
     
     /**
      * @brief Enables or disables the user input

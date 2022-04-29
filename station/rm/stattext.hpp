@@ -72,7 +72,7 @@ class RM_WX_API rmStaticText: public rmWidget, public wxStaticText {
      * @param t Data type of the value stored
      */
     rmStaticText(wxWindow* parent, rmClient* cli, const char* key,
-                 const char* label, int8_t t);
+                 const char* label, rmAttributeDataType t);
     
     /**
      * @brief Enables or disables the user input

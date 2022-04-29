@@ -30,6 +30,9 @@
 #endif
 
 
+class rmClient;
+
+
 /**
  * @brief Calls that invoke on the client's request
  * 
@@ -50,7 +53,7 @@ class RM_API rmCall {
     rmCall() = default;
     
     /**
-     * @brief Destructor
+     * @brief Default constructor
      */
     virtual ~rmCall() = default;
     
@@ -63,34 +66,6 @@ class RM_API rmCall {
      *             tokens and the array of strings.
      */
     rmCall(const char* key, void (*func)(int, char**));
-    
-    /**
-     * @brief Copy constructor (deleted)
-     * 
-     * @param call Source
-     */
-    rmCall(const rmCall& call) = delete;
-    
-    /**
-     * @brief Move constructor
-     * 
-     * @param call Source
-     */
-    rmCall(rmCall&& call) noexcept = default;
-    
-    /**
-     * @brief Copy assignment (deleted)
-     * 
-     * @param call Source
-     */
-    rmCall& operator=(const rmCall& call) = delete;
-    
-    /**
-     * @brief Move assignment
-     * 
-     * @param call Source
-     */
-    rmCall& operator=(rmCall&& call) noexcept = default;
     
     /**
      * @brief Gets the call name
@@ -106,6 +81,37 @@ class RM_API rmCall {
      * @param argv Tokens
      */
     virtual void invoke(int argc, char* argv[]);
+};
+
+
+/**
+ * @breif The built in call objects with a privilege to access the client
+ */
+class RM_API rmBuiltinCall: public rmCall {
+  private:
+    rmClient* client = nullptr;
+    void (*callback2)(int, char**, rmClient*) = nullptr;
+    
+  public:
+    /**
+     * @brief Constructs a call with a name and a function pointer
+     * 
+     * @param key Unique name of the call with maximum 11 characters
+     * @param func The callback function. The callback should have two
+     *             parameters, an integer representing the number of extra
+     *             tokens and the array of strings.
+     * @param cli The client instance which the callback has access to
+     */
+    rmBuiltinCall(const char* key, void (*func)(int, char**, rmClient*),
+                  rmClient* cli);
+    
+    /**
+     * @brief Invokes the callback of the object
+     * 
+     * @param argc Argument count
+     * @param argv Tokens
+     */
+    void invoke(int argc, char *argv[]) override;
 };
 
 #endif

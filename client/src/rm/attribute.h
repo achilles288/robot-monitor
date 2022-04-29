@@ -5,9 +5,9 @@
  * A key value pair structure that can be used in a map structure. This type
  * of data is designed to be portable in communication between two devices.
  * The data here is the real-time data of the client device which can also be
- * overriden by the station. The value may be a string, a number or a blob.
+ * overriden by the station. The value may be an integer, a decimal or a text.
  * 
- * @copyright Copyright (c) 2021 Khant Kyaw Khaung
+ * @copyright Copyright (c) 2022 Khant Kyaw Khaung
  * 
  * @license{This project is released under the MIT License.}
  */
@@ -18,227 +18,99 @@
 #define __RM_ATTRIBUTE_H__ ///< Header guard
 
 
-#ifndef RM_EXPORT
-#ifdef __AVR
-#include <avr/pgmspace.h>
-#endif
-#endif
+#include "string.h"
 
 #include <stdbool.h>
-#include <stdint.h>
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define RM_ATTRIBUTE_BOOL   0 ///< Boolean data type
-#define RM_ATTRIBUTE_CHAR   1 ///< A single character
-#define RM_ATTRIBUTE_INT    2 ///< Integer data type
-#define RM_ATTRIBUTE_FLOAT  3 ///< Floating point data type
-#define RM_ATTRIBUTE_STRING 4 ///< String data type
-#define RM_ATTRIBUTE_BLOB   5 ///< Binary large object
-
-
 /**
- * @brief The data type of the rmAttribute's value
- * 
- * Since the stored value has multiple possible data types, this union
- * structure is suitable.
+ * @brief Represents different data types for use withing the library
  */
-typedef union _rmAttributeData {
-    bool b; ///< Boolean data type
-    char c; ///< A single character
-    int32_t i; ///< Integer data type
-    float f; ///< Floating point data type
-    char* s; ///< String data type
-    uint8_t* ptr; ///< Pointer type
-} rmAttributeData;
+typedef enum _rmAttributeDataType {
+    RM_ATTRIBUTE_BOOL   = 0b00000000, ///< Boolean data type
+    RM_ATTRIBUTE_CHAR   = 0b00000001, ///< A single character
+    RM_ATTRIBUTE_STRING = 0b00000010, ///< String data type
+    RM_ATTRIBUTE_UINT8  = 0b00010000, ///< 8-bit integer data
+    RM_ATTRIBUTE_UINT16 = 0b00010001, ///< 16-bit integer data
+    RM_ATTRIBUTE_UINT32 = 0b00010010, ///< 32-bit integer data
+    RM_ATTRIBUTE_INT8   = 0b00011000, ///< 8-bit integer data
+    RM_ATTRIBUTE_INT16  = 0b00011001, ///< 16-bit integer data
+    RM_ATTRIBUTE_INT32  = 0b00011010, ///< 32-bit integer data
+    RM_ATTRIBUTE_FLOAT  = 0b00011100  ///< Floating point data type
+} rmAttributeDataType;
 
 
 /**
- * @brief Attributes shown by the client or manipulated by the station
+ * @brief Updates the attribute data to the output screen occationally
  * 
- * A key value pair structure that can be used in a map structure. This type
- * of data is designed to be portable in communication between two devices.
- * The data here is the real-time data of the client device which can also be
- * overriden by the station. The value may be a string, a number or a blob.
+ * Stores the key and pointer to the data so that it can send the updated data
+ * to the server when needed.
  */
-typedef struct _rmAttribute {
-    char name[12]; ///< Unique name of the attribute
-    rmAttributeData data; ///< The stored data
-    int8_t type; ///< The data type
-    rmAttributeData lowerBound; ///< The lower bound value
-    rmAttributeData upperBound; ///< The upper bound value
-    void (*onChange)(); ///< The callback that trigger on value change
-} rmAttribute;
+typedef struct _rmOutputAttribute {
+    char name[12]; ///< Unique name of the attribute (maximum length is 11)
+    void* data; ///< The pointer of the data which the key links with
+    rmAttributeDataType type; ///< The data type
+} rmOutputAttribute;
 
 
 
 
 /**
- * @brief Creates an attribute and stored in the list
+ * @brief Creates an input attribute and appends it to the list
  * 
- * @param key Unique name of the attribute with maximum 11 characters
- * @param t Data type of the value stored
- * 
- * @return The newly created attribute
+ * @param key Unique name of the attribute (maximum length is 11)
+ * @param ptr The pointer of the data which the key links with
+ * @param t The data type
  */
-rmAttribute* _rmCreateAttribute(const char* key, int8_t t);
-
-#ifndef RM_EXPORT
-#ifdef __AVR
-/**
- * @brief Creates an attribute and stored in the list
- * 
- * @param key Unique name of the attribute with maximum 11 characters.
- *            The param must be the string stored in program space.
- * @param t Data type of the value stored
- * 
- * @return The newly created attribute. The returned pointer is not recommended
- *         to be used since the memory location is changing as the new objects
- *         are added. rmGetAttribute() function can be used after adding all
- *         the objects.
- */
-static rmAttribute* rmCreateAttribute_P(const char* key, int8_t t)
-{
-    char name[12];
-    strncpy_P(name, key, 11);
-    name[11] = '\0';
-    return _rmCreateAttribute(name, t);
-}
-
-/**
- * @brief Creates an attribute and stored in the list
- * 
- * @param T Unique name of the attribute with maximum 11 characters
- * @param K Data type of the value stored
- * 
- * @return The newly created attribute. The returned pointer is not recommended
- *         to be used since the memory location is changing as the new objects
- *         are added. rmGetAttribute() function can be used after adding all
- *         the objects.
- */
-#endif
-
-#ifdef __AVR
-#define rmCreateAttribute(K, T) rmCreateAttribute_P(PSTR(K), T)
-#else
-#define rmCreateAttribute(K, T) _rmCreateAttribute(K, T)
-#endif
-#endif
+void rmCreateInputAttribute(const char* key, void* ptr, rmAttributeDataType t);
 
 
 /**
- * @brief Looks for an attribute by name
+ * @brief Sets the boundary to constrain the input data
  * 
- * @param key Unique name
- * 
- * @return Requested attribute. Null if the request is unavailable.
- */
-rmAttribute* _rmGetAttribute(const char* key);
-
-#ifndef RM_EXPORT
-#ifdef __AVR
-/**
- * @brief Looks for an attribute by name
- * 
- * @param key Unique name
- * 
- * @return Requested attribute. Null if the request is unavailable.
- */
-static rmAttribute* rmGetAttribute_P(const char* key) {
-    char name[12];
-    strncpy_P(name, key, 11);
-    name[11] = '\0';
-    return _rmGetAttribute(name);
-}
-#endif
-
-#ifdef __AVR
-#define rmGetAttribute(K) rmGetAttribute_P(PSTR(K))
-#else
-#define rmGetAttribute(K) _rmGetAttribute(K)
-#endif
-#endif
-
-/**
- * @brief Sets the value
- * 
- * Calling this function triggers the set command to the station.
- * 
- * @param attr The attribute
- * @param value The boolean value
- */
-void rmAttributeSetBool(rmAttribute* attr, bool value);
-
-/**
- * @brief Sets the value
- * 
- * Calling this function triggers the set command to the station.
- * 
- * @param attr The attribute
- * @param value The character value
- */
-void rmAttributeSetChar(rmAttribute* attr, char value);
-
-/**
- * @brief Sets the value
- * 
- * Calling this function triggers the set command to the station.
- * 
- * @param attr The attribute
- * @param value The integer value
- */
-void rmAttributeSetInt(rmAttribute* attr, int32_t value);
-    
-/**
- * @brief Sets the value
- * 
- * Calling this function triggers the set command to the station.
- * 
- * @param attr The attribute
- * @param value The floating point value
- */
-void rmAttributeSetFloat(rmAttribute* attr, float value);
-
-/**
- * @brief Sets the value
- * 
- * Calling this function triggers the set command to the station.
- * 
- * @param attr The attribute
- * @param value The string value or blob. The array is copied.
- */
-void rmAttributeSetString(rmAttribute* attr, const char* value);
-
-/**
- * @brief Sets the value
- * 
- * @param attr The attribute
- * @param value The string value or blob. The array is copied.
- */
-void rmAttributeSetValue(rmAttribute* attr, const char* value);
-
-/**
- * @brief Sets the boundary
- * 
- * @param attr The attribute
+ * @param key The attribute name
  * @param lower Lower bound value
  * @param upper Upper bound value
  */
-static inline void rmAttributeSetBoundary(rmAttribute* attr,
-                                          rmAttributeData lower,
-                                          rmAttributeData upper)
-{
-    attr->lowerBound = lower;
-    attr->upperBound = upper;
-}
+void rmInputAttributeSetBoundaries(const char* key, float lower, float upper);
+
 
 /**
- * @brief Clears all the attributes and calls created
+ * @brief Assigns the callback function which triggers upon data input
+ * 
+ * @param key The attribute name
+ * @param func The callback function
  */
-void rmClearData();
+void rmInputAttributeSetOnChange(const char* key, void (*func)());
+
+
+/**
+ * @brief Sends the key and the present data of the attribute to the station
+ * 
+ * The key and the data is sent as an update command through a connection
+ * which is USB or an RF device. This command updates the client's data on the
+ * station side.
+ * 
+ * @param attr The attribute
+ */
+void rmOutputAttributeUpdate(rmOutputAttribute *attr);
+
+
+/**
+ * @brief Converts the output attribute data to a string
+ * 
+ * @param attr The attribute
+ * 
+ * @return String representation of the attribute data. The string returned
+ *         must be used or copied before the next function call since it is
+ *         allocated in a temporary memory.
+ */
+char* rmOutputAttributeGetStringData(rmOutputAttribute *attr);
+
 
 #ifdef __cplusplus
 }

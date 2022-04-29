@@ -2,14 +2,10 @@
  * @file robotmonitor.h
  * @brief Monitors and commands the microcontrollers for robots
  * 
- * In programming an MCU for robots, it is usually needed to what how the data
- * input and output are going on. In the example of a line following robot, IR
- * sensor input values and PID controller output value are displayed by means
- * of text or graph. The Robot Monitor software make it possible to use
- * CLI-like interface, custom GUI for machine control, graphing and 3D
- * visualization.
+ * The software makes it possible to use CLI-like interface, custom GUI for
+ * machine control and visualization.
  * 
- * @copyright Copyright (c) 2021 Khant Kyaw Khaung
+ * @copyright Copyright (c) 2022 Khant Kyaw Khaung
  * 
  * @license{This project is released under the MIT License.}
  */
@@ -17,10 +13,15 @@
 
 #pragma once
 #ifndef __ROBOT_MONITOR_H__
-#define __ROBOT_MONITOR_H__
+#define __ROBOT_MONITOR_H__ ///< Header guard
+
 
 #include "rm/attribute.h"
 #include "rm/call.h"
-#include "rm/echo.h"
+#include "rm/connection.h"
+#include "rm/request.h"
+#include "rm/string.h"
+#include "rm/sync.h"
+
 
 #endif

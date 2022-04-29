@@ -64,7 +64,7 @@ class RM_WX_API rmSpinCtrl: public rmWidget, public wxSpinCtrl {
      * @param upper Upper bound value
      */
     rmSpinCtrl(wxWindow* parent, rmClient* cli, const char* key,
-               int32_t lower, int32_t upper);
+               int lower, int upper);
     
     /**
      * @brief Enables or disables the user input

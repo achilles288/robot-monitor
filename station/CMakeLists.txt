@@ -1,13 +1,14 @@
 add_library(rmonitor SHARED
     attribute.cpp
-    builtin_call.cpp
     call.cpp
     client.cpp
     client_com.cpp
     echo.cpp
     encryption.cpp
+    request.cpp
     serial.cpp
     serial_list.cpp
+    sync.cpp
     timerbase.cpp
     widget.cpp
     robotmonitor.hpp
@@ -18,14 +19,16 @@ add_library(rmonitor SHARED
     rm/encryption.hpp
     rm/timerbase.hpp
     rm/widget.hpp
-)
-
-target_include_directories(rmonitor PUBLIC
-    ${serial_INCLUDE_DIRS}
-)
-
-target_link_libraries(rmonitor PUBLIC
-    ${serial_LIBRARIES}
+    serial/serial.cpp
+    serial/serial.h
+    serial/v8stdint.h
+    serial/impl/unix.cpp
+    serial/impl/unix.h
+    serial/impl/win.cpp
+    serial/impl/win.h
+    serial/impl/list_ports/list_ports_linux.cpp
+    serial/impl/list_ports/list_ports_osx.cpp
+    serial/impl/list_ports/list_ports_win.cpp
 )
 
 set_target_properties(rmonitor PROPERTIES
@@ -41,7 +44,8 @@ add_library(rmonitor-wx SHARED
     checkbox.cpp
     echobox.cpp
     gauge.cpp
-    icon.c
+    icon.cpp
+    radiobox.cpp
     serial_wx.cpp
     slider.cpp
     spinctrl.cpp
@@ -52,7 +56,7 @@ add_library(rmonitor-wx SHARED
     rm/checkbox.hpp
     rm/echobox.hpp
     rm/gauge.hpp
-    rm/icon.h
+    rm/icon.hpp
     rm/slider.hpp
     rm/spinctrl.hpp
     rm/stattext.hpp
@@ -65,7 +69,6 @@ target_compile_definitions(rmonitor-wx PUBLIC
 )
 
 target_include_directories(rmonitor-wx PUBLIC
-    ${serial_INCLUDE_DIRS}
     ${wxWidgets_INCLUDE_DIRS}
 )
 

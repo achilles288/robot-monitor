@@ -54,7 +54,15 @@ class RM_WX_API rmButton: public rmWidget, public wxButton {
      * @return wxWidget ID
      */
     long getWxID() override;
-
+    
+    /**
+     * @brief Sends  a message to the client device
+     * 
+     * @param msg Message string
+     * @param crypt True to encrypt the message if the connection supports it
+     */
+    void sendMessage(const char* msg, bool crypt=true);
+    
   public:
     /**
      * @brief Default constructor
@@ -84,7 +92,7 @@ class RM_WX_API rmButton: public rmWidget, public wxButton {
      * 
      * @param evt The event object
      */
-    void onClick(wxCommandEvent& evt);
+    virtual void onClick(wxCommandEvent& evt);
 };
 
 #endif

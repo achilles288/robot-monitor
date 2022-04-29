@@ -48,4 +48,39 @@ const char* rmCall::getName() const { return name; }
  * @param argc Argument count
  * @param argv Tokens
  */
-void rmCall::invoke(int argc, char* argv[]) { callback(argc, argv); }
+void rmCall::invoke(int argc, char* argv[]) {
+    if(callback != nullptr)
+        callback(argc, argv);
+}
+
+
+
+
+/**
+ * @brief Constructs a call with a name and a function pointer
+ * 
+ * @param key Unique name of the call with maximum 11 characters parameters,
+ * @param func The callback function. The callback should have two an integer
+ *             representing the number of extra tokens and the array of
+ *             strings.
+ * @param cli The client instance which the callback has access to
+ */
+rmBuiltinCall::rmBuiltinCall(const char* key,
+                             void (*func)(int, char**, rmClient*),
+                             rmClient* cli)
+              :rmCall(key, nullptr)
+{
+    client = cli;
+    callback2 = func;
+}
+
+/**
+ * @brief Invokes the callback of the object
+ * 
+ * @param argc Argument count
+ * @param argv Tokens
+ */
+void rmBuiltinCall::invoke(int argc, char *argv[]) {
+    if(callback2 != nullptr && client != nullptr)
+        callback2(argc, argv, client);
+}

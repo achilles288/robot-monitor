@@ -87,5 +87,5 @@ void rmCheckBox::onAttributeChange() {
  */
 void rmCheckBox::onCheck(wxCommandEvent& evt) {
     attribute->setValue(IsChecked());
-    client->sendAttribute(attribute);
+    client->updateAttribute(attribute);
 }

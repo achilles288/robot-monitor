@@ -17,22 +17,30 @@
 
 #include "rm/client.hpp"
 
-#include "rm/builtin_call.hpp"
-
 #include <cstring>
 
 
 static std::mutex m;
+
+void rmCallbackEcho(int argc, char *argv[], rmClient* cli);
+void rmCallbackWarn(int argc, char *argv[], rmClient* cli);
+void rmCallbackErr (int argc, char *argv[], rmClient* cli);
+void rmCallbackResp(int argc, char *argv[], rmClient* cli);
+
+static void callbackSet (int argc, char *argv[], rmClient* cli);
+static void callbackSync(int argc, char *argv[], rmClient* cli);
 
 
 /**
  * @brief Default constructor
  */
 rmClient::rmClient() {
-    appendCall(new rmBuiltinCallSet(this));
-    appendCall(new rmBuiltinCallEcho(this));
-    appendCall(new rmBuiltinCallWarn(this));
-    appendCall(new rmBuiltinCallError(this));
+    appendCall(new rmBuiltinCall("echo", rmCallbackEcho, this));
+    appendCall(new rmBuiltinCall("warn", rmCallbackWarn, this));
+    appendCall(new rmBuiltinCall("err", rmCallbackErr, this));
+    appendCall(new rmBuiltinCall("resp", rmCallbackResp, this));
+    appendCall(new rmBuiltinCall("set", callbackSet, this));
+    appendCall(new rmBuiltinCall("sync", callbackSync, this));
 }
 
 /**
@@ -121,7 +129,8 @@ bool rmClient::appendAttribute(rmAttribute* attr) {
  * @return The newly created attribute. Null if the attribute with the same
  *         name already exists or the creation is invalid.
  */
-rmAttribute* rmClient::createAttribute(const char* key, int8_t t) {
+rmAttribute* rmClient::createAttribute(const char* key, rmAttributeDataType t)
+{
     m.lock();
     rmAttribute* attr = new rmAttribute(key, t);
     bool valid = appendAttribute(attr);
@@ -146,35 +155,8 @@ rmAttribute* rmClient::createAttribute(const char* key, int8_t t) {
  * @return The newly created attribute. Null if the attribute with the same
  *         name already exists or the creation is invalid.
  */
-rmAttribute* rmClient::createAttribute(const char* key, int8_t t,
-                                       int32_t lower, int32_t upper)
-{
-    m.lock();
-    rmAttribute* attr = new rmAttribute(key, t, lower, upper);
-    bool valid = appendAttribute(attr);
-    m.unlock();
-    if(valid)
-        return attr;
-    else {
-        delete attr;
-        return nullptr;
-    }
-}
-
-/**
- * @brief Creates an attribute in the map structure
- * 
- * @param key Unique name of the attribute with maximum 11 characters
- * @param t Data type of the value stored
- * @param lower Lower bound value. The type of the lower and upper should be
- *              of the same type as t.
- * @param upper Upper bound value
- * 
- * @return The newly created attribute. Null if the attribute with the same
- *         name already exists or the creation is invalid.
- */
-rmAttribute* rmClient::createAttribute(const char* key, int8_t t, float lower,
-                                       float upper)
+rmAttribute* rmClient::createAttribute(const char* key, rmAttributeDataType t,
+                                       float lower, float upper)
 {
     m.lock();
     rmAttribute* attr = new rmAttribute(key, t, lower, upper);
@@ -405,4 +387,29 @@ void rmClient::removeWidget(rmWidget* widget) {
         }
     }
     m.unlock();
+}
+
+
+static void callbackSet(int argc, char *argv[], rmClient* cli) {
+    if(argc != 2)
+        return;
+    
+    rmAttribute* attr = cli->getAttribute(argv[0]);
+    if(attr != nullptr) {
+        rmAttributeData prev = attr->getValue();
+        attr->setValue(argv[1]);
+        if(attr->getValue().i != prev.i) {
+            rmAttributeNotifier* noti = attr->getNotifier();
+            if(noti != nullptr)
+                noti->triggerCallback();
+        }
+    }
+}
+
+
+static void callbackSync(int argc, char *argv[], rmClient* cli) {
+    if(argc < 2)
+        return;
+    uint8_t i = atoi(argv[0]);
+    cli->syncUpdate(i, argv[1]);
 }

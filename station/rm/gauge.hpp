@@ -59,7 +59,7 @@ class RM_WX_API rmGauge: public rmWidget, public wxGauge {
      * @param key Unique name of the attribute with maximum 11 characters
      * @param range Upper bound value
      */
-    rmGauge(wxWindow* parent, rmClient* cli, const char* key, int32_t range);
+    rmGauge(wxWindow* parent, rmClient* cli, const char* key, int range);
     
     /**
      * @brief Constructs a gauge widget

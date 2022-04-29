@@ -7,7 +7,7 @@
  * The data here is the real-time data of the client device which can also be
  * overriden by the station. The value may be a string, a number or a blob.
  * 
- * @copyright Copyright (c) 2021 Khant Kyaw Khaung
+ * @copyright Copyright (c) 2022 Khant Kyaw Khaung
  * 
  * @license{This project is released under the MIT License.}
  */
@@ -28,9 +28,10 @@
  */
 rmAttribute::rmAttribute() {
     data.s = nullptr;
-    lowerBound.f = NAN;
-    upperBound.f = NAN;
+    lowerBound = NAN;
+    upperBound = NAN;
 }
+
 
 /**
  * @brief Constructs an attribute with a name, type and boundaries
@@ -40,7 +41,7 @@ rmAttribute::rmAttribute() {
  * @param key Unique name of the attribute with maximum 11 characters
  * @param t Data type of the value stored
  */
-rmAttribute::rmAttribute(const char* key, int8_t t)
+rmAttribute::rmAttribute(const char* key, rmAttributeDataType t)
             :rmAttribute()
 {
     strncpy(name, key, 11);
@@ -59,25 +60,8 @@ rmAttribute::rmAttribute(const char* key, int8_t t)
  *              the same type as t.
  * @param upper Upper bound value
  */
-rmAttribute::rmAttribute(const char* key, int8_t t, int32_t lower,
-                         int32_t upper)
-            :rmAttribute(key, t)
-{
-    setBoundary(lower, upper);
-}
-
-/**
- * @brief Constructs an attribute with a name, type and boundaries
- * 
- * The constructor declares the new attribute on the specified client.
- * 
- * @param key Unique name of the attribute with maximum 11 characters
- * @param t Data type of the value stored
- * @param lower Lower bound value. The type of the lower and upper should be of
- *              the same type as t.
- * @param upper Upper bound value
- */
-rmAttribute::rmAttribute(const char* key, int8_t t, float lower, float upper)
+rmAttribute::rmAttribute(const char* key, rmAttributeDataType t, float lower,
+                         float upper)
             :rmAttribute(key, t)
 {
     setBoundary(lower, upper);
@@ -110,7 +94,7 @@ void rmAttribute::setValue(bool value) {
        type == RM_ATTRIBUTE_CHAR ||
        type == RM_ATTRIBUTE_INT)
     {
-        data.i = (int32_t) value;
+        data.i = (int) value;
     }
     else if(type == RM_ATTRIBUTE_STRING) {
         const char* str = value ? "1" : "0";
@@ -119,7 +103,7 @@ void rmAttribute::setValue(bool value) {
                 return;
             delete data.s;
         }
-        data.s = new char[6];
+        data.s = new char[2];
         strcpy(data.s, str);
     }
 }
@@ -135,17 +119,17 @@ void rmAttribute::setValue(char value) {
     if(type == RM_ATTRIBUTE_BOOL ||
        type == RM_ATTRIBUTE_CHAR)
     {
-        data.i = (int32_t) value;
+        data.i = (int) value;
     }
     else if(type == RM_ATTRIBUTE_INT) {
-        data.i = (int32_t) value;
-        if(!std::isnan(lowerBound.f)) {
-            if(data.i < lowerBound.i)
-                data.i = lowerBound.i;
+        data.i = (int) value;
+        if(!std::isnan(lowerBound)) {
+            if(data.i < lowerBound)
+                data.i = lowerBound;
         }
-        if(!std::isnan(upperBound.f)) {
-            if(data.i > upperBound.i)
-                data.i = upperBound.i;
+        if(!std::isnan(upperBound)) {
+            if(data.i > upperBound)
+                data.i = upperBound;
         }
     }
     else if(type == RM_ATTRIBUTE_STRING) {
@@ -170,7 +154,7 @@ void rmAttribute::setValue(char value) {
  * 
  * @param value The integer value
  */
-void rmAttribute::setValue(int32_t value) {
+void rmAttribute::setValue(int value) {
     switch(type) {
       case RM_ATTRIBUTE_BOOL:
         data.b = (bool) value;
@@ -182,25 +166,25 @@ void rmAttribute::setValue(int32_t value) {
         
       case RM_ATTRIBUTE_INT:
         data.i = value;
-        if(!std::isnan(lowerBound.f)) {
-            if(data.i < lowerBound.i)
-                data.i = lowerBound.i;
+        if(!std::isnan(lowerBound)) {
+            if(data.i < lowerBound)
+                data.i = lowerBound;
         }
-        if(!std::isnan(upperBound.f)) {
-            if(data.i > upperBound.i)
-                data.i = upperBound.i;
+        if(!std::isnan(upperBound)) {
+            if(data.i > upperBound)
+                data.i = upperBound;
         }
         break;
         
       case RM_ATTRIBUTE_FLOAT:
         data.f = (float) value;
-        if(!std::isnan(lowerBound.f)) {
-            if(data.f < lowerBound.f)
-                data.f = lowerBound.f;
+        if(!std::isnan(lowerBound)) {
+            if(data.f < lowerBound)
+                data.f = lowerBound;
         }
-        if(!std::isnan(upperBound.f)) {
-            if(data.f > upperBound.f)
-                data.f = upperBound.f;
+        if(!std::isnan(upperBound)) {
+            if(data.f > upperBound)
+                data.f = upperBound;
         }
         break;
         
@@ -232,27 +216,30 @@ void rmAttribute::setValue(float value) {
         data.b = !std::isnan(value);
         break;
         
+      case RM_ATTRIBUTE_CHAR:
+        break;
+        
       case RM_ATTRIBUTE_INT:
-        data.i = (int32_t) value;
-        if(!std::isnan(lowerBound.f)) {
-            if(data.i < lowerBound.i)
-                data.i = lowerBound.i;
+        data.i = (int) value;
+        if(!std::isnan(lowerBound)) {
+            if(data.i < lowerBound)
+                data.i = lowerBound;
         }
-        if(!std::isnan(upperBound.f)) {
-            if(data.i > upperBound.i)
-                data.i = upperBound.i;
+        if(!std::isnan(upperBound)) {
+            if(data.i > upperBound)
+                data.i = upperBound;
         }
         break;
         
       case RM_ATTRIBUTE_FLOAT:
         data.f = value;
-        if(!std::isnan(lowerBound.f)) {
-            if(data.f < lowerBound.f)
-                data.f = lowerBound.f;
+        if(!std::isnan(lowerBound)) {
+            if(data.f < lowerBound)
+                data.f = lowerBound;
         }
-        if(!std::isnan(upperBound.f)) {
-            if(data.f > upperBound.f)
-                data.f = upperBound.f;
+        if(!std::isnan(upperBound)) {
+            if(data.f > upperBound)
+                data.f = upperBound;
         }
         break;
         
@@ -294,25 +281,25 @@ void rmAttribute::setValue(const char* value) {
         
       case RM_ATTRIBUTE_INT:
         data.i = atoi(value);
-        if(!std::isnan(lowerBound.f)) {
-            if(data.i < lowerBound.i)
-                data.i = lowerBound.i;
+        if(!std::isnan(lowerBound)) {
+            if(data.i < lowerBound)
+                data.i = lowerBound;
         }
-        if(!std::isnan(upperBound.f)) {
-            if(data.i > upperBound.i)
-                data.i = upperBound.i;
+        if(!std::isnan(upperBound)) {
+            if(data.i > upperBound)
+                data.i = upperBound;
         }
         break;
         
       case RM_ATTRIBUTE_FLOAT:
         data.f = atof(value);
-        if(!std::isnan(lowerBound.f)) {
-            if(data.f < lowerBound.f)
-                data.f = lowerBound.f;
+        if(!std::isnan(lowerBound)) {
+            if(data.f < lowerBound)
+                data.f = lowerBound;
         }
-        if(!std::isnan(upperBound.f)) {
-            if(data.f > upperBound.f)
-                data.f = upperBound.f;
+        if(!std::isnan(upperBound)) {
+            if(data.f > upperBound)
+                data.f = upperBound;
         }
         break;
         
@@ -376,26 +363,7 @@ std::string rmAttribute::getValueString() const {
  * 
  * @return The data type number
  */
-int8_t rmAttribute::getType() const { return type; }
-
-/**
- * @brief Sets the boundary
- * 
- * @param lower Lower bound value
- * @param upper Upper bound value
- */
-void rmAttribute::setBoundary(int32_t lower, int32_t upper) {
-    switch(type) {
-      case RM_ATTRIBUTE_INT:
-        lowerBound.i = lower;
-        upperBound.i = upper;
-        break;
-        
-      case RM_ATTRIBUTE_FLOAT:
-        lowerBound.f = (float) lower;
-        upperBound.f = (float) upper;
-    }
-}
+rmAttributeDataType rmAttribute::getType() const { return type; }
 
 /**
  * @brief Sets the boundary
@@ -406,31 +374,35 @@ void rmAttribute::setBoundary(int32_t lower, int32_t upper) {
 void rmAttribute::setBoundary(float lower, float upper) {
     switch(type) {
       case RM_ATTRIBUTE_INT:
-        lowerBound.i = (int32_t) lower;
-        upperBound.i = (int32_t) upper;
+        lowerBound = (int) lower;
+        upperBound = (int) upper;
         break;
         
       case RM_ATTRIBUTE_FLOAT:
-        lowerBound.f = lower;
-        upperBound.f = upper;
+        lowerBound = lower;
+        upperBound = upper;
+        break;
+        
+      default:
+        break;
     }
 }
 
 /**
  * @brief Gets the lower bound value
  * 
- * @return Lower bound value which is an integer or a float. If there is no
+ * @return Lower bound value as a floating point number. If there is no
  *         boundary or the request is invalid, returns a NAN.
  */
-rmAttributeData rmAttribute::getLowerBound() const { return lowerBound; }
+float rmAttribute::getLowerBound() const { return lowerBound; }
 
 /**
  * @brief Gets the upper bound value
  * 
- * @return Upper bound value which is an integer or a float. If there is no
+ * @return Upper bound value as a floating point number. If there is no
  *         boundary or the request is invalid, returns a NAN.
  */
-rmAttributeData rmAttribute::getUpperBound() const { return upperBound; }
+float rmAttribute::getUpperBound() const { return upperBound; }
 
 /**
  * @brief Sets the notifier object for this attribute

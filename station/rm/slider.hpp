@@ -64,8 +64,8 @@ class RM_WX_API rmSlider: public rmWidget, public wxSlider {
      * @param lower Lower bound value
      * @param upper Upper bound value
      */
-    rmSlider(wxWindow* parent, rmClient* cli, const char* key, int32_t lower,
-             int32_t upper);
+    rmSlider(wxWindow* parent, rmClient* cli, const char* key, int lower,
+             int upper);
     
     /**
      * @brief Constructs a slider widget

@@ -7,7 +7,7 @@
  * The data here is the real-time data of the client device which can also be
  * overriden by the station. The value may be a string, a number or a blob.
  * 
- * @copyright Copyright (c) 2021 Khant Kyaw Khaung
+ * @copyright Copyright (c) 2022 Khant Kyaw Khaung
  * 
  * @license{This project is released under the MIT License.}
  */
@@ -30,16 +30,19 @@
 #endif
 
 
-#include <cstdint>
 #include <string>
 
 
-#define RM_ATTRIBUTE_BOOL   0 ///< Boolean data type
-#define RM_ATTRIBUTE_CHAR   1 ///< A single character
-#define RM_ATTRIBUTE_INT    2 ///< Integer data type
-#define RM_ATTRIBUTE_FLOAT  3 ///< Floating point data type
-#define RM_ATTRIBUTE_STRING 4 ///< String data type
-#define RM_ATTRIBUTE_BLOB   5 ///< Binary large object
+/**
+ * @brief Represents different data types for use withing the library
+ */
+enum rmAttributeDataType {
+    RM_ATTRIBUTE_BOOL, ///< Boolean data type
+    RM_ATTRIBUTE_CHAR, ///< A single character
+    RM_ATTRIBUTE_INT, ///< Integer data
+    RM_ATTRIBUTE_FLOAT, ///< Floating point data type
+    RM_ATTRIBUTE_STRING ///< String data type
+};
 
 
 /**
@@ -51,10 +54,9 @@
 union rmAttributeData {
     bool b; ///< Boolean data type
     char c; ///< A single character
-    int32_t i; ///< Integer data type
+    int i; ///< Integer data type
     float f; ///< Floating point data type
     char* s; ///< String data type
-    uint8_t* ptr; ///< Pointer type
     
     /**
      * @brief Converts to a boolean
@@ -69,7 +71,7 @@ union rmAttributeData {
     /**
      * @brief Converts to an integer
      */
-    inline operator int32_t () const { return i; }
+    inline operator int () const { return i; }
     
     /**
      * @brief Converts to a floating point
@@ -79,12 +81,7 @@ union rmAttributeData {
     /**
      * @brief Converts to a string
      */
-    inline operator const char* () const { return s; }
-    
-    /**
-     * @brief Converts to a pointer to data
-     */
-    inline operator const uint8_t* () const { return ptr; }
+    inline operator char* () const { return s; }
 };
 
 
@@ -104,9 +101,9 @@ class RM_API rmAttribute {
     rmAttributeNotifier* notifier = nullptr;
     char name[12] = {0};
     rmAttributeData data;
-    int8_t type = RM_ATTRIBUTE_STRING;
-    rmAttributeData lowerBound;
-    rmAttributeData upperBound;
+    rmAttributeDataType type = RM_ATTRIBUTE_STRING;
+    float lowerBound;
+    float upperBound;
     
   public:
     /**
@@ -122,7 +119,7 @@ class RM_API rmAttribute {
      * @param key Unique name of the attribute with maximum 11 characters
      * @param t Data type of the value stored
      */
-    rmAttribute(const char* key, int8_t t);
+    rmAttribute(const char* key, rmAttributeDataType t);
     
     /**
      * @brief Constructs an attribute with a name, type and boundaries
@@ -135,20 +132,8 @@ class RM_API rmAttribute {
      *              be of the same type as t.
      * @param upper Upper bound value
      */
-    rmAttribute(const char* key, int8_t t, int32_t lower, int32_t upper);
-    
-    /**
-     * @brief Constructs an attribute with a name, type and boundaries
-     * 
-     * The constructor declares the new attribute on the specified client.
-     * 
-     * @param key Unique name of the attribute with maximum 11 characters
-     * @param t Data type of the value stored
-     * @param lower Lower bound value. The type of the lower and upper should
-     *              be of the same type as t.
-     * @param upper Upper bound value
-     */
-    rmAttribute(const char* key, int8_t t, float lower, float upper);
+    rmAttribute(const char* key, rmAttributeDataType t, float lower,
+                float upper);
     
     /**
      * @brief Destructor
@@ -215,7 +200,7 @@ class RM_API rmAttribute {
      * 
      * @param value The integer value
      */
-    void setValue(int32_t value);
+    void setValue(int value);
     
     /**
      * @brief Sets the value
@@ -255,15 +240,7 @@ class RM_API rmAttribute {
      * 
      * @return The data type number
      */
-    int8_t getType() const;
-    
-    /**
-     * @brief Sets the boundary
-     * 
-     * @param lower Lower bound value
-     * @param upper Upper bound value
-     */
-    void setBoundary(int32_t lower, int32_t upper);
+    rmAttributeDataType getType() const;
     
     /**
      * @brief Sets the boundary
@@ -276,18 +253,18 @@ class RM_API rmAttribute {
     /**
      * @brief Gets the lower bound value
      * 
-     * @return Lower bound value which is an integer or a float. If there is no
-     *         boundary or the request is invalid, returns NAN as a float.
+     * @return Lower bound value as a floating point number. If there is no
+     *         boundary or the request is invalid, returns NAN.
      */
-    rmAttributeData getLowerBound() const;
+    float getLowerBound() const;
     
     /**
      * @brief Gets the upper bound value
      * 
-     * @return Upper bound value which is an integer or a float. If there is no
-     *         boundary or the request is invalid, returns NAN as a float.
+     * @return Upper bound value as a floating point number. If there is no
+     *         boundary or the request is invalid, returns NAN.
      */
-    rmAttributeData getUpperBound() const;
+    float getUpperBound() const;
     
     /**
      * @brief Sets the notifier object for this attribute

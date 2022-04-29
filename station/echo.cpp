@@ -13,9 +13,12 @@
 
 
 #define RM_EXPORT
+#define RM_NO_WX
 
 
 #include "rm/echo.hpp"
+
+#include "rm/client.hpp"
 
 
 /**
@@ -27,7 +30,7 @@
  * 
  * @param msg The message
  * @param status The status code. Status code other than 0 may print red
- *         messages.
+ *               messages.
  */
 void rmEcho::echo(const char* msg, int status) {}
 
@@ -37,3 +40,40 @@ void rmEcho::echo(const char* msg, int status) {}
  * @param en True for enable and false for otherwise
  */
 void rmEcho::setEnabled(bool en) {}
+
+
+
+
+static void echo(rmClient *client, int status, int argc, char *argv[]) {
+    char str[128];
+    int i=0, j=0, k=0;
+    while(i < argc) {
+        char c;
+        while((c = argv[i][j++]) != '\0')
+            str[k++] = c;
+        if(i < argc - 1)
+            str[k++] = ' ';
+        i++;
+        j = 0;
+        if(k == 127)
+            break;
+    }
+    str[k] = '\0';
+    str[127] = '\0';
+    client->echo(str, status);
+}
+
+
+void rmCallbackEcho(int argc, char *argv[], rmClient* cli) {
+    echo(cli, 0, argc, argv);
+}
+
+
+void rmCallbackWarn(int argc, char *argv[], rmClient* cli) {
+    echo(cli, 2, argc, argv);
+}
+
+
+void rmCallbackErr(int argc, char *argv[], rmClient* cli) {
+    echo(cli, 1, argc, argv);
+}

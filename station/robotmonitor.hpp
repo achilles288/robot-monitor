@@ -9,7 +9,7 @@
  * CLI-like interface, custom GUI for machine control, graphing and 3D
  * visualization.
  * 
- * @copyright Copyright (c) 2021 Khant Kyaw Khaung
+ * @copyright Copyright (c) 2022 Khant Kyaw Khaung
  * 
  * @license{This project is released under the MIT License.}
  */
@@ -30,7 +30,8 @@
 #include "rm/checkbox.hpp"
 #include "rm/echobox.hpp"
 #include "rm/gauge.hpp"
-#include "rm/icon.h"
+#include "rm/icon.hpp"
+#include "rm/radiobox.hpp"
 #include "rm/slider.hpp"
 #include "rm/spinctrl.hpp"
 #include "rm/stattext.hpp"

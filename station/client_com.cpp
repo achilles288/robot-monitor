@@ -29,6 +29,13 @@ static std::vector<rmClient*> clients;
 static std::thread thread;
 static std::mutex m;
 
+static void respCallbackLsa(rmResponse resp);
+
+
+#define PROCESS_DEFAULT   0b00
+#define PROCESS_STARTED   0b01
+#define PROCESS_SEPERATOR 0b11
+
 
 /**
  * @brief Checks the connection and processes the incoming messages
@@ -40,34 +47,41 @@ void rmClient::onIdle() {
         if(rx_i == 255)
             c = '\n';
         
-        switch(c) {
-          case ' ':
-            if(!rx_space) {
+        if(rx_flag & PROCESS_STARTED) {
+            rmCall* call;
+            switch(c) {
+              case ' ':
                 rx_cmd[rx_i++] = '\0';
-                rx_space = true;
+                rx_flag = PROCESS_SEPERATOR;
+                break;
+                
+              case '\n':
+                rx_cmd[rx_i] = '\0';
+                call = getCall(rx_cmd);
+                if(call != NULL)
+                    call->invoke(rx_tokenCount, rx_tokens);
+                rx_flag = PROCESS_DEFAULT;
+                break;
+                
+              default:
+                if(rx_flag == PROCESS_SEPERATOR) {
+                    if(rx_tokenCount == 8)
+                        break;
+                    rx_tokens[rx_tokenCount++] = &rx_cmd[rx_i];
+                    rx_flag = PROCESS_STARTED;
+                }
+                rx_cmd[rx_i++] = c;
             }
-            break;
-            
-          case '\n':
-            rx_cmd[rx_i] = '\0';
-            call = getCall(rx_cmd);
-            if(call != nullptr)
-                call->invoke(rx_tokenCount, rx_tokens);
+        }
+        else if(c == '$') {
             rx_i = 0;
             rx_tokenCount = 0;
-            rx_space = false;
-            break;
-            
-          default:
-            if(rx_space) {
-                rx_tokens[rx_tokenCount++] = rx_cmd + rx_i;
-                rx_space = false;
-            }
-            rx_cmd[rx_i++] = c;
+            rx_flag = PROCESS_STARTED;
         }
         c = read();
     }
 }
+
 
 static void connectionThread() {
     do {
@@ -93,6 +107,7 @@ static void connectionThread() {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     } while(true);
 }
+
 
 void rmClient::startConnection() {
     /*char cmd[256];
@@ -189,8 +204,8 @@ void rmClient::startConnection() {
 void rmClient::connectSerial(const char* port, uint32_t baud, bool crypt) {
     disconnect();
     mySerial.connect(port, baud);
+    
     if(mySerial.isConnected()) {
-        connectionMethod = RM_CONNECTION_SERIAL;
         startConnection();
     }
     else {
@@ -213,8 +228,8 @@ void rmClient::connectSerial(rmSerialPortInfo portInfo, uint32_t baud,
 {
     disconnect();
     mySerial.connect(portInfo, baud);
+    
     if(mySerial.isConnected()) {
-        connectionMethod = RM_CONNECTION_SERIAL;
         startConnection();
     }
     else {
@@ -257,10 +272,10 @@ void rmClient::onDisconnected() {
     for(size_t i=0; i<widgetCount; i++) {
         widgets[i]->setEnabled(false);
     }
-    switch(connectionMethod) {
-      case RM_CONNECTION_SERIAL:
-        mySerial.disconnect();
+    for(uint8_t i=0; i<10; i++) {
+        syncs[i] = rmSync();
     }
+    mySerial.disconnect();
     m.unlock();
 }
 
@@ -270,12 +285,8 @@ void rmClient::onDisconnected() {
  * @return True if the client is connected
  */
 bool rmClient::isConnected() {
-    bool b = false;
     m.lock();
-    switch(connectionMethod) {
-      case RM_CONNECTION_SERIAL:
-        b = mySerial.isConnected();
-    }
+    bool b = mySerial.isConnected();
     m.unlock();
     return b;
 }
@@ -288,22 +299,15 @@ bool rmClient::isConnected() {
  */
 void rmClient::sendMessage(const char* msg, bool crypt) {
     m.lock();
-    switch(connectionMethod) {
-      case RM_CONNECTION_SERIAL:
-        mySerial.write(msg);
-        break;
-    }
+    mySerial.write(msg);
     m.unlock();
 }
+
 
 char rmClient::read() {
     m.lock();
     char c = '\0';
-    switch(connectionMethod) {
-      case RM_CONNECTION_SERIAL:
-        c = mySerial.read();
-        break;
-    }
+    c = mySerial.read();
     m.unlock();
     return c;
 }
@@ -313,28 +317,28 @@ char rmClient::read() {
  * 
  * @param attr The attribute
  */
-void rmClient::sendAttribute(rmAttribute* attr) {
+void rmClient::updateAttribute(rmAttribute* attr) {
     char msg[160];
     const char* name = attr->getName();
     switch(attr->getType()) {
       case RM_ATTRIBUTE_BOOL:
-        snprintf(msg, 159, "set %s %d\n", name, attr->getValue().b);
+        snprintf(msg, 159, "$set %s %d\n", name, attr->getValue().b);
         break;
         
       case RM_ATTRIBUTE_CHAR:
-        snprintf(msg, 159, "set %s %c\n", name, attr->getValue().c);
+        snprintf(msg, 159, "$set %s %c\n", name, attr->getValue().c);
         break;
         
       case RM_ATTRIBUTE_INT:
-        snprintf(msg, 159, "set %s %d\n", name, attr->getValue().i);
+        snprintf(msg, 159, "$set %s %d\n", name, attr->getValue().i);
         break;
         
       case RM_ATTRIBUTE_FLOAT:
-        snprintf(msg, 159, "set %s %f\n", name, attr->getValue().f);
+        snprintf(msg, 159, "$set %s %f\n", name, attr->getValue().f);
         break;
         
       case RM_ATTRIBUTE_STRING:
-        snprintf(msg, 159, "set %s \"%s\"\n", name, attr->getValue().s);
+        snprintf(msg, 159, "$set %s %s\n", name, attr->getValue().s);
         break;
         
       default:
@@ -343,6 +347,47 @@ void rmClient::sendAttribute(rmAttribute* attr) {
     msg[159] = '\0';
     sendMessage(msg);
 }
+
+/**
+ * @brief Updates the attributes by sync table method
+ * 
+ * @param i Sync table ID
+ * @param value The string representing the array of attribute values
+ */
+void rmClient::syncUpdate(uint8_t i, const char* value) {
+    if(i < 10) {
+        if(syncs[i].getCount() == 0) {
+            char msg[6] = "lsa i";
+            msg[5] = '0' + i;
+            rmRequest req = rmRequest(msg, respCallbackLsa, this, &syncs[i],
+                                      3000);
+            sendRequest(req);
+        }
+        syncs[i].onSync(value);
+    }
+}
+
+/**
+ * @brief Sends a request to the station
+ * 
+ * Can only handle one request at a time.
+ * 
+ * @param req The request instance with a set of parameters
+ */
+void rmClient::sendRequest(rmRequest req) {
+    request = req;
+    char msg[130];
+    snprintf(msg, 129, "$%s\n", req.getMessage());
+    msg[129] = '\0';
+    sendMessage(msg);
+}
+
+/**
+ * @brief Gets the request waiting for a response
+ * 
+ * @return The pending request
+ */
+rmRequest rmClient::getPendingRequest() const { return request; }
 
 /**
  * @brief Sets the printer for echoing messages
@@ -354,6 +399,7 @@ void rmClient::setEcho(rmEcho* printer) {
     myEcho = printer;
     m.unlock();
 }
+
 
 /**
  * @brief Echos the messages
@@ -375,6 +421,7 @@ void rmClient::echo(const char* msg, int status) {
     m.unlock();
 }
 
+
 /**
  * @brief Sets the timer to handle the onIdle() function
  * 
@@ -384,3 +431,9 @@ void rmClient::echo(const char* msg, int status) {
  * @param t The timer object
  */
 void rmClient::setTimer(rmTimerBase* t) { timer = t; }
+
+
+static void respCallbackLsa(rmResponse resp) {
+    rmSync* sync = (rmSync*) resp.userdata;
+    sync->updateList(resp.message, resp.client);
+}
