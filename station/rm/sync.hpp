@@ -46,7 +46,6 @@ class rmClient;
  */
 class RM_API rmSync {
   private:
-    uint8_t id = 0;
     rmAttribute** attributes = nullptr;
     size_t count = 0;
     
@@ -60,13 +59,6 @@ class RM_API rmSync {
      * @brief Destructor
      */
     ~rmSync();
-    
-    /**
-     * @brief Constructs the sync table with an index
-     * 
-     * @param i ID or index which is between 0 and 9
-     */
-    rmSync(uint8_t i);
     
     /**
      * @brief Copy constructor (deleted)
@@ -97,11 +89,11 @@ class RM_API rmSync {
     rmSync& operator=(rmSync&& sync) noexcept = default;
     
     /**
-     * @breif Retrive the list of attributes to work in a sync
+     * @brief Gets the attribute count in the table
      * 
-     * @param cli The client instance
+     * @return The number of attributes in the sync table
      */
-    void updateList(rmClient* cli);
+    size_t getCount() const;
     
     /**
      * @breif Updates the attribute values
@@ -109,6 +101,14 @@ class RM_API rmSync {
      * @param str The string representing the values of the list
      */
     void onSync(const char* str);
+    
+    /**
+     * @breif Retrive the list of attributes to work in a sync
+     * 
+     * @param str The string containing the name of every attribute
+     * @param cli The client instance
+     */
+    void updateList(const char* str, rmClient* cli);
 };
 
 #endif

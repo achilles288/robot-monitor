@@ -26,6 +26,7 @@
 
 
 class rmClient;
+struct rmResponse;
 
 
 /**
@@ -33,10 +34,10 @@ class rmClient;
  */
 class RM_API rmRequest {
   private:
-    rmClient* client = nullptr;
     char message[64] = {0};
-    void (*callback)(const char*) = nullptr;
-    void (*callback2)(const char*, rmClient*) = nullptr;
+    rmClient* client = nullptr;
+    void* userdata = nullptr;
+    void (*callback)(rmResponse) = nullptr;
     long timeout = 1000;
     
   public:
@@ -50,20 +51,12 @@ class RM_API rmRequest {
      * 
      * @param msg The request message
      * @param func The callback function
+     * @param cli The client instance
+     * @param d Custom data which is passed to the callback
      * @param t Timeout in milliseconds
      */
-    rmRequest(const char* msg, void (*func)(const char*), long t=1000);
-    
-    /**
-     * @brief Constructs a request instance
-     * 
-     * @param msg The request message
-     * @param func The callback function
-     * @param t Timeout in milliseconds
-     * @param cli The client instance which the callback has access to
-     */
-    rmRequest(const char* msg, void (*func)(const char*, rmClient*), long t,
-              rmClient* cli);
+    rmRequest(const char* msg, void (*func)(rmResponse), rmClient* cli,
+              void* d=nullptr, long t=1000);
     
     /**
      * @brief Gets the request message
@@ -83,6 +76,13 @@ class RM_API rmRequest {
      * @brief Triggers when a response message is recieved from the client
      */
     void onResponse(const char* msg);
+};
+
+
+struct rmResponse {
+    const char* message;
+    rmClient* client;
+    void* userdata;
 };
 
 #endif
