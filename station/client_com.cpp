@@ -29,6 +29,8 @@ static std::vector<rmClient*> clients;
 static std::thread thread;
 static std::mutex m;
 
+static void respCallbackLsa(rmResponse resp);
+
 
 #define PROCESS_DEFAULT   0b00
 #define PROCESS_STARTED   0b01
@@ -270,6 +272,9 @@ void rmClient::onDisconnected() {
     for(size_t i=0; i<widgetCount; i++) {
         widgets[i]->setEnabled(false);
     }
+    for(uint8_t i=0; i<10; i++) {
+        syncs[i] = rmSync();
+    }
     mySerial.disconnect();
     m.unlock();
 }
@@ -351,6 +356,13 @@ void rmClient::updateAttribute(rmAttribute* attr) {
  */
 void rmClient::syncUpdate(uint8_t i, const char* value) {
     if(i < 10) {
+        if(syncs[i].getCount() == 0) {
+            char msg[6] = "lsa i";
+            msg[5] = '0' + i;
+            rmRequest req = rmRequest(msg, respCallbackLsa, this, &syncs[i],
+                                      3000);
+            sendRequest(req);
+        }
         syncs[i].onSync(value);
     }
 }
@@ -419,3 +431,9 @@ void rmClient::echo(const char* msg, int status) {
  * @param t The timer object
  */
 void rmClient::setTimer(rmTimerBase* t) { timer = t; }
+
+
+static void respCallbackLsa(rmResponse resp) {
+    rmSync* sync = (rmSync*) resp.userdata;
+    sync->updateList(resp.message, resp.client);
+}

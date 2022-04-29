@@ -20,20 +20,13 @@
 
 #include "rm/attribute.hpp"
 #include "rm/client.hpp"
+#include "rm/request.hpp"
 
 #include <cstdio>
 #include <cstring>
 
 
-static void responseCallback(const char* msg, rmClient* cli);
-
-
-/**
- * @brief Constructs the sync table with an index
- * 
- * @param i ID or index which is between 0 and 9
- */
-rmSync::rmSync(uint8_t i) :id(i) {}
+static void responseCallback(rmResponse resp);
 
     
 /**
@@ -44,19 +37,12 @@ rmSync::~rmSync() {
         delete attributes;
 }
 
-
 /**
- * @breif Retrive the list of attributes to work in a sync
+ * @brief Gets the attribute count in the table
  * 
- * @param cli The client instance
+ * @return The number of attributes in the sync table
  */
-void rmSync::updateList(rmClient* cli) {
-    char msg[7];
-    snprintf(msg, 6, "lsa %d", id);
-    msg[6] = '\0';
-    rmRequest req = rmRequest(msg, responseCallback, 1000, cli);
-    cli->sendRequest(req);
-}
+size_t rmSync::getCount() const { return count; }
 
 /**
  * @breif Updates the attribute values
@@ -82,12 +68,21 @@ void rmSync::onSync(const char* str) {
 #define MAX_ATTRIBUTES_PER_SYNC 32
 
 
-static void responseCallback(const char* msg, rmClient* cli) {
-    /*char *tokens[32];
-    char *tok = strtok(msg, ",");
+/**
+ * @breif Retrive the list of attributes to work in a sync
+ * 
+ * @param str The string containing the name of every attribute
+ * @param cli The client instance
+ */
+void rmSync::updateList(const char* str, rmClient* cli) {
+    char buffer[256];
+    strncpy(buffer, str, 255);
+    buffer[255] = '\0';
+    char *tokens[MAX_ATTRIBUTES_PER_SYNC];
+    char *tok = strtok(buffer, ",");
     count = 0;
     
-    while(token != NULL) {
+    while(tok != NULL && count < MAX_ATTRIBUTES_PER_SYNC) {
         tokens[count++] = tok;
         tok = strtok(NULL, ",");
     }
@@ -97,5 +92,5 @@ static void responseCallback(const char* msg, rmClient* cli) {
     attributes = new rmAttribute*[count];
     
     for(uint8_t i=0; i<count; i++)
-        attributes[i] = cli->getAttribute(tokens[i]);*/
+        attributes[i] = cli->getAttribute(tokens[i]);
 }

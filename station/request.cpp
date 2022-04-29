@@ -24,30 +24,18 @@
  * 
  * @param msg The request message
  * @param func The callback function
+ * @param cli The client instance
+ * @param d Custom data which is passed to the callback
  * @param t Timeout in milliseconds
  */
-rmRequest::rmRequest(const char* msg, void (*func)(const char*), long t) {
-    strncpy(message, msg, 127);
-    message[127] = '\0';
-    callback = func;
-    timeout = t;
-}
-
-/**
- * @brief Constructs a request instance
- * 
- * @param msg The request message
- * @param func The callback function
- * @param t Timeout in milliseconds
- * @param cli The client instance which the callback has access to
- */
-rmRequest::rmRequest(const char* msg, void (*func)(const char*, rmClient*),
-                     long t, rmClient* cli)
+rmRequest::rmRequest(const char* msg, void (*func)(rmResponse), rmClient* cli,
+                     void* d, long t)
 {
+    strncpy(message, msg, 63);
+    message[63] = '\0';
+    callback = func;
     client = cli;
-    strncpy(message, msg, 127);
-    message[127] = '\0';
-    callback2 = func;
+    userdata = d;
     timeout = t;
 }
 
@@ -70,13 +58,11 @@ long rmRequest::getTimeout() const { return timeout; }
  */
 void rmRequest::onResponse(const char* msg) {
     if(callback != nullptr) {
-        callback(msg);
+        rmResponse resp = (rmResponse) {msg, client, userdata};
+        callback(resp);
         callback = nullptr;
-    }
-    else if(callback2 != nullptr && client != nullptr) {
-        callback2(msg, client);
-        callback2 = nullptr;
         client = nullptr;
+        userdata = nullptr;
     }
     message[0] = '\0';
 }
