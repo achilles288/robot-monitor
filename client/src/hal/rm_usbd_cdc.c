@@ -71,6 +71,7 @@ static void rmUSBDSendMessage(const char* msg) {
     rmUSBDTransmit();
 }
 
+
 /**
  * @brief Initializes the USB device connection
  */
