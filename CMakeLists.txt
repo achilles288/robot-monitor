@@ -27,11 +27,25 @@ set(CMAKE_INSTALL_FULL_INCLUDEDIR ${CMAKE_INSTALL_PREFIX}/include)
 #
 # Preparing external dependencies.
 #
-if(WIN32)
+if(UNIX)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(RMG REQUIRED rmg)
+
+else()
 set(wxWidgets_ROOT_DIR C:/wxWidgets-3.1.4)
 set(wxWidgets_CONFIGURATION mswu)
+
+set(RMG_INCLUDE_DIRS external/include)
+set(RMG_LIBRARIES rmg)
+
+link_directories(external/lib)
+
+file(COPY
+    external/bin
+    DESTINATION ${CMAKE_BINARY_DIR}
+)
 endif()
-find_package(wxWidgets 3.1)
+find_package(wxWidgets 3.1 COMPONENTS core gl)
 
 
 
@@ -80,18 +94,23 @@ add_subdirectory(station)
 # 
 # Compile definitions, include directories and libraries
 # 
-set(RMONITOR_DEFINITIONS
+set(RM_DEFINITIONS
     ${wxWidgets_DEFINITIONS}
 )
 
-set(RMONITOR_INCLUDE_DIRS
+set(RM_INCLUDE_DIRS
     ${serial_INCLUDE_DIRS}
     ${wxWidgets_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/station
 )
 
-set(RMONITOR_LIBRARIES
+set(RM_LIBRARIES
     rmonitor
     rmonitor-wx
     ${wxWidgets_LIBRARIES}
 )
+
+
+
+
+add_subdirectory(test/imu)
