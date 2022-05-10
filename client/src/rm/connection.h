@@ -20,7 +20,11 @@
 #include "hal/uart.h"
 #include "hal/usbd_cdc.h"
 #elif defined(Arduino_h)
-#include "Arduino/uart0.h"
+#include "Arduino/uart.hpp"
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 
