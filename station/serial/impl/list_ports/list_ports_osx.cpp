@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-#include "../../serial.h"
+#include "../../../rm/serial/serial.h"
 
 using serial::PortInfo;
 using std::string;

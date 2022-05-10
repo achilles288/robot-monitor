@@ -173,11 +173,9 @@ install:
 	install -Dm 644 src/rm/widget.hpp \
 		$(DESTDIR)$(prefix)/include/rm/widget.hpp
 	install -Dm 644 src/serial/serial.h \
-		$(DESTDIR)$(prefix)/include/serial/serial.h
+		$(DESTDIR)$(prefix)/include/rm/serial/serial.h
 	install -Dm 644 src/serial/v8stdint.h \
-		$(DESTDIR)$(prefix)/include/serial/v8stdint.h
-	install -Dm 644 src/serial/impl/unix.h \
-		$(DESTDIR)$(prefix)/include/serial/impl/unix.h
+		$(DESTDIR)$(prefix)/include/rm/serial/v8stdint.h
 
 clean:
 	-rm -r build
@@ -192,6 +190,5 @@ uninstall:
 	-rm -f $(DESTDIR)$(prefix)/lib/librmonitor-wx.so.$(VERSION_MAJOR)
 	-rm -f $(DESTDIR)$(prefix)/lib/librmonitor-wx.so.$(VERSION)
 	-rm -f -r $(DESTDIR)$(prefix)/include/rm
-	-rm -f -r $(DESTDIR)$(prefix)/include/serial
 
 .PHONY: all remote install clean distclean uninstall

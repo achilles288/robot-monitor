@@ -19,9 +19,9 @@ add_library(rmonitor SHARED
     rm/encryption.hpp
     rm/timerbase.hpp
     rm/widget.hpp
+    rm/serial/serial.h
+    rm/serial/v8stdint.h
     serial/serial.cpp
-    serial/serial.h
-    serial/v8stdint.h
     serial/impl/unix.cpp
     serial/impl/unix.h
     serial/impl/win.cpp

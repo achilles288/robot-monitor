@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "../../serial.h"
+#include "../../../rm/serial/serial.h"
 
 using serial::PortInfo;
 using std::istringstream;

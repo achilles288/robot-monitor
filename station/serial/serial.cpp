@@ -9,7 +9,7 @@
 # define alloca __builtin_alloca
 #endif
 
-#include "serial.h"
+#include "../rm/serial/serial.h"
 
 #ifdef _WIN32
 #include "impl/win.h"
