@@ -95,11 +95,3 @@ set(RMONITOR_LIBRARIES
     rmonitor-wx
     ${wxWidgets_LIBRARIES}
 )
-
-
-
-
-set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
-set(gtest_force_shared_crt ON CACHE BOOL "compile gtest with MD" FORCE)
-add_subdirectory(external/googletest)
-add_subdirectory(test)
