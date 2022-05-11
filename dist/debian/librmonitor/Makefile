@@ -172,9 +172,9 @@ install:
 		$(DESTDIR)$(prefix)/include/rm/timerbase.hpp
 	install -Dm 644 src/rm/widget.hpp \
 		$(DESTDIR)$(prefix)/include/rm/widget.hpp
-	install -Dm 644 src/serial/serial.h \
+	install -Dm 644 src/rm/serial/serial.h \
 		$(DESTDIR)$(prefix)/include/rm/serial/serial.h
-	install -Dm 644 src/serial/v8stdint.h \
+	install -Dm 644 src/rm/serial/v8stdint.h \
 		$(DESTDIR)$(prefix)/include/rm/serial/v8stdint.h
 
 clean:

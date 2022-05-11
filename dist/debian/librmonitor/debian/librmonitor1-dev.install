@@ -1,4 +1,3 @@
 usr/include/robotmonitor.hpp
 usr/include/rm/*
-usr/include/serial/*
 usr/lib/pkgconfig/rmonitor.pc
