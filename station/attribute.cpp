@@ -346,7 +346,7 @@ std::string rmAttribute::getValueString() const {
         return std::string(buff);
         
       case RM_ATTRIBUTE_FLOAT:
-        snprintf(buff, 15, "%f", data.f);
+        snprintf(buff, 15, "%.3f", data.f);
         buff[15] = '\0';
         return std::string(buff);
         

@@ -39,7 +39,7 @@
  */
 class RM_WX_API rmSlider: public rmWidget, public wxSlider {
   private:
-    float stepSize = 0.0f;
+    float stepSize = 1.0f;
     
   protected:
     /**

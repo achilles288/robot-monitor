@@ -42,9 +42,7 @@ long rmSlider::getWxID() {
 rmSlider::rmSlider(wxWindow* parent, rmClient* cli, const char* key, 
                    int lower, int upper)
          :rmWidget(cli),
-          wxSlider(parent, wx_id, lower, lower, upper, wxDefaultPosition,
-                   wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator,
-                   wxString(key))
+          wxSlider(parent, wx_id, lower, lower, upper)
 {
     attribute = client->createAttribute(key, RM_ATTRIBUTE_INT, lower, upper);
     if(attribute != nullptr) {

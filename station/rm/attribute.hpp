@@ -57,31 +57,6 @@ union rmAttributeData {
     int i; ///< Integer data type
     float f; ///< Floating point data type
     char* s; ///< String data type
-    
-    /**
-     * @brief Converts to a boolean
-     */
-    inline operator bool () const { return b; }
-    
-    /**
-     * @brief Converts to a character
-     */
-    inline operator char () const { return c; }
-    
-    /**
-     * @brief Converts to an integer
-     */
-    inline operator int () const { return i; }
-    
-    /**
-     * @brief Converts to a floating point
-     */
-    inline operator float () const { return f; }
-    
-    /**
-     * @brief Converts to a string
-     */
-    inline operator char* () const { return s; }
 };
 
 
