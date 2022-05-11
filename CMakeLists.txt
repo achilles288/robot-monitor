@@ -113,4 +113,6 @@ set(RM_LIBRARIES
 
 
 
+include_directories(station)
+
 add_subdirectory(test/imu)

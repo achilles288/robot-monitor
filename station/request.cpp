@@ -58,7 +58,10 @@ long rmRequest::getTimeout() const { return timeout; }
  */
 void rmRequest::onResponse(const char* msg) {
     if(callback != nullptr) {
-        rmResponse resp = (rmResponse) {msg, client, userdata};
+        rmResponse resp;
+        resp.message = msg;
+        resp.client = client;
+        resp.userdata = userdata;
         callback(resp);
         callback = nullptr;
         client = nullptr;
@@ -69,7 +72,7 @@ void rmRequest::onResponse(const char* msg) {
 
 
 void rmCallbackResp(int argc, char *argv[], rmClient* cli) {
-    if(argc < 1)
+    if(argc != 1)
         return;
     rmRequest req = cli->getPendingRequest();
     req.onResponse(argv[0]);

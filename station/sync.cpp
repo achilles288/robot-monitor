@@ -58,8 +58,15 @@ void rmSync::onSync(const char* str) {
     
     while(token != NULL && i < count) {
         rmAttribute* attr = attributes[i++];
-        if(attr != nullptr)
-            attr->setValue(*token);
+        if(attr != nullptr) {
+            rmAttributeData prev = attr->getValue();
+            attr->setValue(token);
+            if(attr->getValue().i != prev.i) {
+                rmAttributeNotifier* noti = attr->getNotifier();
+                if(noti != nullptr)
+                    noti->triggerCallback();
+            }
+        }
         token = strtok(NULL, ",");
     }
 }

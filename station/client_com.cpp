@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdarg>
 #include <cstring>
 #include <iostream>
 #include <mutex>
@@ -295,12 +296,29 @@ bool rmClient::isConnected() {
  * @brief Sends a message to the client device
  * 
  * @param msg Message string
- * @param crypt True to encrypt the message if the connection supports it
  */
-void rmClient::sendMessage(const char* msg, bool crypt) {
+void rmClient::sendMessage(const char* msg) {
     m.lock();
     mySerial.write(msg);
     m.unlock();
+}
+
+/**
+ * @brief Sends a command to the client device
+ * 
+ * @param cmd Command message string
+ * @param ... Additional arguments
+ */
+void rmClient::sendCommand(const char* cmd, ...) {
+    va_list args;
+    va_start(args, cmd);
+    char buff[256];
+    buff[0] = '$';
+    int n = vsnprintf(buff+1, 254, cmd, args);
+    buff[n+1] = '\n';
+    buff[n+2] = '\0';
+    sendMessage(buff);
+    va_end(args);
 }
 
 
@@ -318,34 +336,28 @@ char rmClient::read() {
  * @param attr The attribute
  */
 void rmClient::updateAttribute(rmAttribute* attr) {
-    char msg[160];
     const char* name = attr->getName();
     switch(attr->getType()) {
       case RM_ATTRIBUTE_BOOL:
-        snprintf(msg, 159, "$set %s %d\n", name, attr->getValue().b);
+        sendCommand("set %s %d", name, attr->getValue().b);
         break;
         
       case RM_ATTRIBUTE_CHAR:
-        snprintf(msg, 159, "$set %s %c\n", name, attr->getValue().c);
+        sendCommand("set %s %c", name, attr->getValue().c);
         break;
         
       case RM_ATTRIBUTE_INT:
-        snprintf(msg, 159, "$set %s %d\n", name, attr->getValue().i);
+        sendCommand("set %s %d", name, attr->getValue().i);
         break;
         
       case RM_ATTRIBUTE_FLOAT:
-        snprintf(msg, 159, "$set %s %f\n", name, attr->getValue().f);
+        sendCommand("set %s %.3f", name, attr->getValue().f);
         break;
         
       case RM_ATTRIBUTE_STRING:
-        snprintf(msg, 159, "$set %s %s\n", name, attr->getValue().s);
+        sendCommand("set %s %s", name, attr->getValue().s);
         break;
-        
-      default:
-        msg[0] = '\0';
     }
-    msg[159] = '\0';
-    sendMessage(msg);
 }
 
 /**
@@ -358,12 +370,14 @@ void rmClient::syncUpdate(uint8_t i, const char* value) {
     if(i < 10) {
         if(syncs[i].getCount() == 0) {
             char msg[6] = "lsa i";
-            msg[5] = '0' + i;
+            msg[4] = '0' + i;
             rmRequest req = rmRequest(msg, respCallbackLsa, this, &syncs[i],
                                       3000);
             sendRequest(req);
         }
-        syncs[i].onSync(value);
+        else {
+            syncs[i].onSync(value);
+        }
     }
 }
 
@@ -376,10 +390,7 @@ void rmClient::syncUpdate(uint8_t i, const char* value) {
  */
 void rmClient::sendRequest(rmRequest req) {
     request = req;
-    char msg[130];
-    snprintf(msg, 129, "$%s\n", req.getMessage());
-    msg[129] = '\0';
-    sendMessage(msg);
+    sendCommand(req.getMessage());
 }
 
 /**

@@ -247,6 +247,13 @@ int rmClient::binarySearch2(int low, int high, const char* key) const {
     }
 }
 
+/**
+ * @brief Appends a call to the list
+ * 
+ * @param call The call object
+ * 
+ * @return True if the new call is added and false when it already exists
+ */
 bool rmClient::appendCall(rmCall* call) {
     size_t pos = 0;
     if(callCount > 0) {

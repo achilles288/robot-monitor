@@ -28,16 +28,6 @@ long rmButton::getWxID() {
 }
 
 /**
- * @brief Sends  a message to the client device
- * 
- * @param msg Message string
- * @param crypt True to encrypt the message if the connection supports it
- */
-void rmButton::sendMessage(const char* msg, bool crypt) {
-    client->sendMessage(msg, crypt);
-}
-
-/**
  * @brief Constructs a button widget
  * 
  * @param parent The parent window
@@ -79,9 +69,6 @@ void rmButton::setEnabled(bool en) { Enable(en); }
  * @param evt The event object
  */
 void rmButton::onClick(wxCommandEvent& evt) {
-    if(strlen(command)) {
-        char buff[130];
-        sprintf(buff, "$%s\n", command);
-        client->sendMessage(buff);
-    }
+    if(strlen(command))
+        client->sendCommand(command);
 }
