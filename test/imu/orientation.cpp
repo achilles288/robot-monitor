@@ -94,13 +94,13 @@ OrientationCanvas::OrientationCanvas(wxFrame* frame, rmClient* cli)
     attrPitch = cli->getAttribute("pitch");
     attrYaw = cli->getAttribute("yaw");
     
-    azimuth = 0;
-    elevation = 0;
-    distance = 15;
+    azimuth = rmg::radian(118.5f);
+    elevation = rmg::radian(36);
+    distance = 20;
     setBackgroundColor(0.847f, 0.949f, 1.0f);
     setDirectionalLightAngles(rmg::radian(75), rmg::radian(30));
     setDirectionalLightColor(1, 1, 1, 2);
-    setPerspectiveProjection(rmg::radian(45), 2.0f, 40.0f);
+    setPerspectiveProjection(rmg::radian(30), 2.0f, 60.0f);
     setupCamera();
     
     rmg::Line3D* line;
@@ -108,7 +108,19 @@ OrientationCanvas::OrientationCanvas(wxFrame* frame, rmClient* cli)
     line->setPoints(rmg::Vec3(-8, 0, 0), rmg::Vec3(8, 0, 0));
     addObject(line);
     line = new rmg::Line3D(this, 0.1f);
+    line->setPoints(rmg::Vec3(7.5f, -0.5f, 0), rmg::Vec3(8, 0, 0));
+    addObject(line);
+    line = new rmg::Line3D(this, 0.1f);
+    line->setPoints(rmg::Vec3(7.5f, 0.5f, 0), rmg::Vec3(8, 0, 0));
+    addObject(line);
+    line = new rmg::Line3D(this, 0.1f);
     line->setPoints(rmg::Vec3(0, -8, 0), rmg::Vec3(0, 8, 0));
+    addObject(line);
+    line = new rmg::Line3D(this, 0.1f);
+    line->setPoints(rmg::Vec3(-0.5f, 7.5f, 0), rmg::Vec3(0, 8, 0));
+    addObject(line);
+    line = new rmg::Line3D(this, 0.1f);
+    line->setPoints(rmg::Vec3(0.5f, 7.5f, 0), rmg::Vec3(0, 8, 0));
     addObject(line);
     line = new rmg::Line3D(this, 0.1f);
     line->setPoints(rmg::Vec3(0, 0, -5), rmg::Vec3(0, 0, 5));
@@ -131,7 +143,7 @@ OrientationCanvas::OrientationCanvas(wxFrame* frame, rmClient* cli)
     walls[1]->setTranslation(0, 10, 0);
     walls[2]->setTranslation(-10, 0, 0);
     walls[3]->setTranslation(0, -10, 0);
-    walls[2]->setHidden(true);
+    walls[3]->setHidden(true);
     
     model = new rmg::Object3D(this, RMG_RESOURCE_PATH "/models/teapot.obj");
     model->setColor(0, 1.0f, 0.2f);
@@ -143,9 +155,9 @@ OrientationCanvas::OrientationCanvas(wxFrame* frame, rmClient* cli)
 }
 
 void OrientationCanvas::update() {
-    float roll = attrRoll->getValue();
-    float pitch = attrPitch->getValue();
-    float yaw = attrYaw->getValue();
+    float roll = attrRoll->getValue().f;
+    float pitch = attrPitch->getValue().f;
+    float yaw = attrYaw->getValue().f;
     model->setRotation(roll, pitch, yaw, rmg::AngleUnit::Degree);
 }
 

@@ -35,6 +35,9 @@ class MagnetometerSection: public Section {
 };
 
 
+#define MAG_MAX_PLOT_COUNT 8192
+
+
 class MagnetometerCanvas: public rmg::wxCanvas, rmCall {
     class Plane {
       protected:
@@ -118,14 +121,14 @@ class MagnetometerCanvas: public rmg::wxCanvas, rmCall {
     rmClient* client;
     rmAttribute* attrMode;
     rmAttribute* attrCount;
-    rmg::Particle3D *plot[8192];
+    rmg::Vec3 plot[MAG_MAX_PLOT_COUNT];
     uint16_t plotCount = 0;
-    float xmax = -999999.999;
-    float ymax = -999999.999;
-    float zmax = -999999.999;
-    float xmin = 999999.999;
-    float ymin = 999999.999;
-    float zmin = 999999.999;
+    float xmax_ = -999999.999;
+    float ymax_ = -999999.999;
+    float zmax_ = -999999.999;
+    float xmin_ = 999999.999;
+    float ymin_ = 999999.999;
+    float zmin_ = 999999.999;
     float radius = 0;
     rmg::Vec3 offset;
     
@@ -135,6 +138,7 @@ class MagnetometerCanvas: public rmg::wxCanvas, rmCall {
     AxisX axis1;
     AxisY axis2;
     AxisZ axis3;
+    rmg::Particle3D *dots[MAG_MAX_PLOT_COUNT];
     float azimuth, elevation, fov;
     
     void setupCamera();
@@ -144,7 +148,7 @@ class MagnetometerCanvas: public rmg::wxCanvas, rmCall {
     
     void clear();
     
-    void calculateMatrix();
+    rmg::Mat4 calculateMatrix();
     
     void onMouseMove(const rmg::MouseEvent &event) override;
     

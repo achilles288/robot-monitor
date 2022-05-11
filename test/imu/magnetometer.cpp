@@ -50,7 +50,13 @@ class magCalculateButton: public rmButton {
     }
     
     void onClick(wxCommandEvent& evt) {
-        analyzer->calculateMatrix();
+        rmg::Mat4 M = analyzer->calculateMatrix();
+        client->sendCommand("cali-mag %d %f %f %f %f", 0,
+                            M[0][0], M[0][1], M[0][2], M[0][3]);
+        client->sendCommand("cali-mag %d %f %f %f %f", 1,
+                            M[1][0], M[1][1], M[1][2], M[1][3]);
+        client->sendCommand("cali-mag %d %f %f %f %f", 2,
+                            M[2][0], M[2][1], M[2][2], M[2][3]);
     }
 };
 
@@ -72,10 +78,10 @@ MagnetometerSection::MagnetometerSection(wxFrame* frame, wxBoxSizer* sizer1,
                                           "Start Scanning");
     wxButton* btnStopScan = new rmButton(frame, cli, "set mag-scan 0",
                                          "Stop Scanning");
-    wxButton* btnClearScan = new magClearButton(frame, cli, "",
-                                                "Clear Scanning");
-    wxButton* btnCalcMat = new magCalculateButton(frame, cli, "",
-                                                  "Calculate Matrix");
+    magClearButton* btnClearScan = new magClearButton(frame, cli, "",
+                                                      "Clear Scanning");
+    magCalculateButton* btnCalcMat = new magCalculateButton(frame, cli, "",
+                                                           "Calculate Matrix");
     
     // Set properties
     radioMagMode->SetSelection(0);
@@ -104,6 +110,9 @@ MagnetometerSection::MagnetometerSection(wxFrame* frame, wxBoxSizer* sizer1,
     sizerFocus = new wxBoxSizer(wxHORIZONTAL);
     sizerFocus->Add(canvas, 1, wxEXPAND, 0);
     sizer1->Add(sizerFocus, 1, wxEXPAND, 0);
+    
+    btnClearScan->setAnalyzer(canvas);
+    btnCalcMat->setAnalyzer(canvas);
 }
 
 
@@ -238,9 +247,10 @@ MagnetometerCanvas::MagnetometerCanvas(wxFrame* frame, rmClient* cli)
     client = cli;
     attrMode = cli->getAttribute("mag-mode");
     attrCount = cli->getAttribute("mag-dsize");
+    cli->appendCall(this);
     
-    azimuth = 0;
-    elevation = 0;
+    azimuth = rmg::radian(120);
+    elevation = rmg::radian(30);
     fov = 17;
     setBackgroundColor(0.95f, 0.95f, 0.95f);
     plane1 = PlaneYZ(this);
@@ -252,14 +262,14 @@ MagnetometerCanvas::MagnetometerCanvas(wxFrame* frame, rmClient* cli)
     axis3 = AxisZ(this);
     setupCamera();
     
-    plot[0] = new rmg::Particle3D(this, RMG_RESOURCE_PATH "/dot.png");
-    plot[0]->setColor(0.1f, 0.1f, 1);
-    plot[0]->setSize(0.3f, 0.3f);
-    plot[0]->setHidden(true);
-    addObject(plot[0]);
-    for(int i=1; i<8192; i++) {
-        plot[i] = new rmg::Particle3D(*plot[0]);
-        addObject(plot[i]);
+    dots[0] = new rmg::Particle3D(this, RMG_RESOURCE_PATH "/dot.png");
+    dots[0]->setColor(0.1f, 0.1f, 1);
+    dots[0]->setSize(0.3f, 0.3f);
+    dots[0]->setHidden(true);
+    addObject(dots[0]);
+    for(uint16_t i=1; i<MAG_MAX_PLOT_COUNT; i++) {
+        dots[i] = new rmg::Particle3D(*dots[0]);
+        addObject(dots[i]);
     }
 }
 
@@ -282,20 +292,93 @@ void MagnetometerCanvas::onMouseMove(const rmg::MouseEvent &event) {
 }
 
 void MagnetometerCanvas::clear() {
-    for(int i=0; i<plotCount; i++)
-        plot[i]->setHidden(true);
+    for(uint16_t i=0; i<plotCount; i++)
+        dots[i]->setHidden(true);
     plotCount = 0;
-    xmax = -999999.999;
-    ymax = -999999.999;
-    zmax = -999999.999;
-    xmin = 999999.999;
-    ymin = 999999.999;
-    zmin = 999999.999;
+    attrCount->setValue(0);
+    attrCount->getNotifier()->triggerCallback();
+    xmax_ = -999999.999;
+    ymax_ = -999999.999;
+    zmax_ = -999999.999;
+    xmin_ = 999999.999;
+    ymin_ = 999999.999;
+    zmin_ = 999999.999;
     radius = 0;
 }
 
-void MagnetometerCanvas::calculateMatrix() {
+rmg::Mat4 MagnetometerCanvas::calculateMatrix() {
+    // Rotation matrix R1
+    uint16_t ip = 0;
+    uint16_t iq = 0;
+    float dmax = 0;
+    float dmin = 999999.999;
     
+    for(uint16_t i=0; i<plotCount; i++) {
+        float d = (plot[i] - offset).magnitude();
+        if(d > dmax) {
+            ip = i;
+            dmax = d;
+        }
+        if(d < dmin) {
+            iq = i;
+            dmin = d;
+        }
+    }
+    rmg::Vec3 p = plot[ip].normalize();
+    rmg::Vec3 q = plot[iq].normalize();
+    rmg::Vec3 r = (p * q).normalize();
+    q = (r * p).normalize();
+    rmg::Mat4 T = {
+        {1, 0, 0, -offset.x},
+        {0, 1, 0, -offset.y},
+        {0, 0, 1, -offset.z},
+        {0, 0, 0,      1   },
+    };
+    rmg::Mat4 R1 = {
+        {p.x, p.y, p.z, 0},
+        {q.x, q.y, q.z, 0},
+        {r.x, r.y, r.z, 0},
+        { 0 ,  0 ,  0 , 1},
+    };
+    
+    // Scale matrix S
+    rmg::Mat4 M = R1 * T;
+    float xmin = 999999999.999;
+    float ymin = 999999999.999;
+    float zmin = 999999999.999;
+    float xmax = -999999999.999;
+    float ymax = -999999999.999;
+    float zmax = -999999999.999;
+    
+    for(uint16_t i=0; i<plotCount; i++) {
+        rmg::Vec3 v = rmg::Vec3(M * rmg::Vec4(plot[i]));
+        
+        if(v.x < xmin)
+            xmin = v.x;
+        if(v.x > xmax)
+            xmax = v.x;
+        
+        if(v.y < ymin)
+            ymin = v.y;
+        if(v.y > ymax)
+            ymax = v.y;
+        
+        if(v.z < zmin)
+            zmin = v.z;
+        if(v.y > zmax)
+            zmax = v.z;
+    }
+    rmg::Mat4 S;
+    S[0][0] = 2.0f / (xmax - xmin);
+    S[1][1] = 2.0f / (ymax - ymin);
+    S[2][2] = 2.0f / (zmax - zmin);
+    
+    // Rotation matrix R2
+    rmg::Mat4 R2 = R1.inverse();
+    
+    // M = R2 * S * R1 * T
+    M = R2 * S * M;
+    return M;
 }
 
 void MagnetometerCanvas::onMouseWheel(const rmg::MouseEvent &event) {
@@ -322,7 +405,7 @@ void MagnetometerCanvas::setupCamera() {
 }
 
 void MagnetometerCanvas::invoke(int argc, char *argv[]) {
-    if(argc != 3 || plotCount == 8192)
+    if(argc != 3 || plotCount == MAG_MAX_PLOT_COUNT)
         return;
     
     bool toCalibrate = false;
@@ -336,27 +419,33 @@ void MagnetometerCanvas::invoke(int argc, char *argv[]) {
     
     // Filters the points
     if(toCalibrate) {
-        if(plotCount > 10 && plotCount < 50) {
-            if(r > 2 * radius)
-                return;
-        }
-        else if(plotCount < 100) {
-            if(r > 1.5f * radius)
-                return;
-        }
-        else if(plotCount < 1000) {
-            if(r > 1.25f * radius)
-                return;
-        }
-        else {
+        if(plotCount > 1000) {
             if(r > 1.1f * radius)
+                return;
+        }
+        else if(plotCount > 100) {
+            if(r > 1.25 * radius)
+                return;
+        }
+        else if(plotCount > 50) {
+            if(r > 1.5 * radius)
+                return;
+        }
+        else if(plotCount > 10) {
+            if(r > 2 * radius)
                 return;
         }
     }
     
     // Adds a new point
-    plot[plotCount]->setTranslation(x, y, z);
-    plot[plotCount]->setHidden(false);
+    plot[plotCount].x = x;
+    plot[plotCount].y = y;
+    plot[plotCount].z = z;
+    float scale = 5;
+    if(toCalibrate)
+        scale = 0.01f;
+    dots[plotCount]->setTranslation(x*scale, y*scale, z*scale);
+    dots[plotCount]->setHidden(false);
     plotCount++;
     attrCount->setValue(plotCount);
     attrCount->getNotifier()->triggerCallback();
@@ -365,27 +454,27 @@ void MagnetometerCanvas::invoke(int argc, char *argv[]) {
     if(!toCalibrate)
         return;
     
-    if(x < xmin)
-        xmin = x;
-    else if(x > xmax)
-        xmax = x;
+    if(x < xmin_)
+        xmin_ = x;
+    if(x > xmax_)
+        xmax_ = x;
     
-    if(y < ymin)
-        ymin = y;
-    else if(y > ymax)
-        ymax = y;
+    if(y < ymin_)
+        ymin_ = y;
+    if(y > ymax_)
+        ymax_ = y;
     
-    if(z < zmin)
-        zmin = z;
-    else if(y > zmax)
-        zmax = z;
+    if(z < zmin_)
+        zmin_ = z;
+    if(y > zmax_)
+        zmax_ = z;
     
-    offset.x = (xmax + xmin) / 2.0f;
-    offset.y = (ymax + ymin) / 2.0f;
-    offset.z = (zmax + zmin) / 2.0f;
-    float xdist = xmax - xmin;
-    float ydist = ymax - ymin;
-    float zdist = zmax - zmin;
+    offset.x = (xmax_ + xmin_) / 2.0f;
+    offset.y = (ymax_ + ymin_) / 2.0f;
+    offset.z = (zmax_ + zmin_) / 2.0f;
+    float xdist = xmax_ - xmin_;
+    float ydist = ymax_ - ymin_;
+    float zdist = zmax_ - zmin_;
     if(xdist > ydist)
         radius = (xdist > zdist) ? (xdist / 2.0f) : (zdist / 2.0f);
     else
