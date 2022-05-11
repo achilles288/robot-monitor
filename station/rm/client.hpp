@@ -78,7 +78,6 @@ class RM_API rmClient {
     int binarySearch1(int low, int high, const char* key) const;
     int binarySearch2(int low, int high, const char* key) const;
     bool appendAttribute(rmAttribute* attr);
-    bool appendCall(rmCall* call);
     void startConnection();
     char read();
     
@@ -193,6 +192,15 @@ class RM_API rmClient {
     rmCall* getCall(const char* key);
     
     /**
+     * @brief Appends a call to the list
+     * 
+     * @param call The call object
+     * 
+     * @return True if the new call is added and false when it already exists
+     */
+    bool appendCall(rmCall* call);
+    
+    /**
      * @brief Removes a call from the map by name
      * 
      * @param key Unique name
@@ -266,9 +274,16 @@ class RM_API rmClient {
      * @brief Sends a message to the client device
      * 
      * @param msg Message string
-     * @param crypt True to encrypt the message if the connection supports it
      */
-    void sendMessage(const char* msg, bool crypt=true);
+    void sendMessage(const char* msg);
+    
+    /**
+     * @brief Sends a command to the client device
+     * 
+     * @param cmd Command message string
+     * @param ... Additional arguments
+     */
+    void sendCommand(const char* cmd, ...);
     
     /**
      * @brief Sends the value of attribute to the client
