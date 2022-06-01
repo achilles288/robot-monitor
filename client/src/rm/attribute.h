@@ -53,6 +53,7 @@ typedef enum _rmAttributeDataType {
 typedef struct _rmOutputAttribute {
     char name[12]; ///< Unique name of the attribute (maximum length is 11)
     void* data; ///< The pointer of the data which the key links with
+    uint8_t cap; ///< The allocated memory size for the string data
     rmAttributeDataType type; ///< The data type
 } rmOutputAttribute;
 

@@ -76,6 +76,7 @@ class RM_API rmAttribute {
     rmAttributeNotifier* notifier = nullptr;
     char name[12] = {0};
     rmAttributeData data;
+    uint8_t cap = 0;
     rmAttributeDataType type = RM_ATTRIBUTE_STRING;
     float lowerBound;
     float upperBound;

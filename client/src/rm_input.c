@@ -20,6 +20,7 @@
 typedef struct _rmInputAttribute {
     char name[12];
     void *data;
+    uint8_t cap;
     rmAttributeDataType type;
     float lowerBound;
     float upperBound;
