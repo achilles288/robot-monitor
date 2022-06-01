@@ -79,14 +79,14 @@ class RM_WX_API rmSpinCtrl: public rmWidget, public wxSpinCtrl {
      * Triggers when the value of attribute is changed by the client device's
      * reports.
      */
-    void onAttributeChange() override;
+    virtual void onAttributeChange() override;
     
     /**
      * @brief Updates the attribute value as the number is changed
      * 
      * @param evt The event object
      */
-    void onUpdate(wxSpinEvent& evt);
+    virtual void onUpdate(wxSpinEvent& evt);
 };
 
 #endif

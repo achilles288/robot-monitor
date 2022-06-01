@@ -77,7 +77,7 @@ class RM_WX_API rmGauge: public rmWidget, public wxGauge {
      * Triggers when the value of attribute is changed by the client device's
      * reports.
      */
-    void onAttributeChange() override;
+    virtual void onAttributeChange() override;
 };
 
 #endif

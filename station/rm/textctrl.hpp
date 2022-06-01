@@ -79,21 +79,21 @@ class RM_WX_API rmTextCtrl: public rmWidget, public wxTextCtrl {
      * Triggers when the value of attribute is changed by the client device's
      * reports.
      */
-    void onAttributeChange() override;
+    virtual void onAttributeChange() override;
     
     /**
      * @brief Updates the attribute value along with what is in the text box
      * 
      * @param evt The event object
      */
-    void onEnter(wxCommandEvent& evt);
+    virtual void onEnter(wxCommandEvent& evt);
     
     /**
      * @brief Updates the attribute value along with what is in the text box
      * 
      * @param evt The event object
      */
-    void onFocusLoss(wxFocusEvent& evt);
+    virtual void onFocusLoss(wxFocusEvent& evt);
 };
 
 #endif

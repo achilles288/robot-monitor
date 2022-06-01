@@ -77,14 +77,14 @@ class RM_WX_API rmRadioBox: public rmWidget, public wxRadioBox {
      * Triggers when the value of attribute is changed by the client device's
      * reports.
      */
-    void onAttributeChange() override;
+    virtual void onAttributeChange() override;
     
     /**
      * @brief Triggers when a radio button is selected
      * 
      * @param evt The event object
      */
-    void onRadio(wxCommandEvent& evt);
+    virtual void onRadio(wxCommandEvent& evt);
 };
 
 #endif

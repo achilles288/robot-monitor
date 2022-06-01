@@ -64,7 +64,7 @@ void rmSync::onSync(const char* str) {
             if(attr->getValue().i != prev.i) {
                 rmAttributeNotifier* noti = attr->getNotifier();
                 if(noti != nullptr)
-                    noti->triggerCallback();
+                    noti->onAttributeChange();
             }
         }
         token = strtok(NULL, ",");

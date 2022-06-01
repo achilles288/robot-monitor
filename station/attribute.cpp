@@ -418,22 +418,6 @@ void rmAttribute::setNotifier(rmAttributeNotifier* noti) { notifier = noti; }
  */
 rmAttributeNotifier* rmAttribute::getNotifier() const { return notifier; }
 
-
-
-
-/**
- * @brief Triggers the member or custom callback
- * 
- * When the custom callback is set, the member function which is triggered at
- * the same instance is not called.
- */
-void rmAttributeNotifier::triggerCallback() {
-    if(customCallback != nullptr)
-        customCallback();
-    else
-        onAttributeChange();
-}
-
 /**
  * @brief Triggers on attribute value change
  * 
@@ -441,15 +425,3 @@ void rmAttributeNotifier::triggerCallback() {
  * reports.
  */
 void rmAttributeNotifier::onAttributeChange() {}
-
-/**
- * @brief Sets the custom function to be called on value change
- * 
- * When the custom callback is set, the member function which is triggered at
- * the same instance is not called.
- * 
- * @param func The function that is not a member of a class
- */
-void rmAttributeNotifier::setCustomCallback(void (*func)()) {
-    customCallback = func;
-}

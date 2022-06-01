@@ -262,9 +262,6 @@ class RM_API rmAttribute {
  *        attribute
  */
 class RM_API rmAttributeNotifier {
-  private:
-    void (*customCallback)() = nullptr;
-    
   protected:
     rmAttribute* attribute = nullptr; ///< The attribute to track
     
@@ -275,27 +272,12 @@ class RM_API rmAttributeNotifier {
     rmAttributeNotifier() = default;
     
     /**
-     * @brief Triggers the member or custom callback
-     */
-    void triggerCallback();
-    
-    /**
      * @brief Triggers on attribute value change
      * 
      * Triggers when the value of attribute is changed by the client device's
      * reports.
      */
     virtual void onAttributeChange();
-    
-    /**
-     * @brief Sets the custom function to be called on value change
-     * 
-     * When the custom callback is set, the member function which is triggered
-     * at the same instance is not called.
-     * 
-     * @param func The function that is not a member of a class
-     */
-    void setCustomCallback(void (*func)());
 };
 
 #endif

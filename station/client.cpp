@@ -408,7 +408,7 @@ static void callbackSet(int argc, char *argv[], rmClient* cli) {
         if(attr->getValue().i != prev.i) {
             rmAttributeNotifier* noti = attr->getNotifier();
             if(noti != nullptr)
-                noti->triggerCallback();
+                noti->onAttributeChange();
         }
     }
 }

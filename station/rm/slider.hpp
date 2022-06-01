@@ -92,14 +92,14 @@ class RM_WX_API rmSlider: public rmWidget, public wxSlider {
      * Triggers when the value of attribute is changed by the client device's
      * reports.
      */
-    void onAttributeChange() override;
+    virtual void onAttributeChange() override;
     
     /**
      * @brief Updates the attribute value along with the slider position
      * 
      * @param evt The event object
      */
-    void onSlide(wxCommandEvent& evt);
+    virtual void onSlide(wxCommandEvent& evt);
 };
 
 #endif

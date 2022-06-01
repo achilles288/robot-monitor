@@ -87,7 +87,7 @@ class RM_WX_API rmStaticText: public rmWidget, public wxStaticText {
      * Triggers when the value of attribute is changed by the client device's
      * reports.
      */
-    void onAttributeChange() override;
+    virtual void onAttributeChange() override;
 };
 
 #endif

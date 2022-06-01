@@ -80,14 +80,14 @@ class RM_WX_API rmCheckBox: public rmWidget, public wxCheckBox {
      * Triggers when the value of attribute is changed by the client device's
      * reports.
      */
-    void onAttributeChange() override;
+    virtual void onAttributeChange() override;
     
     /**
      * @brief Triggers when the check box is checked or unchecked
      * 
      * @param evt The event object
      */
-    void onCheck(wxCommandEvent& evt);
+    virtual void onCheck(wxCommandEvent& evt);
 };
 
 #endif
