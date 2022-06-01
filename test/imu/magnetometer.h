@@ -80,7 +80,11 @@ class MagnetometerCanvas: public rmg::wxCanvas, rmCall {
     
     class Axis {
       protected:
-        rmg::Line3D *axis;
+        rmg::Context *context = nullptr;
+        rmg::Line3D *axis = nullptr;
+        rmg::Text2D *label = nullptr;
+        rmg::Text2D *scale[3];
+        char labelText[7];
         int8_t a = 0;
         int8_t b = 0;
         
@@ -88,6 +92,12 @@ class MagnetometerCanvas: public rmg::wxCanvas, rmCall {
         Axis() = default;
         
         Axis(rmg::Context* ctx);
+        
+        void setFont(rmg::Font* ft1, rmg::Font* ft2);
+        
+        void setScale(float s);
+        
+        void setHidden(bool b);
     };
     
     class AxisX: public Axis {
@@ -148,7 +158,11 @@ class MagnetometerCanvas: public rmg::wxCanvas, rmCall {
     
     void clear();
     
+    void setScale(float s);
+    
     rmg::Mat4 calculateMatrix();
+    
+    void onResize() override;
     
     void onMouseMove(const rmg::MouseEvent &event) override;
     

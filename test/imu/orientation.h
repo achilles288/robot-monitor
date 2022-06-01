@@ -17,6 +17,7 @@
 
 #include <rm/client.hpp>
 #include <rmg/object3d.hpp>
+#include <rmg/text2d.hpp>
 #include <rmg/wxcanvas.hpp>
 #include <wx/wx.h>
 
@@ -41,6 +42,9 @@ class OrientationCanvas: public rmg::wxCanvas {
     rmAttribute* attrYaw;
     rmg::Object3D* model;
     rmg::Object3D *walls[4];
+    rmg::Text2D* xAxis;
+    rmg::Text2D* yAxis;
+    rmg::Text2D* zAxis;
     float azimuth, elevation, distance;
     
     void setupCamera();
@@ -49,6 +53,8 @@ class OrientationCanvas: public rmg::wxCanvas {
     OrientationCanvas(wxFrame* frame, rmClient* cli);
     
     void update() override;
+    
+    void onResize() override;
     
     void onMouseMove(const rmg::MouseEvent &event) override;
     

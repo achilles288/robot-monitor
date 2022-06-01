@@ -28,7 +28,7 @@ class magClearButton: public rmButton {
         analyzer = cv;
     }
     
-    void onClick(wxCommandEvent& evt) {
+    void onClick(wxCommandEvent& evt) override {
         analyzer->clear();
     }
 };
@@ -49,7 +49,7 @@ class magCalculateButton: public rmButton {
         analyzer = cv;
     }
     
-    void onClick(wxCommandEvent& evt) {
+    void onClick(wxCommandEvent& evt) override {
         rmg::Mat4 M = analyzer->calculateMatrix();
         client->sendCommand("cali-mag %d %f %f %f %f", 0,
                             M[0][0], M[0][1], M[0][2], M[0][3]);
@@ -57,6 +57,33 @@ class magCalculateButton: public rmButton {
                             M[1][0], M[1][1], M[1][2], M[1][3]);
         client->sendCommand("cali-mag %d %f %f %f %f", 2,
                             M[2][0], M[2][1], M[2][2], M[2][3]);
+    }
+};
+
+
+
+
+class magModeRadio: public rmRadioBox {
+  private:
+    MagnetometerCanvas* analyzer;
+    
+  public:
+    magModeRadio(wxWindow* parent, rmClient* cli, const char* key,
+                 int count, const wxString choices[])
+        :rmRadioBox(parent, cli, key, count, choices)
+    {}
+    
+    void setAnalyzer(MagnetometerCanvas* cv) {
+        analyzer = cv;
+    }
+    
+    void onRadio(wxCommandEvent& evt)  {
+        rmRadioBox::onRadio(evt);
+        int i = attribute->getValue().i;
+        if(i == 0)
+            analyzer->setScale(500);
+        else if(i == 1)
+            analyzer->setScale(1);
     }
 };
 
@@ -72,8 +99,8 @@ MagnetometerSection::MagnetometerSection(wxFrame* frame, wxBoxSizer* sizer1,
         wxT("Calibration"),
         wxT("Testing"),
     };
-    wxRadioBox* radioMagMode = new rmRadioBox(frame, cli, "mag-mode", 2,
-                                              radioMagMode_choices);
+    magModeRadio* radioMagMode = new magModeRadio(frame, cli, "mag-mode", 2,
+                                                  radioMagMode_choices);
     wxButton* btnStartScan = new rmButton(frame, cli, "set mag-scan 1",
                                           "Start Scanning");
     wxButton* btnStopScan = new rmButton(frame, cli, "set mag-scan 0",
@@ -113,6 +140,7 @@ MagnetometerSection::MagnetometerSection(wxFrame* frame, wxBoxSizer* sizer1,
     
     btnClearScan->setAnalyzer(canvas);
     btnCalcMat->setAnalyzer(canvas);
+    radioMagMode->setAnalyzer(canvas);
 }
 
 
@@ -120,10 +148,16 @@ MagnetometerSection::MagnetometerSection(wxFrame* frame, wxBoxSizer* sizer1,
 
 MagnetometerCanvas::Plane::Plane(rmg::Context* ctx) {
     for(int i=0; i<11; i++) {
-        gridLines1[i] = new rmg::Line3D(ctx, 0.05f, rmg::Color(0.5f,0.5f,0.5f));
-        gridLines2[i] = new rmg::Line3D(ctx, 0.05f, rmg::Color(0.5f,0.5f,0.5f));
+        gridLines1[i] = new rmg::Line3D(ctx, 0.05f, rmg::Color(0.6f,0.6f,0.6f));
+        gridLines2[i] = new rmg::Line3D(ctx, 0.05f, rmg::Color(0.6f,0.6f,0.6f));
         ctx->addObject(gridLines1[i]);
         ctx->addObject(gridLines2[i]);
+    }
+    for(int i=0; i<11; i+=5) {
+        gridLines1[i]->setColor(0.4f, 0.4f, 0.4f);
+        gridLines2[i]->setColor(0.4f, 0.4f, 0.4f);
+        gridLines1[i]->setThickness(0.06f);
+        gridLines2[i]->setThickness(0.06f);
     }
 }
 
@@ -182,17 +216,67 @@ void MagnetometerCanvas::PlaneXY::movePlane(int8_t s) {
 }
 
 MagnetometerCanvas::Axis::Axis(rmg::Context* ctx) {
+    context = ctx;
     axis = new rmg::Line3D(ctx, 0.1f, rmg::Color(0,0,0));
     ctx->addObject(axis);
+}
+
+void MagnetometerCanvas::Axis::setFont(rmg::Font* ft1, rmg::Font* ft2) {
+    if(label != nullptr)
+        return;
+    label = new rmg::Text2D(context, ft1, labelText);
+    label->setColor(0, 0, 0);
+    context->addObject(label);
+    for(int i=0; i<3; i++) {
+        scale[i] = new rmg::Text2D(context, ft2);
+        scale[i]->setColor(0, 0, 0);
+        context->addObject(scale[i]);
+    }
+    scale[1]->setText("0");
+    setScale(500);
+}
+
+void MagnetometerCanvas::Axis::setScale(float s) {
+    char msg[6];
+    if(s > 1.0f)
+        snprintf(msg, 5, "-%d", (int)(s+0.5f));
+    else
+        snprintf(msg, 5, "-%.1f", s);
+    msg[5] = '\0';
+    
+    scale[0]->setText(&msg[0]);
+    scale[2]->setText(&msg[1]);
+}
+
+void MagnetometerCanvas::Axis::setHidden(bool b) {
+    label->setHidden(b);
+    for(int i=0; i<3; i++)
+        scale[i]->setHidden(b);
 }
 
 MagnetometerCanvas::AxisX::AxisX(rmg::Context* ctx)
                           :Axis(ctx)
 {
-    axis->setColor(1, 0, 0);
+    strcpy(labelText, "X-Axis");
 }
 
 void MagnetometerCanvas::AxisX::moveAxis(int8_t a, int8_t b) {
+    rmg::Rect rect = context->getContextSize();
+    uint16_t l = (rect.x < rect.y) ? rect.x : rect.y;
+    if(l < 200)
+        l = 200;
+    float d1 = 6.25f + 250.0f/l;
+    float d2 = 5.55f + 75.0f/l;
+    float d3 = 5.0f - 175.0f/l;
+    
+    for(int i=0; i<3; i++) {
+        int x = i-1;
+        rect = context->worldToScreen(d3*x, d2*a, d2*b);
+        scale[i]->setScreenCoordinate(rect);
+    }
+    rect = context->worldToScreen(1.25f, d1*a, d1*b);
+    label->setScreenCoordinate(rect);
+    
     if(a == this->a && b == this->b)
         return;
     for(int i=0; i<11; i++) {
@@ -207,10 +291,26 @@ void MagnetometerCanvas::AxisX::moveAxis(int8_t a, int8_t b) {
 MagnetometerCanvas::AxisY::AxisY(rmg::Context* ctx)
                           :Axis(ctx)
 {
-    axis->setColor(0, 1, 0);
+    strcpy(labelText, "Y-Axis");
 }
 
 void MagnetometerCanvas::AxisY::moveAxis(int8_t a, int8_t b) {
+    rmg::Rect rect = context->getContextSize();
+    uint16_t l = (rect.x < rect.y) ? rect.x : rect.y;
+    if(l < 200)
+        l = 200;
+    float d1 = 6.25f + 250.0f/l;
+    float d2 = 5.55f + 75.0f/l;
+    float d3 = 5.0f - 175.0f/l;
+    
+    for(int i=0; i<3; i++) {
+        int y = i-1;
+        rect = context->worldToScreen(d2*a, d3*y, d2*b);
+        scale[i]->setScreenCoordinate(rect);
+    }
+    rect = context->worldToScreen(d1*a, 1.25f, d1*b);
+    label->setScreenCoordinate(rect);
+    
     if(a == this->a && b == this->b)
         return;
     for(int i=0; i<11; i++) {
@@ -225,10 +325,26 @@ void MagnetometerCanvas::AxisY::moveAxis(int8_t a, int8_t b) {
 MagnetometerCanvas::AxisZ::AxisZ(rmg::Context* ctx)
                           :Axis(ctx)
 {
-    axis->setColor(0, 0, 1);
+    strcpy(labelText, "Z-Axis");
 }
 
 void MagnetometerCanvas::AxisZ::moveAxis(int8_t a, int8_t b) {
+    rmg::Rect rect = context->getContextSize();
+    uint16_t l = (rect.x < rect.y) ? rect.x : rect.y;
+    if(l < 200)
+        l = 200;
+    float d1 = 6.25f + 250.0f/l;
+    float d2 = 5.55f + 75.0f/l;
+    float d3 = 5.0f - 175.0f/l;
+    
+    for(int i=0; i<3; i++) {
+        int z = i-1;
+        rect = context->worldToScreen(d2*a, d2*b, d3*z);
+        scale[i]->setScreenCoordinate(rect);
+    }
+    rect = context->worldToScreen(d1*a, d1*b, 1.25f);
+    label->setScreenCoordinate(rect);
+    
     if(a == this->a && b == this->b)
         return;
     for(int i=0; i<11; i++) {
@@ -257,9 +373,17 @@ MagnetometerCanvas::MagnetometerCanvas(wxFrame* frame, rmClient* cli)
     plane2 = PlaneXZ(this);
     plane3 = PlaneXY(this);
     plane3.movePlane(-1);
+    rmg::Font* ft1 = new rmg::Font(this, RMG_DEFAULT_FONT, 18);
+    rmg::Font* ft2 = new rmg::Font(this, RMG_DEFAULT_FONT, 15);
+    addFont(ft1);
+    addFont(ft2);
     axis1 = AxisX(this);
     axis2 = AxisY(this);
     axis3 = AxisZ(this);
+    axis1.setFont(ft1, ft2);
+    axis2.setFont(ft1, ft2);
+    axis3.setFont(ft1, ft2);
+    setContextSize(684, 301);
     setupCamera();
     
     dots[0] = new rmg::Particle3D(this, RMG_RESOURCE_PATH "/dot.png");
@@ -296,7 +420,7 @@ void MagnetometerCanvas::clear() {
         dots[i]->setHidden(true);
     plotCount = 0;
     attrCount->setValue(0);
-    attrCount->getNotifier()->triggerCallback();
+    attrCount->getNotifier()->onAttributeChange();
     xmax_ = -999999.999;
     ymax_ = -999999.999;
     zmax_ = -999999.999;
@@ -304,6 +428,12 @@ void MagnetometerCanvas::clear() {
     ymin_ = 999999.999;
     zmin_ = 999999.999;
     radius = 0;
+}
+
+void MagnetometerCanvas::setScale(float s) {
+    axis1.setScale(s);
+    axis2.setScale(s);
+    axis3.setScale(s);
 }
 
 rmg::Mat4 MagnetometerCanvas::calculateMatrix() {
@@ -381,6 +511,10 @@ rmg::Mat4 MagnetometerCanvas::calculateMatrix() {
     return M;
 }
 
+void MagnetometerCanvas::onResize() {
+    setupCamera();
+}
+
 void MagnetometerCanvas::onMouseWheel(const rmg::MouseEvent &event) {
     fov = fov - 0.001f * event.getScroll();
     setupCamera();
@@ -402,6 +536,35 @@ void MagnetometerCanvas::setupCamera() {
         axis3.moveAxis((a > 0) ? 1 : -1, -1);
     else
         axis3.moveAxis((a > 0) ? 1 : -1, 1);
+    
+    if(elevation > M_PI/2 - 0.1f) {
+        axis3.setHidden(true);
+    }
+    else if(elevation < 0.1f) {
+        if((azimuth > -0.1f && azimuth < 0.1f) ||
+           (azimuth > M_PI-0.1f || azimuth < 0.1f-M_PI))
+        {
+            axis1.setHidden(true);
+        }
+        else {
+            axis1.setHidden(false);
+        }
+        
+        if((azimuth > -M_PI/2-0.1f && azimuth < -M_PI/2+0.1f) ||
+           (azimuth > M_PI/2-0.1f && azimuth < M_PI/2+0.1f))
+        {
+            axis2.setHidden(true);
+        }
+        else {
+            axis2.setHidden(false);
+        }
+        axis3.setHidden(false);
+    }
+    else {
+        axis1.setHidden(false);
+        axis2.setHidden(false);
+        axis3.setHidden(false);
+    }
 }
 
 void MagnetometerCanvas::invoke(int argc, char *argv[]) {
@@ -448,7 +611,7 @@ void MagnetometerCanvas::invoke(int argc, char *argv[]) {
     dots[plotCount]->setHidden(false);
     plotCount++;
     attrCount->setValue(plotCount);
-    attrCount->getNotifier()->triggerCallback();
+    attrCount->getNotifier()->onAttributeChange();
     
     // Calculates the offset point for the matrix
     if(!toCalibrate)

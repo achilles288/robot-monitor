@@ -101,7 +101,7 @@ OrientationCanvas::OrientationCanvas(wxFrame* frame, rmClient* cli)
     setDirectionalLightAngles(rmg::radian(75), rmg::radian(30));
     setDirectionalLightColor(1, 1, 1, 2);
     setPerspectiveProjection(rmg::radian(30), 2.0f, 60.0f);
-    setupCamera();
+    setContextSize(684, 301);
     
     rmg::Line3D* line;
     line = new rmg::Line3D(this, 0.1f);
@@ -125,6 +125,18 @@ OrientationCanvas::OrientationCanvas(wxFrame* frame, rmClient* cli)
     line = new rmg::Line3D(this, 0.1f);
     line->setPoints(rmg::Vec3(0, 0, -5), rmg::Vec3(0, 0, 5));
     addObject(line);
+    
+    rmg::Font* ft1 = new rmg::Font(this, RMG_DEFAULT_FONT, 22);
+    rmg::Font* ft2 = new rmg::Font(this, RMG_DEFAULT_FONT, 20);
+    addFont(ft1);
+    addFont(ft2);
+    xAxis = new rmg::Text2D(this, ft1, "X-Axis");
+    yAxis = new rmg::Text2D(this, ft1, "Y-Axis");
+    zAxis = new rmg::Text2D(this, ft2, "Z-Axis");
+    zAxis->setRotation(M_PI/2);
+    addObject(xAxis);
+    addObject(yAxis);
+    addObject(zAxis);
     
     rmg::Object3D* floor = new rmg::Cube3D(this, 20.5f, 20.5f, 1);
     floor->setColor(0.5f, 0, 0);
@@ -152,6 +164,8 @@ OrientationCanvas::OrientationCanvas(wxFrame* frame, rmClient* cli)
     
     addObject(floor);
     addObject(model);
+    
+    setupCamera();
 }
 
 void OrientationCanvas::update() {
@@ -159,6 +173,10 @@ void OrientationCanvas::update() {
     float pitch = attrPitch->getValue().f;
     float yaw = attrYaw->getValue().f;
     model->setRotation(roll, pitch, yaw, rmg::AngleUnit::Degree);
+}
+
+void OrientationCanvas::onResize() {
+    setupCamera();
 }
 
 static float clip(float n, float lower, float upper) {
@@ -216,4 +234,10 @@ void OrientationCanvas::setupCamera() {
     float b = - r * sin(azimuth);
     setCameraTranslation(a, b, c);
     setCameraRotation(0, elevation, azimuth);
+    
+    xAxis->setScreenCoordinate(worldToScreen(6, 0, 0.4f));
+    yAxis->setScreenCoordinate(worldToScreen(0, 6, 0.4f));
+    rmg::Rect rect = worldToScreen(0, 0, 4);
+    rect.x += 14;
+    zAxis->setScreenCoordinate(rect);
 }
