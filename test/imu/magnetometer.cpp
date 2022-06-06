@@ -79,8 +79,10 @@ class magModeRadio: public rmRadioBox {
         analyzer = cv;
     }
     
-    void onRadio(wxCommandEvent& evt)  {
+    void onRadio(wxCommandEvent& evt) {
         rmRadioBox::onRadio(evt);
+        analyzer->clear();
+        
         int i = attribute->getValue().i;
         if(i == 0)
             analyzer->setScale(500);
