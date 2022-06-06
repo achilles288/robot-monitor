@@ -42,7 +42,6 @@ static void respCallbackLsa(rmResponse resp);
  * @brief Checks the connection and processes the incoming messages
  */
 void rmClient::onIdle() {
-    rmCall* call;
     char c = read();
     while(c != '\0') {
         if(rx_i == 255)

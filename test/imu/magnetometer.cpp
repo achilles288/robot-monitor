@@ -14,6 +14,8 @@
 #include <rmg/config.h>
 #include <robotmonitor.hpp>
 
+#define PI 3.1415926535897932384626433832795f
+
 
 class magClearButton: public rmButton {
   private:
@@ -405,12 +407,12 @@ static float clip(float n, float lower, float upper) {
 void MagnetometerCanvas::onMouseMove(const rmg::MouseEvent &event) {
     if(event.isLeftPressed()) {
         azimuth = azimuth - 0.005f * event.getDiffX();
-        if(azimuth < -M_PI)
-            azimuth += 2*M_PI;
-        else if(azimuth > M_PI)
-            azimuth -= 2*M_PI;
+        if(azimuth < -PI)
+            azimuth += 2*PI;
+        else if(azimuth > PI)
+            azimuth -= 2*PI;
         elevation = elevation + 0.005f * event.getDiffY();
-        elevation = clip(elevation, 0, M_PI/2);
+        elevation = clip(elevation, 0, PI/2);
         setupCamera();
     }
 }
@@ -421,12 +423,12 @@ void MagnetometerCanvas::clear() {
     plotCount = 0;
     attrCount->setValue(0);
     attrCount->getNotifier()->onAttributeChange();
-    xmax_ = -999999.999;
-    ymax_ = -999999.999;
-    zmax_ = -999999.999;
-    xmin_ = 999999.999;
-    ymin_ = 999999.999;
-    zmin_ = 999999.999;
+    xmax_ = -999999.999f;
+    ymax_ = -999999.999f;
+    zmax_ = -999999.999f;
+    xmin_ = 999999.999f;
+    ymin_ = 999999.999f;
+    zmin_ = 999999.999f;
     radius = 0;
 }
 
@@ -441,7 +443,7 @@ rmg::Mat4 MagnetometerCanvas::calculateMatrix() {
     uint16_t ip = 0;
     uint16_t iq = 0;
     float dmax = 0;
-    float dmin = 999999.999;
+    float dmin = 999999.999f;
     
     for(uint16_t i=0; i<plotCount; i++) {
         float d = (plot[i] - offset).magnitude();
@@ -473,12 +475,12 @@ rmg::Mat4 MagnetometerCanvas::calculateMatrix() {
     
     // Scale matrix S
     rmg::Mat4 M = R1 * T;
-    float xmin = 999999999.999;
-    float ymin = 999999999.999;
-    float zmin = 999999999.999;
-    float xmax = -999999999.999;
-    float ymax = -999999999.999;
-    float zmax = -999999999.999;
+    float xmin = 999999999.999f;
+    float ymin = 999999999.999f;
+    float zmin = 999999999.999f;
+    float xmax = -999999999.999f;
+    float ymax = -999999999.999f;
+    float zmax = -999999999.999f;
     
     for(uint16_t i=0; i<plotCount; i++) {
         rmg::Vec3 v = rmg::Vec3(M * rmg::Vec4(plot[i]));
@@ -537,12 +539,12 @@ void MagnetometerCanvas::setupCamera() {
     else
         axis3.moveAxis((a > 0) ? 1 : -1, 1);
     
-    if(elevation > M_PI/2 - 0.1f) {
+    if(elevation > PI/2 - 0.1f) {
         axis3.setHidden(true);
     }
     else if(elevation < 0.1f) {
         if((azimuth > -0.1f && azimuth < 0.1f) ||
-           (azimuth > M_PI-0.1f || azimuth < 0.1f-M_PI))
+           (azimuth > PI-0.1f || azimuth < 0.1f-PI))
         {
             axis1.setHidden(true);
         }
@@ -550,8 +552,8 @@ void MagnetometerCanvas::setupCamera() {
             axis1.setHidden(false);
         }
         
-        if((azimuth > -M_PI/2-0.1f && azimuth < -M_PI/2+0.1f) ||
-           (azimuth > M_PI/2-0.1f && azimuth < M_PI/2+0.1f))
+        if((azimuth > -PI/2-0.1f && azimuth < -PI/2+0.1f) ||
+           (azimuth > PI/2-0.1f && azimuth < PI/2+0.1f))
         {
             axis2.setHidden(true);
         }

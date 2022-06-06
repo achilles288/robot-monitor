@@ -70,7 +70,9 @@ void rmSerialPort::connect(const char* port, uint32_t baud) {
         mySerial.setBaudrate(baud);
         mySerial.open();
     }
-    catch(std::exception& e) {}
+    catch(std::exception& e) {
+        printf(e.what());
+    }
 }
 
 /**
@@ -88,7 +90,9 @@ void rmSerialPort::connect(rmSerialPortInfo portInfo, uint32_t baud) {
         mySerial.open();
         this->portInfo = portInfo;
     }
-    catch(std::exception& e) {}
+    catch(std::exception& e) {
+        printf(e.what());
+    }
 }
 
 /**
@@ -98,7 +102,9 @@ void rmSerialPort::disconnect() {
     try {
         mySerial.close();
     }
-    catch(std::exception& e) {}
+    catch(std::exception& e) {
+        printf(e.what());
+    }
 }
 
 /**
@@ -121,6 +127,7 @@ char rmSerialPort::read() {
             mySerial.read(&c, 1);
     }
     catch(std::exception& e) {
+        printf(e.what());
         disconnect();
     }
     return (char) c;
@@ -136,6 +143,7 @@ void rmSerialPort::write(const char* msg) {
         mySerial.write(msg);
     }
     catch(std::exception& e) {
+        printf(e.what());
         disconnect();
     }
 }

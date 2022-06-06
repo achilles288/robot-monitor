@@ -16,6 +16,8 @@
 #include <rmg/line3d.hpp>
 #include <robotmonitor.hpp>
 
+#define PI 3.1415926535897932384626433832795f
+
 
 OrientationSection::OrientationSection(wxFrame* frame, wxBoxSizer* sizer1,
                                        wxBoxSizer* sizer2, rmClient* cli)
@@ -133,7 +135,7 @@ OrientationCanvas::OrientationCanvas(wxFrame* frame, rmClient* cli)
     xAxis = new rmg::Text2D(this, ft1, "X-Axis");
     yAxis = new rmg::Text2D(this, ft1, "Y-Axis");
     zAxis = new rmg::Text2D(this, ft2, "Z-Axis");
-    zAxis->setRotation(M_PI/2);
+    zAxis->setRotation(PI/2);
     addObject(xAxis);
     addObject(yAxis);
     addObject(zAxis);
@@ -148,7 +150,7 @@ OrientationCanvas::OrientationCanvas(wxFrame* frame, rmClient* cli)
         walls[i] = new rmg::Object3D(wall);
         walls[i]->setColor(1, 1, 1);
         walls[i]->setRoughness(0.4f);
-        walls[i]->setRotation(0, 0, M_PI/2 * i);
+        walls[i]->setRotation(0, 0, PI/2 * i);
         addObject(walls[i]);
     }
     walls[0]->setTranslation(10, 0, 0);
@@ -187,12 +189,12 @@ static float clip(float n, float lower, float upper) {
 void OrientationCanvas::onMouseMove(const rmg::MouseEvent &event) {
     if(event.isLeftPressed()) {
         azimuth = azimuth - 0.005f * event.getDiffX();
-        if(azimuth < -M_PI)
-            azimuth += 2*M_PI;
-        else if(azimuth > M_PI)
-            azimuth -= 2*M_PI;
+        if(azimuth < -PI)
+            azimuth += 2*PI;
+        else if(azimuth > PI)
+            azimuth -= 2*PI;
         elevation = elevation + 0.005f * event.getDiffY();
-        elevation = clip(elevation, 0, M_PI/2);
+        elevation = clip(elevation, 0, PI/2);
         setupCamera();
         
         uint8_t flag = 0b0000;
@@ -206,13 +208,13 @@ void OrientationCanvas::onMouseMove(const rmg::MouseEvent &event) {
         else if(azimuth > -1.9635f && azimuth < -1.1781f)
             flag = 0b0010;
         
-        else if(azimuth > 0 && azimuth < M_PI/2)
+        else if(azimuth > 0 && azimuth < PI/2)
             flag = 0b1100;
-        else if(azimuth > M_PI/2)
+        else if(azimuth > PI/2)
             flag = 0b1001;
-        else if(azimuth < -M_PI/2)
+        else if(azimuth < -PI/2)
             flag = 0b0011;
-        else if(azimuth > -M_PI/2 && azimuth < 0)
+        else if(azimuth > -PI/2 && azimuth < 0)
             flag = 0b0110;
         
         walls[0]->setHidden(flag & 0b0001);

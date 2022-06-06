@@ -133,12 +133,12 @@ class MagnetometerCanvas: public rmg::wxCanvas, rmCall {
     rmAttribute* attrCount;
     rmg::Vec3 plot[MAG_MAX_PLOT_COUNT];
     uint16_t plotCount = 0;
-    float xmax_ = -999999.999;
-    float ymax_ = -999999.999;
-    float zmax_ = -999999.999;
-    float xmin_ = 999999.999;
-    float ymin_ = 999999.999;
-    float zmin_ = 999999.999;
+    float xmax_ = -999999.999f;
+    float ymax_ = -999999.999f;
+    float zmax_ = -999999.999f;
+    float xmin_ = 999999.999f;
+    float ymin_ = 999999.999f;
+    float zmin_ = 999999.999f;
     float radius = 0;
     rmg::Vec3 offset;
     
