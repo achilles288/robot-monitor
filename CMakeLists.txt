@@ -16,6 +16,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/$<0:>)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/$<0:>)
 
 link_directories(${CMAKE_BINARY_DIR}/lib)
+link_directories(${PROJECT_SOURCE_DIR}/external/lib)
 
 set(CMAKE_INSTALL_FULL_BINDIR ${CMAKE_INSTALL_PREFIX}/bin)
 set(CMAKE_INSTALL_FULL_LIBDIR ${CMAKE_INSTALL_PREFIX}/lib)
@@ -32,20 +33,18 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(RMG REQUIRED rmg)
 
 else()
-set(wxWidgets_ROOT_DIR C:/wxWidgets-3.1.4)
+set(wxWidgets_ROOT_DIR C:/wxWidgets-3.1.6)
 set(wxWidgets_CONFIGURATION mswu)
 
-set(RMG_INCLUDE_DIRS external/include)
-set(RMG_LIBRARIES rmg)
-
-link_directories(external/lib)
+set(RMG_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/external/include)
+set(RMG_LIBRARIES rmgbase rmgwx)
 
 file(COPY
     external/bin
     DESTINATION ${CMAKE_BINARY_DIR}
 )
 endif()
-find_package(wxWidgets 3.1 COMPONENTS core gl)
+find_package(wxWidgets 3.1 COMPONENTS base core gl)
 
 
 

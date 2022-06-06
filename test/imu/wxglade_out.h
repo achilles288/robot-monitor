@@ -33,6 +33,7 @@ private:
     Section *sections[4];
     int sectionCount = 0;
     bool initDone = false;
+    char portNames[8][16];
     
     void userConstruct();
     

@@ -11,6 +11,11 @@ target_compile_definitions(systest_imu PUBLIC
     ${RM_DEFINITIONS}
 )
 
+target_include_directories(systest_imu PUBLIC
+    ${RM_INCLUDE_DIRS}
+    ${RMG_INCLUDE_DIRS}
+)
+
 target_link_libraries(systest_imu PUBLIC
     ${RM_LIBRARIES}
     ${RMG_LIBRARIES}

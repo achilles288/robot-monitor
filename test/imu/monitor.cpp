@@ -18,6 +18,7 @@ private:
     Section *sections[4];
     int sectionCount = 4;
     bool initDone = false;
+    char portNames[8][16];
     
     void userConstruct();
     
@@ -85,16 +86,23 @@ void MyFrame::onPortDetected(wxEvent &evt) {
         strncpy(selectedPort, wxstr.c_str(), 15);
         selectedPort[15] = '\0';
     }
+
+    for (int i = 0; i < 8; i++)
+        portNames[i][0] = '\0';
     chPort->Clear();
+
     int i = 0;
     rmSerialPortList* ports = (rmSerialPortList*) evt.GetEventUserData();
     for(auto it=ports->begin(); it!=ports->end(); ++it) {
+        strncpy(portNames[i], it->port, 15);
         chPort->Append(wxString(it->port));
         if(x != wxNOT_FOUND) {
             if(strcmp(it->port, selectedPort) == 0)
                 chPort->SetSelection(i);
         }
         i++;
+        if(i == 8)
+            break;
     }
     x = chPort->GetSelection();
     if(x == wxNOT_FOUND && chPort->GetCount() > 0)

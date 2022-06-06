@@ -31,6 +31,10 @@ add_library(rmonitor SHARED
     serial/impl/list_ports/list_ports_win.cpp
 )
 
+target_link_libraries(rmonitor PUBLIC
+    setupapi
+)
+
 set_target_properties(rmonitor PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}

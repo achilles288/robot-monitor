@@ -128,11 +128,10 @@ void MyFrame::onBtnConnect(wxCommandEvent &event)  // wxGlade: MyFrame.<event_ha
         btnConnect->SetLabel("Connect");
     }
     else {
-        int x = chPort->GetSelection();
-        if(x == wxNOT_FOUND)
+        int i = chPort->GetSelection();
+        if(i == wxNOT_FOUND)
             return;
-        const char* port = chPort->GetString(x).ToStdString().c_str();
-        client.connectSerial(port, 115200);
+        client.connectSerial(portNames[i], 115200);
         if(client.isConnected()) {
             btnConnect->SetLabel("Disconnect");
             client.sendMessage("$set testing 1\n");
