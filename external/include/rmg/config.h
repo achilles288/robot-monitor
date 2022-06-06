@@ -9,6 +9,6 @@
 /**
  * @brief Path to shared static resources that comes together with RMGraphics
  */
-#define RMG_RESOURCE_PATH "C:/Users/khant/Desktop/Projects/robot-monitor-graphics/share"
+#define RMG_RESOURCE_PATH "."
 
 #endif
